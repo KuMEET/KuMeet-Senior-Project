@@ -5,6 +5,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
+
 @Data
 
 @Document("User")
@@ -17,6 +19,6 @@ public class User {
     private String userName;
     private String eMail;
     private String passWord;
-    private String createdAt;
+    private Date createdAt;
 
 }

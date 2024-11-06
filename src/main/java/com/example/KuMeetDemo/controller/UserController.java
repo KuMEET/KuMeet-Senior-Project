@@ -5,10 +5,7 @@ import com.example.KuMeetDemo.Model.User;
 import com.example.KuMeetDemo.Service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -23,6 +20,25 @@ public class UserController {
     public User addUser(@RequestBody RegisterUserDto user) {
         return userService.registerUser(user);
     }
+    @GetMapping("/find/{userName}")
+    public User findUser(@PathVariable String userName) {
+        return userService.findUser(userName);
+    }
+
+    @PutMapping("/update/{userName}")
+    public User updateUser(@PathVariable String userName, @RequestBody RegisterUserDto user) {
+        return userService.updateUser(userName, user);
+    }
+
+    @DeleteMapping("/delete/{userName}")
+    public User deleteUser(@PathVariable String userName){
+        return userService.deleteUser(userName);
+    }
+
+
+
+
+
 
 
 
