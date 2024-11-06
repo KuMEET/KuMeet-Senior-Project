@@ -46,8 +46,8 @@ public class UserService {
             if(user.isPresent()) {
                 User existingUser = user.get();
                 existingUser.setUserName(userDto.getUserName());
-                existingUser.setEMail(userDto.getUserName());
-                existingUser.setPassWord(userDto.getUserName());
+                existingUser.setEMail(userDto.getEmail());
+                existingUser.setPassWord(userDto.getPassword());
                 existingUser.setCreatedAt(new Date(System.currentTimeMillis()));
                 existingUser = userRepository.save(existingUser);
                 return existingUser;
