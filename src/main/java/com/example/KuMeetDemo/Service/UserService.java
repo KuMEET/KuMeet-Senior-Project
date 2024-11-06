@@ -41,15 +41,17 @@ public class UserService {
 
 
     public User updateUser(String userName, RegisterUserDto userDto) {
-        User newUser = new User();
         if(!ObjectUtils.isEmpty(userDto)){
-            User user = userRepository.findByUserName(userName).get();
-            newUser.setUserName(userDto.getUserName());
-            newUser.setEMail(userDto.getUserName());
-            newUser.setPassWord(userDto.getUserName());
-            newUser.setCreatedAt(new Date(System.currentTimeMillis()));
-            newUser = userRepository.save(newUser);
-            return newUser;
+            Optional<User> user =  userRepository.findByUserName(userName);
+            if(user.isPresent()) {
+                User existingUser = user.get();
+                existingUser.setUserName(userDto.getUserName());
+                existingUser.setEMail(userDto.getUserName());
+                existingUser.setPassWord(userDto.getUserName());
+                existingUser.setCreatedAt(new Date(System.currentTimeMillis()));
+                existingUser = userRepository.save(existingUser);
+                return existingUser;
+            }
         }
         return null;
 
