@@ -18,11 +18,7 @@ import java.util.UUID;
 @Service
 public class UserService {
     @Autowired
-    private final UserRepository userRepository;
-
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private UserRepository userRepository;
 
     // create method
     public User registerUser(RegisterUserDto userDto) {
@@ -31,7 +27,7 @@ public class UserService {
         user.setEMail(userDto.getEmail());
         user.setPassWord(userDto.getPassword());
         user.setCreatedAt(new Date(System.currentTimeMillis()));
-        user.setUserId(UUID.randomUUID().toString());
+        user.setUserId(UUID.randomUUID());
         return userRepository.save(user);
     }
     // read method

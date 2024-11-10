@@ -5,14 +5,15 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Data
 @Document("UserGroup")
 public class UserGroup {
     @Id
-    private String id;
-    private String groupId;
-    private String userId;
+    private UUID id;
+    private UUID groupId;
+    private UUID userId;
 
     private String role;
     private Date joinTime;

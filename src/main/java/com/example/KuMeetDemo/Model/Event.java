@@ -5,13 +5,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Data
 @Document("Event")
 public class Event {
     @Id
-    private String id;
-    private String locationId;
+    private UUID id;
+    private UUID locationId;
 
     private String name;
     private String type;

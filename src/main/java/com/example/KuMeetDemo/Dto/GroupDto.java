@@ -6,10 +6,8 @@ import java.util.UUID;
 
 @Data
 
-public class RegisterUserDto {
+public class GroupDto {
     UUID id;
-    String userName;
-    String password;
-    String email;
-
+    String name;
+    int capacity;
 }

@@ -6,13 +6,14 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Data
 @Document("User")
 
 public class User {
     @Id
-    private String userId;
+    private UUID userId;
 
     @Indexed
     private String userName;
