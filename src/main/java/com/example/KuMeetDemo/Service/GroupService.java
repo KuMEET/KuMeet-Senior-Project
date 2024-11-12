@@ -1,19 +1,12 @@
 package com.example.KuMeetDemo.Service;
 
 import com.example.KuMeetDemo.Dto.GroupDto;
-import com.example.KuMeetDemo.Dto.RegisterUserDto;
 import com.example.KuMeetDemo.Model.Group;
-import com.example.KuMeetDemo.Model.User;
 import com.example.KuMeetDemo.Repository.GroupRepository;
-import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
 
 @Data
 @Service

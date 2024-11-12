@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api")
@@ -21,18 +23,18 @@ public class UserController {
         return userService.registerUser(user);
     }
     @GetMapping("/find/{userName}")
-    public User findUser(@PathVariable String userName) {
-        return userService.findUser(userName);
+    public User findUser(@PathVariable UUID userId) {
+        return userService.findUserByUserId(userId);
     }
 
     @PutMapping("/update/{userName}")
     public User updateUser(@PathVariable String userName, @RequestBody UserDto user) {
-        return userService.updateUser(userName, user);
+        return userService.updateUser(user);
     }
 
     @DeleteMapping("/delete/{userName}")
-    public User deleteUser(@PathVariable String userName){
-        return userService.deleteUser(userName);
+    public User deleteUser(@PathVariable UUID userId) {
+        return userService.deleteUser(userId);
     }
 
 
