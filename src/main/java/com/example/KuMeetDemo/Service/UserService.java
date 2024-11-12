@@ -1,6 +1,6 @@
 package com.example.KuMeetDemo.Service;
 
-import com.example.KuMeetDemo.Dto.RegisterUserDto;
+import com.example.KuMeetDemo.Dto.UserDto;
 import com.example.KuMeetDemo.Model.User;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -21,7 +21,7 @@ public class UserService {
     private UserRepository userRepository;
 
     // create method
-    public User registerUser(RegisterUserDto userDto) {
+    public User registerUser(UserDto userDto) {
         User user = new User();
         user.setUserName(userDto.getUserName());
         user.setEMail(userDto.getEmail());
@@ -36,7 +36,7 @@ public class UserService {
     }
 
 
-    public User updateUser(String userName, RegisterUserDto userDto) {
+    public User updateUser(String userName, UserDto userDto) {
         if(!ObjectUtils.isEmpty(userDto)){
             Optional<User> user =  userRepository.findByUserName(userName);
             if(user.isPresent()) {

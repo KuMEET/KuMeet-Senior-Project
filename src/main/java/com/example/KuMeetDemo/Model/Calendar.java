@@ -13,7 +13,7 @@ public class Calendar {
 
     @Id
     private UUID id;
-    private String eventId;
-    private String userId;
+    private UUID eventId;
+    private UUID userId;
     private Date eventTime;
 }

@@ -1,6 +1,6 @@
 package com.example.KuMeetDemo.controller;
 
-import com.example.KuMeetDemo.Dto.RegisterUserDto;
+import com.example.KuMeetDemo.Dto.UserDto;
 import com.example.KuMeetDemo.Model.User;
 import com.example.KuMeetDemo.Service.UserService;
 import lombok.AllArgsConstructor;
@@ -17,7 +17,7 @@ public class UserController {
 
     // hata codeları, success ve mesaj
     @PostMapping("/register")
-    public User addUser(@RequestBody RegisterUserDto user) {
+    public User addUser(@RequestBody UserDto user) {
         return userService.registerUser(user);
     }
     @GetMapping("/find/{userName}")
@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @PutMapping("/update/{userName}")
-    public User updateUser(@PathVariable String userName, @RequestBody RegisterUserDto user) {
+    public User updateUser(@PathVariable String userName, @RequestBody UserDto user) {
         return userService.updateUser(userName, user);
     }
 

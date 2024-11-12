@@ -5,11 +5,9 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-
-public class RegisterUserDto {
+public class UserDto {
     UUID id;
     String userName;
     String password;
     String email;
-
 }
