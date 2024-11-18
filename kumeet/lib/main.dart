@@ -4,7 +4,8 @@ import 'signup_page.dart';
 import 'login_page.dart';
 import 'event.dart';
 import 'homecontent.dart';
-import 'group_page.dart'; // Import your GroupPage
+import 'group_page.dart';
+
 
 void main() {
   runApp(const KuMeetApp());

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kumeet/create_group_page.dart';
-import 'group_card.dart'; // Import your existing GroupCard widget
+import 'group_card.dart';
+import 'group_details_page.dart'; 
 
 class GroupPage extends StatelessWidget {
   const GroupPage({Key? key}) : super(key: key);
@@ -50,20 +51,49 @@ class GroupList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Dummy group data for now
-    final List<Map<String, String>> groups = [
-      {'title': 'Sports Club', 'image': 'images/group_image1.png'},
-      {'title': 'Book Lovers', 'image': 'images/group_image2.png'},
-      {'title': 'Music Band', 'image': 'images/group_image2.png'},
+    final List<Map<String, dynamic>> groups = [
+      {
+        'title': 'Sports Club',
+        'image': 'images/group_image1.png',
+        'capacity': 50,
+        'occupancy': 35,
+      },
+      {
+        'title': 'Book Lovers',
+        'image': 'images/group_image2.png',
+        'capacity': 30,
+        'occupancy': 28,
+      },
+      {
+        'title': 'Music Band',
+        'image': 'images/group_image2.png',
+        'capacity': 20,
+        'occupancy': 10,
+      },
     ];
 
     return ListView.builder(
       itemCount: groups.length,
       itemBuilder: (context, index) {
+        final group = groups[index];
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: GroupCard(
-            title: groups[index]['title']!,
-            imagePath: groups[index]['image']!,
+            title: group['title']!,
+            imagePath: group['image']!,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GroupDetailsPage(
+                    imagePath: group['image']!,
+                    title: group['title']!,
+                    capacity: group['capacity']!,
+                    occupancy: group['occupancy']!,
+                  ),
+                ),
+              );
+            },
           ),
         );
       },
@@ -83,8 +113,8 @@ class CreateGroupButton extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const CreateGroupPage()),
         );
       },
-      backgroundColor: Colors.blueGrey,
-      child: const Icon(Icons.add),
+      backgroundColor: const Color.fromARGB(255, 255, 120, 53),
+      child: const Icon(Icons.add, color: Colors.white,),
     );
   }
 }

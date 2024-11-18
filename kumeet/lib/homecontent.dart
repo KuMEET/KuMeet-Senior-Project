@@ -3,6 +3,7 @@ import 'group_card.dart'; // Import the GroupCard widget
 import 'event.dart';
 import 'eventcard.dart';
 import 'eventDetail_page.dart';
+import 'group_details_page.dart';
 
 class HomeContent extends StatelessWidget {
   final List<Event> calendarEvents;
@@ -32,6 +33,22 @@ class YourGroupsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Example group data
+    final List<Map<String, dynamic>> groups = [
+      {
+        'title': 'Side Project Society',
+        'imagePath': 'images/group_image1.png',
+        'capacity': 50,
+        'occupancy': 35,
+      },
+      {
+        'title': 'Discover more groups',
+        'imagePath': 'images/group_image2.png',
+        'capacity': 30,
+        'occupancy': 28,
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -44,16 +61,30 @@ class YourGroupsSection extends StatelessWidget {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: const [
-            GroupCard(
-              title: 'Side Project Society',
-              imagePath: 'images/group_image1.png',
-            ),
-            GroupCard(
-              title: 'Discover more groups',
-              imagePath: 'images/group_image2.png',
-            ),
-          ],
+          children: groups.map((group) {
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: GroupCard(
+                  title: group['title'],
+                  imagePath: group['imagePath'],
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => GroupDetailsPage(
+                          title: group['title'],
+                          imagePath: group['imagePath'],
+                          capacity: group['capacity'],
+                          occupancy: group['occupancy'],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );

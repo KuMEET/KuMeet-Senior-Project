@@ -170,7 +170,8 @@ class ExploreFloatingActionButton extends StatelessWidget {
           onAddEvent(newEvent);
         }
       },
-      child: const Icon(Icons.add),
+      backgroundColor: const Color.fromARGB(255, 255, 120, 53),
+      child: const Icon(Icons.add, color: Colors.white,),
     );
   }
 }
