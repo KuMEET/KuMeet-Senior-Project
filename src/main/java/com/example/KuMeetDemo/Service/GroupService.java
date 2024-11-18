@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.util.UUID;
+
 @Data
 @Service
 public class GroupService {
@@ -18,11 +20,12 @@ public class GroupService {
         Group group = new Group();
         group.setName(groupDto.getName());
         group.setCapacity(groupDto.getCapacity());
+        group.setId(UUID.randomUUID());
         return groupRepository.save(group);
     }
 
     public Group updateGroup(GroupDto groupDto) {
-        Group group = groupRepository.findById(groupDto.getId());
+        Group group = groupRepository.findByName(groupDto.getName());
         if (ObjectUtils.isEmpty(group)) {
             return null;
         }
@@ -31,7 +34,7 @@ public class GroupService {
         return groupRepository.save(group);
     }
     public void deleteGroup(GroupDto groupDto) {
-        Group group = groupRepository.findById(groupDto.getId());
+        Group group = groupRepository.findByName(groupDto.getName());
         groupRepository.delete(group);
     }
 

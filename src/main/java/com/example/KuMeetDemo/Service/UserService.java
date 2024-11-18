@@ -1,7 +1,11 @@
 package com.example.KuMeetDemo.Service;
 
 import com.example.KuMeetDemo.Dto.UserDto;
+import com.example.KuMeetDemo.Model.Group;
 import com.example.KuMeetDemo.Model.User;
+import com.example.KuMeetDemo.Model.UserGroup;
+import com.example.KuMeetDemo.Repository.GroupRepository;
+import com.example.KuMeetDemo.Repository.UserGroupRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,15 +21,19 @@ import java.util.UUID;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserGroupRepository userGroupRepository;
+    @Autowired
+    private GroupRepository groupRepository;
 
     // create method
     public User registerUser(UserDto userDto) {
         User user = new User();
-        user.setUserName(userDto.getUserName());
+        user.setName(userDto.getUserName());
         user.setEMail(userDto.getEmail());
         user.setPassWord(userDto.getPassword());
         user.setCreatedAt(new Date(System.currentTimeMillis()));
-        user.setUserId(UUID.randomUUID());
+        user.setId(UUID.randomUUID());
         return userRepository.save(user);
     }
     public User findUserByUserId(UUID userId) {
@@ -39,10 +47,10 @@ public class UserService {
 
     public User updateUser(UserDto userDto) {
         if(!ObjectUtils.isEmpty(userDto)){
-            User user =  userRepository.findById(userDto.getId());
-            if(!ObjectUtils.isEmpty(user)){
-
-                user.setUserName(userDto.getUserName());
+            Optional<User> userOption =  userRepository.findById(userDto.getUserName());
+            if(userOption.isPresent()){
+                User user = userOption.get();
+                user.setName(userDto.getUserName());
                 user.setEMail(userDto.getEmail());
                 user.setPassWord(userDto.getPassword());
                 user.setCreatedAt(new Date(System.currentTimeMillis()));
@@ -62,6 +70,84 @@ public class UserService {
         }
         return null;
     }
+
+    // adding user to group
+    public void addUserToGroup(String userName, String groupId) {
+        User user = userRepository.findByName(userName);
+        if (user == null) {
+            System.out.println("User not found");
+            return;
+        }
+
+        Group optionalGroup = groupRepository.findById(UUID.fromString(groupId));
+        if (optionalGroup == null) {
+            System.out.println("Group not found");
+            return;
+        }
+        Optional<UserGroup> existingUserGroup = userGroupRepository.findByUserIdAndGroupId(user.getId(), optionalGroup.getId());
+        if (existingUserGroup.isPresent()) {
+            System.out.println("User is already a member of the group");
+            return;
+        }
+
+        if (optionalGroup.getMemberCount() >= optionalGroup.getCapacity()) {
+            System.out.println("Group capacity is full");
+            return;
+        }
+
+        // Create a new UserGroup entry
+        UserGroup userGroup = new UserGroup();
+        userGroup.setId(UUID.randomUUID());
+        userGroup.setUserId(user.getId());
+        userGroup.setGroupId(optionalGroup.getId());
+        userGroup.setJoinTime(new Date());
+        userGroup.setRole("Member");
+
+        userGroupRepository.save(userGroup);
+
+        optionalGroup.setMemberCount(optionalGroup.getMemberCount() + 1);
+        groupRepository.save(optionalGroup);
+
+        System.out.println("User successfully added to the group");
+    }
+
+    // delete user from group
+    public void deleteUserFromGroup(String userName, String groupId) {
+        User user = userRepository.findByName(userName);
+        if (user == null) {
+            System.out.println("User not found");
+            return;
+        }
+
+        Group optionalGroup = groupRepository.findById(UUID.fromString(groupId));
+        if (optionalGroup == null) {
+            System.out.println("Group not found");
+            return;
+        }
+
+        Optional<UserGroup> userGroupOptional = userGroupRepository.findByUserIdAndGroupId(user.getId(), optionalGroup.getId());
+        if (userGroupOptional.isEmpty()) {
+            System.out.println("User is not a member of the group");
+            return;
+        }
+
+        userGroupRepository.delete(userGroupOptional.get());
+
+        optionalGroup.setMemberCount(optionalGroup.getMemberCount() - 1);
+        groupRepository.save(optionalGroup);
+
+        System.out.println("User successfully removed from the group");
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 

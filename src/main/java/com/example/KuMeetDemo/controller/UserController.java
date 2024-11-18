@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -35,6 +36,15 @@ public class UserController {
     @DeleteMapping("/delete/{userName}")
     public User deleteUser(@PathVariable UUID userId) {
         return userService.deleteUser(userId);
+    }
+    // 22bb2288-d641-49ac-954a-accd21357b9f
+    @PostMapping("/add-group/{username}/{id}")
+    public void addUserToGroupController(@PathVariable String username, @PathVariable String id) {
+        userService.addUserToGroup(username, id);
+    }
+    @DeleteMapping("/delete-group/{username}/{id}")
+    public void deleteUserFromGroupController(@PathVariable String username, @PathVariable String id) {
+        userService.deleteUserFromGroup(username, id);
     }
 
 

@@ -3,6 +3,7 @@ package com.example.KuMeetDemo.Model;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.Date;
 import java.util.UUID;
@@ -17,4 +18,10 @@ public class UserGroup {
 
     private String role;
     private Date joinTime;
+
+
+    @DocumentReference(lazy=true)
+    private User user;
+    @DocumentReference(lazy = true)
+    private Group group;
 }
