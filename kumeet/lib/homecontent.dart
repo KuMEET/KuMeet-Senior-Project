@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'group_card.dart'; // Import the GroupCard widget
 import 'event.dart';
 import 'eventcard.dart';
 import 'eventDetail_page.dart';
@@ -10,7 +11,6 @@ class HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Filter for upcoming events based on today's date
     final now = DateTime.now();
     final upcomingEvents = calendarEvents.where((event) => event.date != null && event.date!.isAfter(now)).toList();
 
@@ -18,50 +18,74 @@ class HomeContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Your Groups Section
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'Your Groups',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: const [
-              GroupCard(
-                title: 'Side Project Society',
-                imagePath: 'images/group_image1.png',
-              ),
-              GroupCard(
-                title: 'Discover more groups',
-                imagePath: 'images/group_image2.png',
-              ),
-            ],
-          ),
-
-          // Divider between sections
+          const YourGroupsSection(),
           const Divider(thickness: 2, color: Colors.grey),
+          UpcomingEventsSection(upcomingEvents: upcomingEvents),
+        ],
+      ),
+    );
+  }
+}
 
-          // Upcoming Events Section with cards
+class YourGroupsSection extends StatelessWidget {
+  const YourGroupsSection({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'Your Groups',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: const [
+            GroupCard(
+              title: 'Side Project Society',
+              imagePath: 'images/group_image1.png',
+            ),
+            GroupCard(
+              title: 'Discover more groups',
+              imagePath: 'images/group_image2.png',
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class UpcomingEventsSection extends StatelessWidget {
+  final List<Event> upcomingEvents;
+
+  const UpcomingEventsSection({Key? key, required this.upcomingEvents}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'Upcoming Events',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        if (upcomingEvents.isEmpty)
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              'Upcoming Events',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              'No upcoming events',
+              style: TextStyle(color: Colors.grey),
             ),
-          ),
-          // Display a message if there are no upcoming events
-          if (upcomingEvents.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'No upcoming events',
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-
-          // Display each upcoming event as a card
+          )
+        else
           for (var event in upcomingEvents)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -73,60 +97,15 @@ class HomeContent extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (context) => EventDetailPage(
                         event: event,
-                        onAddToCalendar: () {
-                          // Define any action needed when adding to calendar
-                          // In this case, we're viewing details, so it might already be in the calendar
-                        },
-                        isAdded: true, // Assume it's already added since we're in calendar view
+                        onAddToCalendar: () {},
+                        isAdded: true,
                       ),
                     ),
                   );
                 },
               ),
             ),
-        ],
-      ),
-    );
-  }
-}
-
-class GroupCard extends StatelessWidget {
-  final String title;
-  final String imagePath;
-
-  const GroupCard({super.key, required this.title, required this.imagePath});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 150,
-      height: 120,
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
-          children: [
-            Image.asset(
-              imagePath,
-              width: double.infinity,
-              height: double.infinity,
-              fit: BoxFit.cover,
-            ),
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      ],
     );
   }
 }

@@ -4,6 +4,7 @@ import 'signup_page.dart';
 import 'login_page.dart';
 import 'event.dart';
 import 'homecontent.dart';
+import 'group_page.dart'; // Import your GroupPage
 
 void main() {
   runApp(const KuMeetApp());
@@ -66,7 +67,7 @@ class _HomePageState extends State<HomePage> {
         onAddEventToCalendar: addEventToCalendar, // Pass the calendar callback to ExplorePage
         isEventAdded: isEventAdded, // Check if an event has already been added
       ),
-      Center(child: Text('Groups Page')),
+      const GroupPage(), // GroupPage integration
     ];
 
     return Scaffold(
