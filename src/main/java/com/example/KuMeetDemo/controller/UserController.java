@@ -33,13 +33,13 @@ public class UserController {
         return userService.updateUser(user);
     }
 
-    @DeleteMapping("/delete/{userName}")
+    @DeleteMapping("/delete-user/{userId}")
     public User deleteUser(@PathVariable UUID userId) {
         return userService.deleteUser(userId);
     }
     // 22bb2288-d641-49ac-954a-accd21357b9f
-    @PostMapping("/add-group/{username}/{id}")
-    public void addUserToGroupController(@PathVariable String username, @PathVariable String id) {
+    @PostMapping("/add-group/{id}/{username}")
+    public void addUserToGroupController(@PathVariable String id, @PathVariable String username) {
         userService.addUserToGroup(username, id);
     }
     @DeleteMapping("/delete-group/{username}/{id}")
@@ -47,6 +47,11 @@ public class UserController {
         userService.deleteUserFromGroup(username, id);
     }
 
+
+    @GetMapping("/get-all-users")
+    public List<User> getAllUser() {
+        return userService.getAllUsers();
+    }
 
 
 

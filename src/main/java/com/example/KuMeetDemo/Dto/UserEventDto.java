@@ -16,3 +16,4 @@ public class UserEventDto {
     Date registerTime;
 
 }
+

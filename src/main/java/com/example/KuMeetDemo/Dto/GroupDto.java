@@ -10,3 +10,5 @@ public class GroupDto {
     String name;
     int capacity;
 }
+
+//1ad4e559-f025-4c20-afa2-f76fcbe329ea

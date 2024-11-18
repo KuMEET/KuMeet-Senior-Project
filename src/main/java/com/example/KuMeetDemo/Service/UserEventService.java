@@ -24,8 +24,8 @@ public class UserEventService {
         return userEventRepository.findAll();
     }
 
-    public UserEvent findById(UUID id){
-        UserEvent userEvent = userEventRepository.findById(id);
+    public UserEvent findById(String id){
+        UserEvent userEvent = userEventRepository.findById(id).orElse(null);
         return userEvent;
     }
     public UserEvent save(UserEventDto userEventDto){

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -138,7 +139,13 @@ public class UserService {
 
         System.out.println("User successfully removed from the group");
     }
+    public List<User> getUsersByName(String name) {
+        return userRepository.findAllByName(name);
+    }
 
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 
 
 
