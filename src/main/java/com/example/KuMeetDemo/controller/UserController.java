@@ -23,9 +23,9 @@ public class UserController {
     public User addUser(@RequestBody UserDto user) {
         return userService.registerUser(user);
     }
-    @GetMapping("/find/{userName}")
-    public User findUser(@PathVariable UUID userId) {
-        return userService.findUserByUserId(userId);
+    @GetMapping("/find/{userId}")
+    public User findUser(@PathVariable String userId) {
+        return userService.findUser(userId);
     }
 
     @PutMapping("/update/{userId}")
@@ -34,7 +34,7 @@ public class UserController {
     }
 
     @DeleteMapping("/delete-user/{userId}")
-    public User deleteUser(@PathVariable UUID userId) {
+    public User deleteUser(@PathVariable String userId) {
         return userService.deleteUser(userId);
     }
     // 22bb2288-d641-49ac-954a-accd21357b9f

@@ -10,7 +10,6 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -29,14 +28,6 @@ public class UserService {
         user.setId(UUID.randomUUID());
         return userRepository.save(user);
     }
-    public User findUserByUserId(UUID userId) {
-        User user = userRepository.findById(userId);
-        if (ObjectUtils.isEmpty(user)) {
-            return null;
-        }
-        return user;
-    }
-
 
     public User updateUser(String userId, UserDto userDto) {
         User user = userRepository.findById(userId).orElse(null);
@@ -52,8 +43,8 @@ public class UserService {
 
     }
 
-    public User deleteUser(UUID userId) {
-        User user = userRepository.findById(userId);
+    public User deleteUser(String userId) {
+        User user = userRepository.findById(userId).orElse(null);
         if(!ObjectUtils.isEmpty(user)){
             userRepository.delete(user);
             return user;
@@ -72,4 +63,7 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public User findUser(String userId) {
+        return userRepository.findById(userId).orElse(null);
+    }
 }
