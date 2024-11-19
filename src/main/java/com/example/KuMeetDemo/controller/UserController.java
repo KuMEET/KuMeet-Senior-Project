@@ -38,15 +38,6 @@ public class UserController {
         return userService.deleteUser(userId);
     }
     // 22bb2288-d641-49ac-954a-accd21357b9f
-    @PostMapping("/add-group/{id}/{username}")
-    public void addUserToGroupController(@PathVariable String id, @PathVariable String username) {
-        userService.addUserToGroup(username, id);
-    }
-    @DeleteMapping("/delete-group/{username}/{id}")
-    public void deleteUserFromGroupController(@PathVariable String username, @PathVariable String id) {
-        userService.deleteUserFromGroup(username, id);
-    }
-
 
     @GetMapping("/get-all-users")
     public List<User> getAllUser() {

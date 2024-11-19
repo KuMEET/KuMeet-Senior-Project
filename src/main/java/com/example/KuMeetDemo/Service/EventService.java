@@ -6,6 +6,8 @@ import com.example.KuMeetDemo.Repository.EventRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -28,6 +30,9 @@ public class EventService {
         return eventRepository.save(event);
     }
     // read method
+    public List<Event> getAllEvents() {
+        return eventRepository.findAll();
+    }
 
     public Event updateEvent(Event eventDto) {
         Event event = eventRepository.findById(eventDto.getId());
@@ -39,8 +44,13 @@ public class EventService {
         event.setEventTime(eventDto.getEventTime());
         return eventRepository.save(event);
     }
-    public void deleteEvent(UUID eventId) {
-        Event event = eventRepository.findById(eventId);
-        eventRepository.delete(event);
+    public void deleteEvent(String id) {
+        Event event = eventRepository.findById(id).orElse(null);
+        if (event != null) {
+            eventRepository.delete(event);
+        }
+    }
+    public Event getEvent(String id) {
+        return eventRepository.findById(id).orElse(null);
     }
 }
