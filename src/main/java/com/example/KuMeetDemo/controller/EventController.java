@@ -20,7 +20,6 @@ public class EventController {
     public List<Event> getEvents() {
         return eventService.getAllEvents();
     }
-
     @PostMapping("/create-event")
     public Event createEvent(@RequestBody EventDto event) {
         return eventService.createEvent(event);
@@ -29,9 +28,9 @@ public class EventController {
     public void deleteEvent(@RequestBody Event event) {
         eventService.deleteEvent(String.valueOf(event.getId()));
     }
-    @PostMapping("/update-event")
-    public Event updateEvent(@RequestBody Event event) {
-        return eventService.updateEvent(event);
+    @PutMapping("/update-event")
+    public Event updateEvent(@RequestParam String id,@RequestBody EventDto event) {
+        return eventService.updateEvent(id, event);
     }
     @GetMapping("/find-event")
     public Event findEvent(@RequestBody Event event) {

@@ -33,22 +33,14 @@ public class UserEventService {
     public UserEvent findById(String id){
         return userEventRepository.findById(id).orElse(null);
     }
-    public UserEvent save(UserEventDto userEventDto){
-        UserEvent userEvent = new UserEvent();
-        userEvent.setUserId(userEventDto.getUserId());
-        userEvent.setId(UUID.randomUUID());
-        userEvent.setRole(userEventDto.getRole());
-        userEvent.setEventId(userEventDto.getEventId());
-        userEvent.setRegisterTime(new Date(System.currentTimeMillis()));
-        return userEventRepository.save(userEvent);
-    }
-    public UserEvent update(UserEventDto userEventDto){
-        if(!ObjectUtils.isEmpty(userEventDto.getId())){
-            UserEvent userGroup = userEventRepository.findById(userEventDto.getId());
-            userGroup.setRole(userEventDto.getRole());
-            return userEventRepository.save(userGroup);
+    public UserEvent update(String id, UserEventDto userEventDto){
+        UserEvent userGroup = userEventRepository.findById(id).orElse(null);
+        if(ObjectUtils.isEmpty(userGroup)){
+            return null;
         }
-        return null;
+        userGroup.setRole(userEventDto.getRole());
+        userEventRepository.save(userGroup);
+        return userGroup;
     }
     public void delete(String id){
         userEventRepository.deleteById(id);
@@ -69,14 +61,17 @@ public class UserEventService {
         return null;
     }
 
-    public void deleteUserFromEvent(String userId, String eventId) {
+    public UserEvent deleteUserFromEvent(String userId, String eventId) {
         User user = userRepository.findById(userId).orElse(null);
         Event event = eventRepository.findById(eventId).orElse(null);
         if(event != null && user != null){
             UserEvent userEvent = userEventRepository.findByUserIdAndEventId(user.getId(),event.getId());
             if(userEvent != null){
                 userEventRepository.delete(userEvent);
+                return userEvent;
             }
+            return null;
         }
+        return null;
     }
 }

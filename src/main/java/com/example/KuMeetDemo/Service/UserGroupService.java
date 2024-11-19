@@ -30,52 +30,43 @@ public class UserGroupService {
     public List<UserGroup> findAll(){
         return userGroupRepository.findAll();
     }
-
     public UserGroup findById(String id){
         return userGroupRepository.findById(id).orElse(null);
     }
-    public UserGroup save(UserGroupDto userGroupDto){
-        UserGroup userGroup = new UserGroup();
-        userGroup.setUserId(userGroupDto.getUserId());
-        userGroup.setGroupId(userGroupDto.getGroupId());
-        userGroup.setId(UUID.randomUUID());
-        userGroup.setRole(userGroupDto.getRole());
-        userGroup.setJoinTime(new Date(System.currentTimeMillis()));
-        return userGroupRepository.save(userGroup);
-    }
-    public UserGroup update(UserGroupDto userGroupDto){
-        if(!ObjectUtils.isEmpty(userGroupDto.getId())){
-            UserGroup userGroup = userGroupRepository.findById(userGroupDto.getId());
-            userGroup.setRole(userGroupDto.getRole());
-            return userGroupRepository.save(userGroup);
+    public UserGroup update(String id, UserGroupDto userGroupDto){
+        UserGroup userGroup = userGroupRepository.findById(id).orElse(null);
+        if(ObjectUtils.isEmpty(userGroup)){
+            return null;
         }
-        return null;
+        userGroup.setRole(userGroupDto.getRole());
+        userGroupRepository.save(userGroup);
+        return userGroup;
     }
     public void delete(String id){
         userGroupRepository.deleteById(id);
     }
     // adding user to group
-    public void addUserToGroup(String userName, String groupId) {
+    public UserGroup addUserToGroup(String userName, String groupId) {
         User user = userRepository.findByName(userName);
         if (user == null) {
             System.out.println("User not found");
-            return;
+            return null;
         }
 
         Group optionalGroup = groupRepository.findById(UUID.fromString(groupId));
         if (optionalGroup == null) {
             System.out.println("Group not found");
-            return;
+            return null;
         }
         Optional<UserGroup> existingUserGroup = userGroupRepository.findByUserIdAndGroupId(user.getId(), optionalGroup.getId());
         if (existingUserGroup.isPresent()) {
             System.out.println("User is already a member of the group");
-            return;
+            return null;
         }
 
         if (optionalGroup.getMemberCount() >= optionalGroup.getCapacity()) {
             System.out.println("Group capacity is full");
-            return;
+            return null;
         }
 
         // Create a new UserGroup entry
@@ -92,33 +83,31 @@ public class UserGroupService {
         groupRepository.save(optionalGroup);
 
         System.out.println("User successfully added to the group");
+        return userGroup;
     }
 
-    public void deleteUserFromGroup(String userName, String groupId) {
+    public UserGroup deleteUserFromGroup(String userName, String groupId) {
         User user = userRepository.findByName(userName);
         if (user == null) {
             System.out.println("User not found");
-            return;
+            return null;
         }
 
         Group group = groupRepository.findById(UUID.fromString(groupId));
         if (group == null) {
             System.out.println("Group not found");
-            return;
+            return null;
         }
 
-        Optional<UserGroup> userGroupOptional = userGroupRepository.findByUserIdAndGroupId(user.getId(), group.getId());
-        if (userGroupOptional.isEmpty()) {
+        UserGroup userGroup = userGroupRepository.findByUserIdAndGroupId(user.getId(), group.getId()).orElse(null);
+        if (userGroup == null) {
             System.out.println("User is not a member of the group");
-            return;
+            return null;
         }
-
-        userGroupRepository.delete(userGroupOptional.get());
-
+        userGroupRepository.delete(userGroup);
         group.setMemberCount(group.getMemberCount() - 1);
-        groupRepository.save(group);
-
         System.out.println("User successfully removed from the group");
+        return userGroup;
     }
 
 }

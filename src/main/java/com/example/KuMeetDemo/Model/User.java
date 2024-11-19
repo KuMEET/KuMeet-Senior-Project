@@ -19,7 +19,9 @@ public class User {
     private UUID id;
 
     @Indexed
+    private String userName;
     private String name;
+    private String surname;
     private String eMail;
     private String passWord;
     private Date createdAt;

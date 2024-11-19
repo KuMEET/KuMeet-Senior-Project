@@ -27,17 +27,11 @@ public class GroupService {
         group.setId(UUID.randomUUID());
         return groupRepository.save(group);
     }
-
     public List<Group> getAllGroups() {
         return groupRepository.findAll();
     }
-
-    public Group getGroupById(String id) {
-        return groupRepository.findById(id).orElse(null);
-    }
-
-    public Group updateGroup(GroupDto groupDto) {
-        Group group = groupRepository.findByName(groupDto.getName());
+    public Group updateGroup(String id, GroupDto groupDto) {
+        Group group = groupRepository.findById(id).orElse(null);
         if (ObjectUtils.isEmpty(group)) {
             return null;
         }
@@ -45,12 +39,10 @@ public class GroupService {
         group.setCapacity(groupDto.getCapacity());
         return groupRepository.save(group);
     }
-    public void deleteGroup(GroupDto groupDto) {
-        Group group = groupRepository.findByName(groupDto.getName());
-        groupRepository.delete(group);
+    public void deleteGroup(String id) {
+        groupRepository.findById(id).ifPresent(group -> {groupRepository.delete(group);});
     }
-    public List<Group> getGroupsByName(String name) {
-        return groupRepository.findAllByName(name);
+    public Group findGroupById(String id) {
+        return groupRepository.findById(id).orElse(null);
     }
-
 }

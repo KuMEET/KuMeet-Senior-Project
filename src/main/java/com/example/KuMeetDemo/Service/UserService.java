@@ -21,7 +21,9 @@ public class UserService {
     // create method
     public User registerUser(UserDto userDto) {
         User user = new User();
-        user.setName(userDto.getUserName());
+        user.setUserName(userDto.getUserName());
+        user.setName(userDto.getName());
+        user.setSurname(userDto.getSurname());
         user.setEMail(userDto.getEmail());
         user.setPassWord(userDto.getPassword());
         user.setCreatedAt(new Date(System.currentTimeMillis()));
@@ -32,7 +34,9 @@ public class UserService {
     public User updateUser(String userId, UserDto userDto) {
         User user = userRepository.findById(userId).orElse(null);
         if(!ObjectUtils.isEmpty(user)){
-            user.setName(userDto.getUserName());
+            user.setUserName(userDto.getUserName());
+            user.setName(userDto.getName());
+            user.setSurname(userDto.getSurname());
             user.setEMail(userDto.getEmail());
             user.setPassWord(userDto.getPassword());
             user.setCreatedAt(new Date(System.currentTimeMillis()));
@@ -52,12 +56,6 @@ public class UserService {
         return null;
     }
 
-
-    // delete user from group
-
-    public List<User> getUsersByName(String name) {
-        return userRepository.findAllByName(name);
-    }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();

@@ -28,7 +28,18 @@ public class GroupController {
     public List<Group> getAllGroup() {
         return groupService.getAllGroups();
     }
-
+    @DeleteMapping("/delete-group")
+    public void deleteGroup(@RequestParam String id) {
+        groupService.deleteGroup(id);
+    }
+    @PostMapping("/update-group")
+    public Group updateGroup(@RequestParam String id,@RequestBody GroupDto group) {
+        return groupService.updateGroup(id, group);
+    }
+    @GetMapping("/find-group")
+    public Group findGroup(@RequestParam String id) {
+        return groupService.findGroupById(id);
+    }
 
 
 }
