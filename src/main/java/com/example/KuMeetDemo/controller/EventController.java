@@ -29,8 +29,8 @@ public class EventController {
         eventService.deleteEvent(String.valueOf(event.getId()));
     }
     @PutMapping("/update-event")
-    public Event updateEvent(@RequestParam String id,@RequestBody EventDto event) {
-        return eventService.updateEvent(id, event);
+    public Event updateEvent(@RequestBody Event event) {
+        return eventService.updateEvent(event);
     }
     @GetMapping("/find-event")
     public Event findEvent(@RequestBody Event event) {

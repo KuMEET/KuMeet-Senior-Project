@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Currency;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -30,17 +29,17 @@ public class GroupService {
     public List<Group> getAllGroups() {
         return groupRepository.findAll();
     }
-    public Group updateGroup(String id, GroupDto groupDto) {
-        Group group = groupRepository.findById(id).orElse(null);
+    public Group updateGroup(Group updatedGroup) {
+        Group group = groupRepository.findById(String.valueOf(updatedGroup.getId())).orElse(null);
         if (ObjectUtils.isEmpty(group)) {
             return null;
         }
-        group.setName(groupDto.getName());
-        group.setCapacity(groupDto.getCapacity());
+        group.setName(updatedGroup.getName());
+        group.setCapacity(updatedGroup.getCapacity());
         return groupRepository.save(group);
     }
     public void deleteGroup(String id) {
-        groupRepository.findById(id).ifPresent(group -> {groupRepository.delete(group);});
+        groupRepository.findById(id).ifPresent(group -> groupRepository.delete(group));
     }
     public Group findGroupById(String id) {
         return groupRepository.findById(id).orElse(null);

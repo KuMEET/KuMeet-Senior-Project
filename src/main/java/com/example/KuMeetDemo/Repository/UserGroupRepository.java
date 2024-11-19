@@ -9,6 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface UserGroupRepository extends MongoRepository<UserGroup, String> {
-    UserGroup findById(UUID id);
     Optional<UserGroup> findByUserIdAndGroupId(UUID userId, UUID groupId);
 }

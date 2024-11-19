@@ -1,6 +1,5 @@
 package com.example.KuMeetDemo.Service;
 
-import com.example.KuMeetDemo.Dto.UserEventDto;
 import com.example.KuMeetDemo.Model.Event;
 import com.example.KuMeetDemo.Model.User;
 import com.example.KuMeetDemo.Model.UserEvent;
@@ -33,12 +32,12 @@ public class UserEventService {
     public UserEvent findById(String id){
         return userEventRepository.findById(id).orElse(null);
     }
-    public UserEvent update(String id, UserEventDto userEventDto){
-        UserEvent userGroup = userEventRepository.findById(id).orElse(null);
+    public UserEvent update(UserEvent updatedUserEvent){
+        UserEvent userGroup = userEventRepository.findById(String.valueOf(updatedUserEvent.getId())).orElse(null);
         if(ObjectUtils.isEmpty(userGroup)){
             return null;
         }
-        userGroup.setRole(userEventDto.getRole());
+        userGroup.setRole(updatedUserEvent.getRole());
         userEventRepository.save(userGroup);
         return userGroup;
     }

@@ -1,6 +1,5 @@
 package com.example.KuMeetDemo.Service;
 
-import com.example.KuMeetDemo.Dto.UserGroupDto;
 import com.example.KuMeetDemo.Model.Group;
 import com.example.KuMeetDemo.Model.User;
 import com.example.KuMeetDemo.Model.UserGroup;
@@ -33,12 +32,12 @@ public class UserGroupService {
     public UserGroup findById(String id){
         return userGroupRepository.findById(id).orElse(null);
     }
-    public UserGroup update(String id, UserGroupDto userGroupDto){
-        UserGroup userGroup = userGroupRepository.findById(id).orElse(null);
+    public UserGroup update(UserGroup updateUserGroup){
+        UserGroup userGroup = userGroupRepository.findById(String.valueOf(updateUserGroup.getId())).orElse(null);
         if(ObjectUtils.isEmpty(userGroup)){
             return null;
         }
-        userGroup.setRole(userGroupDto.getRole());
+        userGroup.setRole(updateUserGroup.getRole());
         userGroupRepository.save(userGroup);
         return userGroup;
     }
@@ -53,7 +52,7 @@ public class UserGroupService {
             return null;
         }
 
-        Group optionalGroup = groupRepository.findById(UUID.fromString(groupId));
+        Group optionalGroup = groupRepository.findById(groupId).orElse(null);
         if (optionalGroup == null) {
             System.out.println("Group not found");
             return null;
@@ -93,7 +92,7 @@ public class UserGroupService {
             return null;
         }
 
-        Group group = groupRepository.findById(UUID.fromString(groupId));
+        Group group = groupRepository.findById(groupId).orElse(null);
         if (group == null) {
             System.out.println("Group not found");
             return null;

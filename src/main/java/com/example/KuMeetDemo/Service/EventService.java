@@ -34,17 +34,17 @@ public class EventService {
         return eventRepository.findAll();
     }
 
-    public Event updateEvent(String id, EventDto eventDto) {
-        Event event = eventRepository.findById(id).orElse(null);
+    public Event updateEvent(Event updatedEvent) {
+        Event event = eventRepository.findById(String.valueOf(updatedEvent.getId())).orElse(null);
         if (event == null) {
             return null;
         }
-        event.setName(eventDto.getName());
-        event.setType(eventDto.getType());
-        event.setDescription(eventDto.getDescription());
-        event.setLocationId(eventDto.getLocationId());
-        event.setCapacity(eventDto.getCapacity());
-        event.setEventTime(eventDto.getTime());
+        event.setName(updatedEvent.getName());
+        event.setType(updatedEvent.getType());
+        event.setDescription(updatedEvent.getDescription());
+        event.setLocationId(updatedEvent.getLocationId());
+        event.setCapacity(updatedEvent.getCapacity());
+        event.setEventTime(updatedEvent.getEventTime());
         return eventRepository.save(event);
     }
     public void deleteEvent(String id) {

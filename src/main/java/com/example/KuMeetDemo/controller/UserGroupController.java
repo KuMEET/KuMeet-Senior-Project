@@ -1,8 +1,5 @@
 package com.example.KuMeetDemo.controller;
 
-import com.example.KuMeetDemo.Dto.UserEventDto;
-import com.example.KuMeetDemo.Dto.UserGroupDto;
-import com.example.KuMeetDemo.Model.UserEvent;
 import com.example.KuMeetDemo.Model.UserGroup;
 import com.example.KuMeetDemo.Service.UserGroupService;
 import lombok.AllArgsConstructor;
@@ -27,8 +24,8 @@ public class UserGroupController {
         return userGroupService.deleteUserFromGroup(username, id);
     }
     @PutMapping("/update-user-group")
-    public UserGroup updateUserGroup(@RequestParam String id, @RequestBody UserGroupDto userGroupDto) {
-        return userGroupService.update(id, userGroupDto);
+    public UserGroup updateUserGroup(@RequestBody UserGroup userGroup) {
+        return userGroupService.update(userGroup);
     }
     @GetMapping("/getAll-user-group")
     public List<UserGroup> getAllUserGroup() {
