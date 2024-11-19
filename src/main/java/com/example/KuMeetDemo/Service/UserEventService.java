@@ -1,11 +1,9 @@
 package com.example.KuMeetDemo.Service;
 
 import com.example.KuMeetDemo.Dto.UserEventDto;
-import com.example.KuMeetDemo.Dto.UserGroupDto;
 import com.example.KuMeetDemo.Model.Event;
 import com.example.KuMeetDemo.Model.User;
 import com.example.KuMeetDemo.Model.UserEvent;
-import com.example.KuMeetDemo.Model.UserGroup;
 import com.example.KuMeetDemo.Repository.EventRepository;
 import com.example.KuMeetDemo.Repository.UserEventRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
@@ -72,5 +70,13 @@ public class UserEventService {
     }
 
     public void deleteUserFromEvent(String userId, String eventId) {
+        User user = userRepository.findById(userId).orElse(null);
+        Event event = eventRepository.findById(eventId).orElse(null);
+        if(event != null && user != null){
+            UserEvent userEvent = userEventRepository.findByUserIdAndEventId(user.getId(),event.getId());
+            if(userEvent != null){
+                userEventRepository.delete(userEvent);
+            }
+        }
     }
 }

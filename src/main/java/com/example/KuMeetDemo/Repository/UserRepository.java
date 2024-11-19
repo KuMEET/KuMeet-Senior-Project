@@ -10,7 +10,6 @@ import java.util.UUID;
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
 
-    User findById(UUID userId);
     User findByName(String userName);
 
     List<User> findAllByName(String name);

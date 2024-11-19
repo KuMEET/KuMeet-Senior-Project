@@ -9,4 +9,6 @@ import java.util.UUID;
 @Repository
 public interface UserEventRepository extends MongoRepository<UserEvent, String> {
     UserEvent findById(UUID Id);
+
+    UserEvent findByUserIdAndEventId(UUID userId, UUID eventId);
 }

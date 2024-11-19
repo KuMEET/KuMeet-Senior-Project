@@ -1,7 +1,6 @@
 package com.example.KuMeetDemo.controller;
 
 import com.example.KuMeetDemo.Service.UserEventService;
-import com.example.KuMeetDemo.Service.UserGroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

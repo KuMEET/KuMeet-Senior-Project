@@ -45,10 +45,7 @@ public class EventService {
         return eventRepository.save(event);
     }
     public void deleteEvent(String id) {
-        Event event = eventRepository.findById(id).orElse(null);
-        if (event != null) {
-            eventRepository.delete(event);
-        }
+        eventRepository.findById(id).ifPresent(event -> eventRepository.delete(event));
     }
     public Event getEvent(String id) {
         return eventRepository.findById(id).orElse(null);

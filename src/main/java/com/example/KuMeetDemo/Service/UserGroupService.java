@@ -32,8 +32,7 @@ public class UserGroupService {
     }
 
     public UserGroup findById(String id){
-        UserGroup userGroup = userGroupRepository.findById(id).orElse(null);
-        return userGroup;
+        return userGroupRepository.findById(id).orElse(null);
     }
     public UserGroup save(UserGroupDto userGroupDto){
         UserGroup userGroup = new UserGroup();
@@ -102,13 +101,13 @@ public class UserGroupService {
             return;
         }
 
-        Group optionalGroup = groupRepository.findById(UUID.fromString(groupId));
-        if (optionalGroup == null) {
+        Group group = groupRepository.findById(UUID.fromString(groupId));
+        if (group == null) {
             System.out.println("Group not found");
             return;
         }
 
-        Optional<UserGroup> userGroupOptional = userGroupRepository.findByUserIdAndGroupId(user.getId(), optionalGroup.getId());
+        Optional<UserGroup> userGroupOptional = userGroupRepository.findByUserIdAndGroupId(user.getId(), group.getId());
         if (userGroupOptional.isEmpty()) {
             System.out.println("User is not a member of the group");
             return;
@@ -116,8 +115,8 @@ public class UserGroupService {
 
         userGroupRepository.delete(userGroupOptional.get());
 
-        optionalGroup.setMemberCount(optionalGroup.getMemberCount() - 1);
-        groupRepository.save(optionalGroup);
+        group.setMemberCount(group.getMemberCount() - 1);
+        groupRepository.save(group);
 
         System.out.println("User successfully removed from the group");
     }

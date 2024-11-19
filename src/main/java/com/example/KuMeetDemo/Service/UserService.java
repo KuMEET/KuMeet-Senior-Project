@@ -1,11 +1,7 @@
 package com.example.KuMeetDemo.Service;
 
 import com.example.KuMeetDemo.Dto.UserDto;
-import com.example.KuMeetDemo.Model.Group;
 import com.example.KuMeetDemo.Model.User;
-import com.example.KuMeetDemo.Model.UserGroup;
-import com.example.KuMeetDemo.Repository.GroupRepository;
-import com.example.KuMeetDemo.Repository.UserGroupRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,18 +38,15 @@ public class UserService {
     }
 
 
-    public User updateUser(UserDto userDto) {
-        if(!ObjectUtils.isEmpty(userDto)){
-            Optional<User> userOption =  userRepository.findById(userDto.getUserName());
-            if(userOption.isPresent()){
-                User user = userOption.get();
-                user.setName(userDto.getUserName());
-                user.setEMail(userDto.getEmail());
-                user.setPassWord(userDto.getPassword());
-                user.setCreatedAt(new Date(System.currentTimeMillis()));
-                user = userRepository.save(user);
-                return user;
-            }
+    public User updateUser(String userId, UserDto userDto) {
+        User user = userRepository.findById(userId).orElse(null);
+        if(!ObjectUtils.isEmpty(user)){
+            user.setName(userDto.getUserName());
+            user.setEMail(userDto.getEmail());
+            user.setPassWord(userDto.getPassword());
+            user.setCreatedAt(new Date(System.currentTimeMillis()));
+            user = userRepository.save(user);
+            return user;
         }
         return null;
 
@@ -78,18 +71,5 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
