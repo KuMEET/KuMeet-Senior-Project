@@ -27,9 +27,9 @@ public class UserController {
         return userService.findUser(userId);
     }
 
-    @PutMapping("/update/{userId}")
-    public User updateUser(@PathVariable String userId, @RequestBody UserDto user) {
-        return userService.updateUser(userId, user);
+    @PutMapping("/update/{userName}")
+    public User updateUser(@PathVariable String userName, @RequestBody UserDto user) {
+        return userService.updateUser(userName, user);
     }
 
     @DeleteMapping("/delete-user/{userId}")
@@ -42,6 +42,8 @@ public class UserController {
     public List<User> getAllUser() {
         return userService.getAllUsers();
     }
+
+
 
 
 

@@ -46,7 +46,7 @@ public class UserGroupService {
     }
     // adding user to group
     public UserGroup addUserToGroup(String userName, String groupId) {
-        User user = userRepository.findByName(userName);
+        User user = userRepository.findByUserName(userName);
         if (user == null) {
             System.out.println("User not found");
             return null;
@@ -86,7 +86,7 @@ public class UserGroupService {
     }
 
     public UserGroup deleteUserFromGroup(String userName, String groupId) {
-        User user = userRepository.findByName(userName);
+        User user = userRepository.findByUserName(userName);
         if (user == null) {
             System.out.println("User not found");
             return null;

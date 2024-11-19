@@ -1,7 +1,11 @@
 package com.example.KuMeetDemo.Service;
 
 import com.example.KuMeetDemo.Dto.UserDto;
+import com.example.KuMeetDemo.Model.Group;
 import com.example.KuMeetDemo.Model.User;
+import com.example.KuMeetDemo.Model.UserGroup;
+import com.example.KuMeetDemo.Repository.GroupRepository;
+import com.example.KuMeetDemo.Repository.UserGroupRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +14,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -17,6 +22,10 @@ import java.util.UUID;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserGroupRepository userGroupRepository;
+    @Autowired
+    private GroupRepository groupRepository;
 
     // create method
     public User registerUser(UserDto userDto) {
@@ -30,9 +39,16 @@ public class UserService {
         user.setId(UUID.randomUUID());
         return userRepository.save(user);
     }
+    public User findUserByUserId(UUID userId) {
+        User user = userRepository.findById(userId.toString()).get();
+        if (ObjectUtils.isEmpty(user)) {
+            return null;
+        }
+        return user;
+    }
 
-    public User updateUser(String userId, UserDto userDto) {
-        User user = userRepository.findById(userId).orElse(null);
+    public User updateUser(String userName, UserDto userDto) {
+        User user = userRepository.findByUserName(userName);
         if(!ObjectUtils.isEmpty(user)){
             user.setUserName(userDto.getUserName());
             user.setName(userDto.getName());
@@ -55,8 +71,6 @@ public class UserService {
         }
         return null;
     }
-
-
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -64,4 +78,6 @@ public class UserService {
     public User findUser(String userId) {
         return userRepository.findById(userId).orElse(null);
     }
+
+
 }

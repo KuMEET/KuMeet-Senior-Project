@@ -15,4 +15,5 @@ public class EventDto {
     UUID locationId;
     int capacity;
     Date time;
+
 }
