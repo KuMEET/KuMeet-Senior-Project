@@ -18,15 +18,16 @@ class GroupDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black, // Black app bar
-        elevation: 0, // Optional: Remove shadow for a flat design
+        backgroundColor: Colors.grey[900], 
+        elevation: 0, 
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white), 
           onPressed: () {
-            Navigator.pop(context); // Navigate back
+            Navigator.pop(context); 
           },
         ),
       ),
+      backgroundColor: Colors.grey[900], 
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -52,12 +53,14 @@ class GroupImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(12), 
       child: Image.asset(
         imagePath,
         fit: BoxFit.cover,
         height: 200,
         width: double.infinity,
+        color: Colors.black.withOpacity(0.6), 
+        colorBlendMode: BlendMode.darken, 
       ),
     );
   }
@@ -82,16 +85,20 @@ class GroupInfo extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white, // Bright title text
+          ),
         ),
         const SizedBox(height: 8),
         Text(
           'Capacity: $capacity',
-          style: const TextStyle(fontSize: 18),
+          style: const TextStyle(fontSize: 18, color: Colors.white70), 
         ),
         Text(
           'Occupancy: $occupancy',
-          style: const TextStyle(fontSize: 18),
+          style: const TextStyle(fontSize: 18, color: Colors.white70),
         ),
       ],
     );
@@ -108,12 +115,18 @@ class JoinButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: () {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Join request sent to $title!')),
+          SnackBar(
+            content: Text('Join request sent to $title!'),
+            duration: const Duration(seconds: 2),
+          ),
         );
       },
       style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.deepOrange, 
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8), 
+        ),
       ),
       child: const Text(
         'Join',

@@ -36,8 +36,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(), // Set the initial date
-      firstDate: DateTime.now(),   // Set the earliest selectable date
-      lastDate: DateTime(2100),    // Set the latest selectable date
+      firstDate: DateTime.now(), // Set the earliest selectable date
+      lastDate: DateTime(2100), // Set the latest selectable date
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -50,9 +50,14 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Event'),
-        backgroundColor: Colors.teal,
+        title: const Text(
+          'Create Event',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black, // Black app bar
+        iconTheme: const IconThemeData(color: Colors.white), 
       ),
+      backgroundColor: Colors.grey[900], 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -60,18 +65,21 @@ class _CreateEventPageState extends State<CreateEventPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Event Title Field
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: 'Event Title',
-                  prefixIcon: Icon(Icons.title, color: Colors.teal),
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  prefixIcon: const Icon(Icons.title, color: Colors.white),
                   filled: true,
-                  fillColor: Colors.teal[50],
+                  fillColor: Colors.grey[800], // Darker grey for input field
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                 ),
+                style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a title for the event';
@@ -81,19 +89,22 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
               const SizedBox(height: 16),
 
+              // Event Description Field
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: 'Event Description',
-                  prefixIcon: Icon(Icons.description, color: Colors.teal),
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  prefixIcon: const Icon(Icons.description, color: Colors.white),
                   filled: true,
-                  fillColor: Colors.teal[50],
+                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                 ),
+                style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please provide a description for the event';
@@ -103,19 +114,22 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
               const SizedBox(height: 16),
 
+              // Seats Available Field
               TextFormField(
                 controller: _seatsController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Number of Seats Available',
-                  prefixIcon: Icon(Icons.event_seat, color: Colors.teal),
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  prefixIcon: const Icon(Icons.event_seat, color: Colors.white),
                   filled: true,
-                  fillColor: Colors.teal[50],
+                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                 ),
+                style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please specify the number of seats available';
@@ -128,18 +142,21 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
               const SizedBox(height: 16),
 
+              // Location Field
               TextFormField(
                 controller: _locationController,
                 decoration: InputDecoration(
                   labelText: 'Event Location',
-                  prefixIcon: Icon(Icons.location_on, color: Colors.teal),
+                  labelStyle: const TextStyle(color: Colors.white70),
+                  prefixIcon: const Icon(Icons.location_on, color: Colors.white),
                   filled: true,
-                  fillColor: Colors.teal[50],
+                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                 ),
+                style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please provide a location for the event';
@@ -149,42 +166,42 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
               const SizedBox(height: 16),
 
-              // Date Picker Button
+              // Date Picker
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, color: Colors.teal),
+                  const Icon(Icons.calendar_today, color: Colors.white),
                   const SizedBox(width: 8),
                   Text(
                     _selectedDate == null
                         ? 'Select Event Date'
-                        : DateFormat.yMMMd().format(_selectedDate!), // Format selected date
-                    style: const TextStyle(fontSize: 16),
+                        : DateFormat.yMMMd().format(_selectedDate!),
+                    style: const TextStyle(color: Colors.white),
                   ),
                   const Spacer(),
                   TextButton(
                     onPressed: () => _selectDate(context),
-                    child: const Text('Pick Date'),
+                    child: const Text(
+                      'Pick Date',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
 
+              // Create Event Button
               ElevatedButton(
                 onPressed: _createEvent,
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.teal),
-                  padding: MaterialStateProperty.all(
-                    const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepOrange,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: const Text(
                   'Create Event',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ],

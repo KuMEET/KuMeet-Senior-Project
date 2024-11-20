@@ -7,8 +7,15 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
-        backgroundColor: Colors.deepOrange,
+        title: const Text(
+          'Login',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Arial',
+          ),
+        ),
+        backgroundColor: Colors.black, 
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -22,6 +29,7 @@ class LoginPage extends StatelessWidget {
           ],
         ),
       ),
+      backgroundColor: Colors.grey[900], 
     );
   }
 }
@@ -36,7 +44,7 @@ class LogoWidget extends StatelessWidget {
       child: Center(
         child: Image.asset(
           'images/kumeet_logo.png',
-          color: Colors.orange[800],
+          color: Colors.white,
           colorBlendMode: BlendMode.modulate,
         ),
       ),
@@ -78,12 +86,17 @@ class EmailTextField extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         labelText: 'Email',
-        prefixIcon: const Icon(Icons.email, color: Colors.orange),
-        border: const OutlineInputBorder(),
+        labelStyle: const TextStyle(color: Colors.white),
+        prefixIcon: const Icon(Icons.email, color: Colors.white),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(color: Colors.white),
+        ),
         filled: true,
-        fillColor: Colors.orange[50],
+        fillColor: Colors.grey[800], 
       ),
       keyboardType: TextInputType.emailAddress,
+      style: const TextStyle(color: Colors.white),
     );
   }
 }
@@ -96,12 +109,17 @@ class PasswordTextField extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         labelText: 'Password',
-        prefixIcon: const Icon(Icons.lock, color: Colors.orange),
-        border: const OutlineInputBorder(),
+        labelStyle: const TextStyle(color: Colors.white),
+        prefixIcon: const Icon(Icons.lock, color: Colors.white),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(color: Colors.white),
+        ),
         filled: true,
-        fillColor: Colors.orange[50],
+        fillColor: Colors.grey[800],
       ),
       obscureText: true,
+      style: const TextStyle(color: Colors.white),
     );
   }
 }
@@ -115,16 +133,29 @@ class LoginButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-      child: const Text('Login', style: TextStyle(color: Colors.white)),
+      child: const Text(
+        'Login',
+        style: TextStyle(
+          color: Colors.white, // White text for contrast
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrange),
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrange), // Orange button
         padding: MaterialStateProperty.all<EdgeInsets>(
           const EdgeInsets.symmetric(vertical: 12),
         ),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0), // Rounded corners
+          ),
+        ),
+        elevation: MaterialStateProperty.all<double>(5.0), // Slight elevation for depth
       ),
     );
   }
 }
+
 
 class SignUpButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -135,9 +166,12 @@ class SignUpButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
-      child: const Text("Don't have an account? Sign up"),
+      child: const Text(
+        "Don't have an account? Sign up",
+        style: TextStyle(color: Colors.white),
+      ),
       style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all<Color>(Colors.deepOrange),
+        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
       ),
     );
   }

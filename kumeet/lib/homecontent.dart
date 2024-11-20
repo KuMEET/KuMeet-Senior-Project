@@ -13,16 +13,21 @@ class HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final upcomingEvents = calendarEvents.where((event) => event.date != null && event.date!.isAfter(now)).toList();
+    final upcomingEvents = calendarEvents
+        .where((event) => event.date != null && event.date!.isAfter(now))
+        .toList();
 
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const YourGroupsSection(),
-          const Divider(thickness: 2, color: Colors.grey),
-          UpcomingEventsSection(upcomingEvents: upcomingEvents),
-        ],
+    return Container(
+      color: Colors.grey[900], 
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const YourGroupsSection(),
+            const Divider(thickness: 0.5, color: Colors.grey), 
+            UpcomingEventsSection(upcomingEvents: upcomingEvents),
+          ],
+        ),
       ),
     );
   }
@@ -56,7 +61,11 @@ class YourGroupsSection extends StatelessWidget {
           padding: EdgeInsets.all(16.0),
           child: Text(
             'Your Groups',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white, 
+            ),
           ),
         ),
         Row(
@@ -94,7 +103,8 @@ class YourGroupsSection extends StatelessWidget {
 class UpcomingEventsSection extends StatelessWidget {
   final List<Event> upcomingEvents;
 
-  const UpcomingEventsSection({Key? key, required this.upcomingEvents}) : super(key: key);
+  const UpcomingEventsSection({Key? key, required this.upcomingEvents})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +115,11 @@ class UpcomingEventsSection extends StatelessWidget {
           padding: EdgeInsets.all(16.0),
           child: Text(
             'Upcoming Events',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white, 
+            ),
           ),
         ),
         if (upcomingEvents.isEmpty)
@@ -119,7 +133,8 @@ class UpcomingEventsSection extends StatelessWidget {
         else
           for (var event in upcomingEvents)
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(
+                  vertical: 8.0, horizontal: 16.0),
               child: EventCard(
                 event: event,
                 onTap: () {

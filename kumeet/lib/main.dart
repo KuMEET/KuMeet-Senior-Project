@@ -6,7 +6,6 @@ import 'event.dart';
 import 'homecontent.dart';
 import 'group_page.dart';
 
-
 void main() {
   runApp(const KuMeetApp());
 }
@@ -68,7 +67,7 @@ class _HomePageState extends State<HomePage> {
         onAddEventToCalendar: addEventToCalendar, // Pass the calendar callback to ExplorePage
         isEventAdded: isEventAdded, // Check if an event has already been added
       ),
-      const GroupPage(), // GroupPage integration
+      const GroupPage(), 
     ];
 
     return Scaffold(
@@ -76,22 +75,23 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.black,
         title: Image.asset(
           'images/kumeet_logo.png',
-          height: 150,
+          height: 100,
         ),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
-            color: Colors.white,
+            color: Colors.white, 
             onPressed: () {},
           ),
         ],
       ),
+      backgroundColor: Colors.grey[900], 
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.black,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.white,
+        selectedItemColor: Colors.deepOrange,
+        unselectedItemColor: Colors.grey[400], 
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
@@ -108,7 +108,9 @@ class _HomePageState extends State<HomePage> {
             label: 'Groups',
           ),
         ],
+        type: BottomNavigationBarType.fixed, // Ensure labels are always visible
       ),
     );
   }
 }
+

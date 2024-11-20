@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kumeet/create_group_page.dart';
 import 'group_card.dart';
-import 'group_details_page.dart'; 
+import 'group_details_page.dart';
 
 class GroupPage extends StatelessWidget {
   const GroupPage({Key? key}) : super(key: key);
@@ -9,6 +9,7 @@ class GroupPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[900], 
       body: Column(
         children: const [
           Padding(
@@ -33,14 +34,16 @@ class SearchBar extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         hintText: 'Search Groups',
-        prefixIcon: const Icon(Icons.search, color: Colors.grey),
+        hintStyle: const TextStyle(color: Colors.grey),
+        prefixIcon: const Icon(Icons.search, color: Colors.white),
         filled: true,
-        fillColor: Colors.grey[200],
+        fillColor: Colors.grey[800], 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide.none,
+          borderSide: const BorderSide(color: Colors.white, width: 1.0),
         ),
       ),
+      style: const TextStyle(color: Colors.white), 
     );
   }
 }
@@ -113,8 +116,11 @@ class CreateGroupButton extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const CreateGroupPage()),
         );
       },
-      backgroundColor: const Color.fromARGB(255, 255, 120, 53),
-      child: const Icon(Icons.add, color: Colors.white,),
+      backgroundColor: Colors.deepOrange, 
+      child: const Icon(
+        Icons.add,
+        color: Colors.white, 
+      ),
     );
   }
 }
