@@ -9,10 +9,10 @@ class ExplorePage extends StatefulWidget {
   final bool Function(Event) isEventAdded;
 
   const ExplorePage({
-    Key? key,
+    super.key,
     required this.onAddEventToCalendar,
     required this.isEventAdded,
-  }) : super(key: key);
+  });
 
   @override
   _ExplorePageState createState() => _ExplorePageState();
@@ -35,7 +35,7 @@ class _ExplorePageState extends State<ExplorePage> {
         description: 'An engaging session with industry leaders sharing insights.',
         location: 'Online',
         seatsAvailable: 100,
-        date: DateTime.now().add(Duration(days: 1)),
+        date: DateTime.now().add(const Duration(days: 1)),
       ),
       Event(
         imagePath: 'images/event_image.png',
@@ -43,7 +43,7 @@ class _ExplorePageState extends State<ExplorePage> {
         description: 'A regular tabletop RPG game for fantasy enthusiasts.',
         location: 'Golem\'s Gate - Gaming & Geekdom',
         seatsAvailable: 10,
-        date: DateTime.now().add(Duration(days: 14)),
+        date: DateTime.now().add(const Duration(days: 14)),
       ),
     ]);
   }
@@ -76,11 +76,11 @@ class ExploreBody extends StatelessWidget {
   final bool Function(Event) isEventAdded;
 
   const ExploreBody({
-    Key? key,
+    super.key,
     required this.events,
     required this.onAddEventToCalendar,
     required this.isEventAdded,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +122,7 @@ class ExploreBody extends StatelessWidget {
 }
 
 class SearchAndFilterBar extends StatelessWidget {
-  const SearchAndFilterBar({Key? key}) : super(key: key);
+  const SearchAndFilterBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +156,7 @@ class SearchAndFilterBar extends StatelessWidget {
 class ExploreFloatingActionButton extends StatelessWidget {
   final Function(Event) onAddEvent;
 
-  const ExploreFloatingActionButton({Key? key, required this.onAddEvent}) : super(key: key);
+  const ExploreFloatingActionButton({super.key, required this.onAddEvent});
 
   @override
   Widget build(BuildContext context) {
@@ -164,7 +164,7 @@ class ExploreFloatingActionButton extends StatelessWidget {
       onPressed: () async {
         final newEvent = await Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => CreateEventPage()),
+          MaterialPageRoute(builder: (context) => const CreateEventPage()),
         ) as Event?;
         if (newEvent != null) {
           onAddEvent(newEvent);

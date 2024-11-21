@@ -4,13 +4,13 @@ import 'group_card.dart';
 import 'group_details_page.dart'; 
 
 class GroupPage extends StatelessWidget {
-  const GroupPage({Key? key}) : super(key: key);
+  const GroupPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Column(
-        children: const [
+        children: [
           Padding(
             padding: EdgeInsets.all(16.0),
             child: SearchBar(), // Search bar at the top
@@ -20,13 +20,13 @@ class GroupPage extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: const CreateGroupButton(), // Floating action button for group creation
+      floatingActionButton: CreateGroupButton(), // Floating action button for group creation
     );
   }
 }
 
 class SearchBar extends StatelessWidget {
-  const SearchBar({Key? key}) : super(key: key);
+  const SearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class SearchBar extends StatelessWidget {
 }
 
 class GroupList extends StatelessWidget {
-  const GroupList({Key? key}) : super(key: key);
+  const GroupList({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +102,7 @@ class GroupList extends StatelessWidget {
 }
 
 class CreateGroupButton extends StatelessWidget {
-  const CreateGroupButton({Key? key}) : super(key: key);
+  const CreateGroupButton({super.key});
 
   @override
   Widget build(BuildContext context) {

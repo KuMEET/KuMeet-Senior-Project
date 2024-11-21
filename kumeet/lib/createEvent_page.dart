@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Add intl package for date formatting
+import 'package:intl/intl.dart'; // For date formatting
+import 'package:latlong2/latlong.dart'; // For LatLng
+import 'map_picker_page.dart'; // Import the map picker
 import 'event.dart';
 
 class CreateEventPage extends StatefulWidget {
@@ -14,30 +16,52 @@ class _CreateEventPageState extends State<CreateEventPage> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _seatsController = TextEditingController();
-  final _locationController = TextEditingController();
+  LatLng? _eventLocation; // Holds the picked location
   DateTime? _selectedDate; // Holds the selected date
 
-  void _createEvent() {
-    if (_formKey.currentState!.validate()) {
-      final newEvent = Event(
-        imagePath: 'images/event_image.png', // Default image path
-        title: _titleController.text,
-        description: _descriptionController.text,
-        location: _locationController.text,
-        seatsAvailable: int.parse(_seatsController.text),
-        date: _selectedDate,
-      );
-      Navigator.pop(context, newEvent); // Return the new event to the previous screen
+  // Function to pick a location
+  void _pickLocation() async {
+    final pickedLocation = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const MapPickerPage()),
+    ) as LatLng?;
+    if (pickedLocation != null) {
+      setState(() {
+        _eventLocation = pickedLocation;
+      });
     }
   }
 
-  // Function to open the date picker
+  // Function to create an event
+  void _createEvent() {
+    if (_formKey.currentState!.validate()) {
+      if (_eventLocation == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a location')),
+        );
+        return;
+      }
+
+      final newEvent = Event(
+        imagePath: 'images/event_image.png',
+        title: _titleController.text,
+        description: _descriptionController.text,
+        location: 'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
+        seatsAvailable: int.parse(_seatsController.text),
+        date: _selectedDate,
+      );
+
+      Navigator.pop(context, newEvent);
+    }
+  }
+
+  // Function to pick a date
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(), // Set the initial date
-      firstDate: DateTime.now(),   // Set the earliest selectable date
-      lastDate: DateTime(2100),    // Set the latest selectable date
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -60,11 +84,12 @@ class _CreateEventPageState extends State<CreateEventPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Event Title
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: 'Event Title',
-                  prefixIcon: Icon(Icons.title, color: Colors.teal),
+                  prefixIcon: const Icon(Icons.title, color: Colors.teal),
                   filled: true,
                   fillColor: Colors.teal[50],
                   border: OutlineInputBorder(
@@ -72,21 +97,18 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title for the event';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Please enter a title' : null,
               ),
               const SizedBox(height: 16),
 
+              // Event Description
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: 'Event Description',
-                  prefixIcon: Icon(Icons.description, color: Colors.teal),
+                  prefixIcon: const Icon(Icons.description, color: Colors.teal),
                   filled: true,
                   fillColor: Colors.teal[50],
                   border: OutlineInputBorder(
@@ -94,21 +116,18 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please provide a description for the event';
-                  }
-                  return null;
-                },
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Please enter a description' : null,
               ),
               const SizedBox(height: 16),
 
+              // Number of Seats
               TextFormField(
                 controller: _seatsController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText: 'Number of Seats Available',
-                  prefixIcon: Icon(Icons.event_seat, color: Colors.teal),
+                  labelText: 'Seats Available',
+                  prefixIcon: const Icon(Icons.event_seat, color: Colors.teal),
                   filled: true,
                   fillColor: Colors.teal[50],
                   border: OutlineInputBorder(
@@ -116,40 +135,32 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please specify the number of seats available';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  return null;
-                },
+                validator: (value) => value == null || int.tryParse(value) == null
+                    ? 'Please enter a valid number'
+                    : null,
               ),
               const SizedBox(height: 16),
 
-              TextFormField(
-                controller: _locationController,
-                decoration: InputDecoration(
-                  labelText: 'Event Location',
-                  prefixIcon: Icon(Icons.location_on, color: Colors.teal),
-                  filled: true,
-                  fillColor: Colors.teal[50],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
+              // Location Picker
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: _pickLocation,
+                    child: const Text('Pick Location'),
                   ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please provide a location for the event';
-                  }
-                  return null;
-                },
+                  const SizedBox(width: 16),
+                  if (_eventLocation != null)
+                    Expanded(
+                      child: Text(
+                        'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
+                        style: const TextStyle(color: Colors.teal),
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(height: 16),
 
-              // Date Picker Button
+              // Date Picker
               Row(
                 children: [
                   const Icon(Icons.calendar_today, color: Colors.teal),
@@ -157,8 +168,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   Text(
                     _selectedDate == null
                         ? 'Select Event Date'
-                        : DateFormat.yMMMd().format(_selectedDate!), // Format selected date
-                    style: const TextStyle(fontSize: 16),
+                        : DateFormat.yMMMd().format(_selectedDate!),
                   ),
                   const Spacer(),
                   TextButton(
@@ -169,23 +179,10 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
               const SizedBox(height: 24),
 
+              // Create Event Button
               ElevatedButton(
                 onPressed: _createEvent,
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Colors.teal),
-                  padding: MaterialStateProperty.all(
-                    const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                child: const Text(
-                  'Create Event',
-                  style: TextStyle(fontSize: 18),
-                ),
+                child: const Text('Create Event'),
               ),
             ],
           ),

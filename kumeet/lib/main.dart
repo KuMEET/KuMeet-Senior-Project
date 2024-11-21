@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _pages = [
+    final List<Widget> pages = [
       HomeContent(calendarEvents: calendarEvents), // Pass calendar events to HomeContent
       ExplorePage(
         onAddEventToCalendar: addEventToCalendar, // Pass the calendar callback to ExplorePage
@@ -87,7 +87,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.black,
         selectedItemColor: Colors.blueAccent,

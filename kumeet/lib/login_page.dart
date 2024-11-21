@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -10,12 +10,12 @@ class LoginPage extends StatelessWidget {
         title: const Text('Login'),
         backgroundColor: Colors.deepOrange,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: const Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: const <Widget>[
+          children: <Widget>[
             LogoWidget(),
             SizedBox(height: 32),
             LoginForm(),
@@ -27,7 +27,7 @@ class LoginPage extends StatelessWidget {
 }
 
 class LogoWidget extends StatelessWidget {
-  const LogoWidget({Key? key}) : super(key: key);
+  const LogoWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class LogoWidget extends StatelessWidget {
 }
 
 class LoginForm extends StatelessWidget {
-  const LoginForm({Key? key}) : super(key: key);
+  const LoginForm({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +71,7 @@ class LoginForm extends StatelessWidget {
 }
 
 class EmailTextField extends StatelessWidget {
-  const EmailTextField({Key? key}) : super(key: key);
+  const EmailTextField({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +89,7 @@ class EmailTextField extends StatelessWidget {
 }
 
 class PasswordTextField extends StatelessWidget {
-  const PasswordTextField({Key? key}) : super(key: key);
+  const PasswordTextField({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -109,19 +109,19 @@ class PasswordTextField extends StatelessWidget {
 class LoginButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const LoginButton({Key? key, required this.onPressed}) : super(key: key);
+  const LoginButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-      child: const Text('Login', style: TextStyle(color: Colors.white)),
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrange),
-        padding: MaterialStateProperty.all<EdgeInsets>(
+        backgroundColor: WidgetStateProperty.all<Color>(Colors.deepOrange),
+        padding: WidgetStateProperty.all<EdgeInsets>(
           const EdgeInsets.symmetric(vertical: 12),
         ),
       ),
+      child: const Text('Login', style: TextStyle(color: Colors.white)),
     );
   }
 }
@@ -129,16 +129,16 @@ class LoginButton extends StatelessWidget {
 class SignUpButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const SignUpButton({Key? key, required this.onPressed}) : super(key: key);
+  const SignUpButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
-      child: const Text("Don't have an account? Sign up"),
       style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all<Color>(Colors.deepOrange),
+        foregroundColor: WidgetStateProperty.all<Color>(Colors.deepOrange),
       ),
+      child: const Text("Don't have an account? Sign up"),
     );
   }
 }

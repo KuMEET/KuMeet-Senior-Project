@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SignupPage extends StatelessWidget {
-  const SignupPage({Key? key}) : super(key: key);
+  const SignupPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class SignupPage extends StatelessWidget {
 }
 
 class SignupForm extends StatelessWidget {
-  const SignupForm({Key? key}) : super(key: key);
+  const SignupForm({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class SignupForm extends StatelessWidget {
 }
 
 class NameTextField extends StatelessWidget {
-  const NameTextField({Key? key}) : super(key: key);
+  const NameTextField({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +66,7 @@ class NameTextField extends StatelessWidget {
 }
 
 class SurnameTextField extends StatelessWidget {
-  const SurnameTextField({Key? key}) : super(key: key);
+  const SurnameTextField({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +83,7 @@ class SurnameTextField extends StatelessWidget {
 }
 
 class EmailTextField extends StatelessWidget {
-  const EmailTextField({Key? key}) : super(key: key);
+  const EmailTextField({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +101,7 @@ class EmailTextField extends StatelessWidget {
 }
 
 class PhoneTextField extends StatelessWidget {
-  const PhoneTextField({Key? key}) : super(key: key);
+  const PhoneTextField({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +120,7 @@ class PhoneTextField extends StatelessWidget {
 }
 
 class PasswordTextField extends StatelessWidget {
-  const PasswordTextField({Key? key}) : super(key: key);
+  const PasswordTextField({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -140,19 +140,19 @@ class PasswordTextField extends StatelessWidget {
 class SignupButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const SignupButton({Key? key, required this.onPressed}) : super(key: key);
+  const SignupButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-      child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 1, 107, 95)),
-        padding: MaterialStateProperty.all<EdgeInsets>(
+        backgroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 1, 107, 95)),
+        padding: WidgetStateProperty.all<EdgeInsets>(
           const EdgeInsets.symmetric(vertical: 12),
         ),
       ),
+      child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
     );
   }
 }
@@ -160,16 +160,16 @@ class SignupButton extends StatelessWidget {
 class LoginRedirectButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const LoginRedirectButton({Key? key, required this.onPressed}) : super(key: key);
+  const LoginRedirectButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
-      child: const Text("Already have an account? Login"),
       style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 1, 102, 90)),
+        foregroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 1, 102, 90)),
       ),
+      child: const Text("Already have an account? Login"),
     );
   }
 }

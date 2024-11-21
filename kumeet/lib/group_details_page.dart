@@ -7,12 +7,12 @@ class GroupDetailsPage extends StatelessWidget {
   final int occupancy;
 
   const GroupDetailsPage({
-    Key? key,
+    super.key,
     required this.imagePath,
     required this.title,
     required this.capacity,
     required this.occupancy,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class GroupDetailsPage extends StatelessWidget {
 class GroupImage extends StatelessWidget {
   final String imagePath;
 
-  const GroupImage({Key? key, required this.imagePath}) : super(key: key);
+  const GroupImage({super.key, required this.imagePath});
 
   @override
   Widget build(BuildContext context) {
@@ -69,11 +69,11 @@ class GroupInfo extends StatelessWidget {
   final int occupancy;
 
   const GroupInfo({
-    Key? key,
+    super.key,
     required this.title,
     required this.capacity,
     required this.occupancy,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +101,7 @@ class GroupInfo extends StatelessWidget {
 class JoinButton extends StatelessWidget {
   final String title;
 
-  const JoinButton({Key? key, required this.title}) : super(key: key);
+  const JoinButton({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {

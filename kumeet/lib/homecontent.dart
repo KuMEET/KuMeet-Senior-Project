@@ -8,7 +8,7 @@ import 'group_details_page.dart';
 class HomeContent extends StatelessWidget {
   final List<Event> calendarEvents;
 
-  const HomeContent({Key? key, required this.calendarEvents}) : super(key: key);
+  const HomeContent({super.key, required this.calendarEvents});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +29,7 @@ class HomeContent extends StatelessWidget {
 }
 
 class YourGroupsSection extends StatelessWidget {
-  const YourGroupsSection({Key? key}) : super(key: key);
+  const YourGroupsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,7 @@ class YourGroupsSection extends StatelessWidget {
 class UpcomingEventsSection extends StatelessWidget {
   final List<Event> upcomingEvents;
 
-  const UpcomingEventsSection({Key? key, required this.upcomingEvents}) : super(key: key);
+  const UpcomingEventsSection({super.key, required this.upcomingEvents});
 
   @override
   Widget build(BuildContext context) {

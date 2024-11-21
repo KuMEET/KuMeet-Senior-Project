@@ -8,11 +8,11 @@ class EventDetailPage extends StatelessWidget {
   final bool isAdded; // Boolean to check if the event is already added
 
   const EventDetailPage({
-    Key? key,
+    super.key,
     required this.event,
     required this.onAddToCalendar,
     required this.isAdded,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

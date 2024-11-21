@@ -3,7 +3,7 @@ import 'dart:io'; // For File
 import 'package:image_picker/image_picker.dart'; // For image picking
 
 class CreateGroupPage extends StatefulWidget {
-  const CreateGroupPage({Key? key}) : super(key: key);
+  const CreateGroupPage({super.key});
 
   @override
   _CreateGroupPageState createState() => _CreateGroupPageState();
@@ -72,10 +72,10 @@ class GroupImagePicker extends StatelessWidget {
   final VoidCallback onImagePick;
 
   const GroupImagePicker({
-    Key? key,
+    super.key,
     required this.selectedImage,
     required this.onImagePick,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +111,7 @@ class GroupImagePicker extends StatelessWidget {
 class GroupNameField extends StatelessWidget {
   final TextEditingController controller;
 
-  const GroupNameField({Key? key, required this.controller}) : super(key: key);
+  const GroupNameField({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -140,18 +140,18 @@ class GroupNameField extends StatelessWidget {
 class CreateGroupButton extends StatelessWidget {
   final VoidCallback onPressed;
 
-  const CreateGroupButton({Key? key, required this.onPressed}) : super(key: key);
+  const CreateGroupButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(Colors.blueGrey),
-        padding: MaterialStateProperty.all(
+        backgroundColor: WidgetStateProperty.all(Colors.blueGrey),
+        padding: WidgetStateProperty.all(
           const EdgeInsets.symmetric(vertical: 16),
         ),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
