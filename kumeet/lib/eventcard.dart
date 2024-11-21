@@ -1,7 +1,5 @@
-// eventcard.dart
-
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // Import intl for date formatting
+import 'package:intl/intl.dart'; 
 import 'event.dart';
 
 class EventCard extends StatelessWidget {
@@ -21,8 +19,10 @@ class EventCard extends StatelessWidget {
       child: Card(
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12), 
         ),
+        elevation: 5, 
+        color: Colors.grey[850], 
         child: Stack(
           children: [
             // Event Image
@@ -31,8 +31,10 @@ class EventCard extends StatelessWidget {
               width: double.infinity,
               height: 200,
               fit: BoxFit.cover,
+              color: Colors.black.withOpacity(0.4),
+              colorBlendMode: BlendMode.darken, 
             ),
-            
+
             // Seats Left in the upper-left corner
             Positioned(
               top: 8,
@@ -40,12 +42,16 @@ class EventCard extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withOpacity(0.7), 
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '${event.seatsAvailable} seats left',
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
@@ -57,14 +63,21 @@ class EventCard extends StatelessWidget {
                 left: 8,
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  color: Colors.white,
+                  decoration: BoxDecoration(
+                    color: Colors.deepOrange, 
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: Text(
                     event.badge!,
-                    style: const TextStyle(color: Colors.red),
+                    style: const TextStyle(
+                      color: Colors.white, 
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            
+
             // Event Title at the bottom
             Positioned(
               bottom: 40,
@@ -72,7 +85,7 @@ class EventCard extends StatelessWidget {
               child: Text(
                 event.title,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: Colors.white, 
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
@@ -86,7 +99,10 @@ class EventCard extends StatelessWidget {
                 left: 16,
                 child: Text(
                   DateFormat.yMMMd().format(event.date!), // Format the date
-                  style: const TextStyle(color: Colors.white70),
+                  style: const TextStyle(
+                    color: Colors.white70, 
+                    fontSize: 14,
+                  ),
                 ),
               ),
           ],

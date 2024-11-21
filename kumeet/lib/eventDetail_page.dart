@@ -18,9 +18,10 @@ class EventDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(event.title),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.grey[900], 
+        iconTheme: const IconThemeData(color: Colors.white), 
       ),
+      backgroundColor: Colors.grey[900], 
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -34,6 +35,10 @@ class EventDetailPage extends StatelessWidget {
                 image: DecorationImage(
                   image: AssetImage(event.imagePath),
                   fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withOpacity(0.6), // Dark overlay for readability
+                    BlendMode.darken,
+                  ),
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -43,25 +48,29 @@ class EventDetailPage extends StatelessWidget {
             // Event Title
             Text(
               event.title,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white, // White for dark theme
+              ),
             ),
             const SizedBox(height: 8),
 
             // Event Description
             Text(
               event.description,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16, color: Colors.white70), // Subtle white
             ),
             const SizedBox(height: 16),
 
             // Location
             Row(
               children: [
-                const Icon(Icons.location_on, color: Colors.teal),
+                const Icon(Icons.location_on, color: Colors.deepOrange), // Orange accent
                 const SizedBox(width: 8),
                 Text(
                   event.location,
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ],
             ),
@@ -70,11 +79,11 @@ class EventDetailPage extends StatelessWidget {
             // Seats Available
             Row(
               children: [
-                const Icon(Icons.event_seat, color: Colors.teal),
+                const Icon(Icons.event_seat, color: Colors.white70), // Subtle white
                 const SizedBox(width: 8),
                 Text(
                   '${event.seatsAvailable} seats available',
-                  style: const TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ],
             ),
@@ -84,11 +93,11 @@ class EventDetailPage extends StatelessWidget {
             if (event.date != null)
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, color: Colors.teal),
+                  const Icon(Icons.calendar_today, color: Colors.white70), // Subtle white
                   const SizedBox(width: 8),
                   Text(
                     DateFormat.yMMMMd().format(event.date!),
-                    style: const TextStyle(fontSize: 16),
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ],
               ),
@@ -96,22 +105,29 @@ class EventDetailPage extends StatelessWidget {
 
             // Add to Calendar Button
             ElevatedButton(
-              onPressed: isAdded ? null : () { // Disable if event is already added
-                onAddToCalendar();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('${event.title} added to your calendar!'),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-                Navigator.of(context).popUntil;
-              },
+              onPressed: isAdded
+                  ? null
+                  : () {
+                      onAddToCalendar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${event.title} added to your calendar!'),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                      Navigator.of(context).popUntil;
+                    },
               style: ElevatedButton.styleFrom(
+                backgroundColor:
+                    isAdded ? Colors.grey : Colors.deepOrange, // Grey if disabled
                 padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8), // Rounded button
+                ),
               ),
               child: Text(
                 isAdded ? 'Already in Calendar' : 'Add to Calendar',
-                style: const TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
           ],

@@ -7,13 +7,21 @@ class SignupPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign Up'),
-        backgroundColor: Colors.teal,
+        title: const Text(
+          'Sign Up',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'Arial',
+          ),
+        ),
+        backgroundColor: Colors.black, 
+        centerTitle: true,
       ),
       body: const SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
         child: SignupForm(),
       ),
+      backgroundColor: Colors.grey[900], 
     );
   }
 }
@@ -56,11 +64,16 @@ class NameTextField extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         labelText: 'Name',
-        prefixIcon: const Icon(Icons.person),
-        border: const OutlineInputBorder(),
-        fillColor: Colors.teal[50],
+        labelStyle: const TextStyle(color: Colors.white),
+        prefixIcon: const Icon(Icons.person, color: Colors.white),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(color: Colors.white),
+        ),
         filled: true,
+        fillColor: Colors.grey[800],
       ),
+      style: const TextStyle(color: Colors.white),
     );
   }
 }
@@ -73,11 +86,16 @@ class SurnameTextField extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         labelText: 'Surname',
-        prefixIcon: const Icon(Icons.person_outline),
-        border: const OutlineInputBorder(),
-        fillColor: Colors.teal[50],
+        labelStyle: const TextStyle(color: Colors.white),
+        prefixIcon: const Icon(Icons.person_outline, color: Colors.white),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(color: Colors.white),
+        ),
         filled: true,
+        fillColor: Colors.grey[800],
       ),
+      style: const TextStyle(color: Colors.white),
     );
   }
 }
@@ -90,12 +108,17 @@ class EmailTextField extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         labelText: 'Email',
-        prefixIcon: const Icon(Icons.email),
-        border: const OutlineInputBorder(),
-        fillColor: Colors.teal[50],
+        labelStyle: const TextStyle(color: Colors.white),
+        prefixIcon: const Icon(Icons.email, color: Colors.white),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(color: Colors.white),
+        ),
         filled: true,
+        fillColor: Colors.grey[800],
       ),
       keyboardType: TextInputType.emailAddress,
+      style: const TextStyle(color: Colors.white),
     );
   }
 }
@@ -108,13 +131,19 @@ class PhoneTextField extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         labelText: 'Phone Number',
-        prefixIcon: const Icon(Icons.phone),
-        border: const OutlineInputBorder(),
-        hintText: 'Optional',
-        fillColor: Colors.teal[50],
+        labelStyle: const TextStyle(color: Colors.white),
+        prefixIcon: const Icon(Icons.phone, color: Colors.white),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(color: Colors.white),
+        ),
         filled: true,
+        fillColor: Colors.grey[800],
+        hintText: 'Optional',
+        hintStyle: const TextStyle(color: Colors.white70),
       ),
       keyboardType: TextInputType.phone,
+      style: const TextStyle(color: Colors.white),
     );
   }
 }
@@ -127,12 +156,17 @@ class PasswordTextField extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         labelText: 'Password',
-        prefixIcon: const Icon(Icons.lock_outline),
-        border: const OutlineInputBorder(),
-        fillColor: Colors.teal[50],
+        labelStyle: const TextStyle(color: Colors.white),
+        prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(color: Colors.white),
+        ),
         filled: true,
+        fillColor: Colors.grey[800],
       ),
       obscureText: true,
+      style: const TextStyle(color: Colors.white),
     );
   }
 }
@@ -146,16 +180,36 @@ class SignupButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
+<<<<<<< HEAD
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 1, 107, 95)),
         padding: WidgetStateProperty.all<EdgeInsets>(
+=======
+      child: const Text(
+        'Sign Up',
+        style: TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrange),
+        padding: MaterialStateProperty.all<EdgeInsets>(
+>>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
           const EdgeInsets.symmetric(vertical: 12),
         ),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+        ),
+        elevation: MaterialStateProperty.all<double>(5.0),
       ),
       child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
     );
   }
 }
+
 
 class LoginRedirectButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -166,8 +220,17 @@ class LoginRedirectButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
+<<<<<<< HEAD
       style: ButtonStyle(
         foregroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 1, 102, 90)),
+=======
+      child: const Text(
+        "Already have an account? Login",
+        style: TextStyle(color: Colors.white),
+      ),
+      style: ButtonStyle(
+        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+>>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
       ),
       child: const Text("Already have an account? Login"),
     );

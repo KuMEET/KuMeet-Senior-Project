@@ -41,9 +41,11 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Group'),
-        backgroundColor: Colors.blueGrey,
+        title: const Text('Create Group', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black, 
+        iconTheme: const IconThemeData(color: Colors.white), 
       ),
+      backgroundColor: Colors.grey[900],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -85,14 +87,14 @@ class GroupImagePicker extends StatelessWidget {
         height: 150,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: Colors.grey[200],
-          border: Border.all(color: Colors.blueGrey, width: 1),
+          color: Colors.grey[800], 
+          border: Border.all(color: Colors.white, width: 1), 
         ),
         child: selectedImage == null
             ? const Center(
                 child: Text(
                   'Tap to select a group image',
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: Colors.white70), 
                 ),
               )
             : ClipRRect(
@@ -119,14 +121,16 @@ class GroupNameField extends StatelessWidget {
       controller: controller,
       decoration: InputDecoration(
         labelText: 'Group Name',
-        prefixIcon: const Icon(Icons.group, color: Colors.blueGrey),
+        labelStyle: const TextStyle(color: Colors.white70), 
+        prefixIcon: const Icon(Icons.group, color: Colors.white), 
         filled: true,
-        fillColor: Colors.grey[200],
+        fillColor: Colors.grey[800], 
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
       ),
+      style: const TextStyle(color: Colors.white), 
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter a group name';
@@ -146,6 +150,7 @@ class CreateGroupButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
+<<<<<<< HEAD
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.all(Colors.blueGrey),
         padding: WidgetStateProperty.all(
@@ -155,6 +160,13 @@ class CreateGroupButton extends StatelessWidget {
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+=======
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.deepOrange,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+>>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
         ),
       ),
       child: const Text(
