@@ -14,8 +14,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _seatsController = TextEditingController();
-  final _locationController = TextEditingController();
+  final _locationUrlController = TextEditingController();
   DateTime? _selectedDate; // Holds the selected date
+
+  double? latitude;
+  double? longitude;
 
   void _createEvent() {
     if (_formKey.currentState!.validate()) {
@@ -23,9 +26,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
         imagePath: 'images/event_image.png', // Default image path
         title: _titleController.text,
         description: _descriptionController.text,
-        location: _locationController.text,
+        location: _locationUrlController.text,
         seatsAvailable: int.parse(_seatsController.text),
         date: _selectedDate,
+        latitude: latitude!,
+        longitude: longitude!,
       );
       Navigator.pop(context, newEvent); // Return the new event to the previous screen
     }
@@ -43,6 +48,19 @@ class _CreateEventPageState extends State<CreateEventPage> {
       setState(() {
         _selectedDate = picked;
       });
+    }
+  }
+
+  // Extract latitude and longitude from Google Maps URL
+  void _extractCoordinates(String url) {
+    final regex = RegExp(r'@(-?\d+\.\d+),(-?\d+\.\d+)'); // Matches @latitude,longitude
+    final match = regex.firstMatch(url);
+    if (match != null) {
+      latitude = double.parse(match.group(1)!);
+      longitude = double.parse(match.group(2)!);
+    } else {
+      latitude = null;
+      longitude = null;
     }
   }
 
@@ -73,7 +91,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   labelStyle: const TextStyle(color: Colors.white70),
                   prefixIcon: const Icon(Icons.title, color: Colors.white),
                   filled: true,
-                  fillColor: Colors.grey[800], // Darker grey for input field
+                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -142,13 +160,13 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
               const SizedBox(height: 16),
 
-              // Location Field
+              // Google Maps URL Field
               TextFormField(
-                controller: _locationController,
+                controller: _locationUrlController,
                 decoration: InputDecoration(
-                  labelText: 'Event Location',
+                  labelText: 'Google Maps URL',
                   labelStyle: const TextStyle(color: Colors.white70),
-                  prefixIcon: const Icon(Icons.location_on, color: Colors.white),
+                  prefixIcon: const Icon(Icons.map, color: Colors.white),
                   filled: true,
                   fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
@@ -159,7 +177,14 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please provide a location for the event';
+                    return 'Please provide a Google Maps URL';
+                  }
+                  if (!Uri.parse(value).isAbsolute) {
+                    return 'Please provide a valid URL';
+                  }
+                  _extractCoordinates(value);
+                  if (latitude == null || longitude == null) {
+                    return 'Invalid Google Maps URL. Ensure it contains coordinates.';
                   }
                   return null;
                 },

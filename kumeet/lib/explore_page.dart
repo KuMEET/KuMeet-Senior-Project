@@ -3,6 +3,7 @@ import 'createEvent_page.dart';
 import 'eventcard.dart';
 import 'eventDetail_page.dart';
 import 'event.dart';
+import 'map_view.dart';
 
 class ExplorePage extends StatefulWidget {
   final Function(Event) onAddEventToCalendar;
@@ -28,25 +29,29 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   void initializeEvents() {
-    events.addAll([
-      Event(
-        imagePath: 'images/event_image.png',
-        title: 'Speakers! Mini Conference!',
-        description: 'An engaging session with industry leaders sharing insights.',
-        location: 'Online',
-        seatsAvailable: 100,
-        date: DateTime.now().add(Duration(days: 1)),
-      ),
-      Event(
-        imagePath: 'images/event_image.png',
-        title: 'Exandria: Threads of Fate',
-        description: 'A regular tabletop RPG game for fantasy enthusiasts.',
-        location: 'Golem\'s Gate - Gaming & Geekdom',
-        seatsAvailable: 10,
-        date: DateTime.now().add(Duration(days: 14)),
-      ),
-    ]);
-  }
+  events.addAll([
+    Event(
+      imagePath: 'images/event_image.png',
+      title: 'Speakers! Mini Conference!',
+      description: 'An engaging session with industry leaders sharing insights.',
+      location: 'Online',
+      seatsAvailable: 100,
+      date: DateTime.now().add(const Duration(days: 1)),
+      latitude: 41.01384, // Example coordinates
+      longitude: 28.94966,
+    ),
+    Event(
+      imagePath: 'images/event_image.png',
+      title: 'Exandria: Threads of Fate',
+      description: 'A regular tabletop RPG game for fantasy enthusiasts.',
+      location: 'Golem\'s Gate - Gaming & Geekdom',
+      seatsAvailable: 10,
+      date: DateTime.now().add(const Duration(days: 14)),
+      latitude: 41.00527,
+      longitude: 28.97696,
+    ),
+  ]);
+}
 
   void addEvent(Event newEvent) {
     setState(() {
@@ -92,6 +97,21 @@ class ExploreBody extends StatelessWidget {
           children: [
             const SearchAndFilterBar(),
             const SizedBox(height: 16),
+            ElevatedButton(
+            onPressed: () {
+             Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MapView(events: events),
+                ),
+              );
+            },
+          style: ElevatedButton.styleFrom(
+             foregroundColor: Colors.white, backgroundColor: Colors.deepOrange,
+            ),
+           child: const Text('Go to Map View'),
+          ),
+            const SizedBox(height: 16),
             for (var event in events)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -120,6 +140,7 @@ class ExploreBody extends StatelessWidget {
     );
   }
 }
+
 
 class SearchAndFilterBar extends StatelessWidget {
   const SearchAndFilterBar({Key? key}) : super(key: key);
