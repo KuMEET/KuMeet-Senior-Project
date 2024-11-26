@@ -1,13 +1,13 @@
-// lib/models/event.dart
-
 class Event {
-  final String imagePath;         // Path to event image
-  final String title;             // Title of the event
-  final String description;       // Detailed description of the event
-  final String location;          // Location of the event
-  final int seatsAvailable;       // Number of total seats for the event
-  final DateTime? date;           // Actual date of the event
-  final String? badge;            // Optional: Badge or status indicator (e.g., "Limited Seats")
+  final String imagePath;
+  final String title;
+  final String description;
+  final String location;
+  final int seatsAvailable;
+  final DateTime? date;
+  final String? badge;
+  final double latitude;  // Latitude for event location
+  final double longitude; // Longitude for event location
 
   Event({
     required this.imagePath,
@@ -17,6 +17,7 @@ class Event {
     required this.seatsAvailable,
     this.date,
     this.badge,
+    required this.latitude,
+    required this.longitude,
   });
 }
-

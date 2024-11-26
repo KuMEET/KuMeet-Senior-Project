@@ -3,6 +3,7 @@ import 'createEvent_page.dart';
 import 'eventcard.dart';
 import 'eventDetail_page.dart';
 import 'event.dart';
+import 'map_view.dart';
 
 class ExplorePage extends StatefulWidget {
   final Function(Event) onAddEventToCalendar;
@@ -92,6 +93,21 @@ class ExploreBody extends StatelessWidget {
           children: [
             const SearchAndFilterBar(),
             const SizedBox(height: 16),
+            ElevatedButton(
+            onPressed: () {
+             Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MapView(events: events),
+                ),
+              );
+            },
+          style: ElevatedButton.styleFrom(
+             foregroundColor: Colors.white, backgroundColor: Colors.deepOrange,
+            ),
+           child: const Text('Go to Map View'),
+          ),
+            const SizedBox(height: 16),
             for (var event in events)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -120,6 +136,7 @@ class ExploreBody extends StatelessWidget {
     );
   }
 }
+
 
 class SearchAndFilterBar extends StatelessWidget {
   const SearchAndFilterBar({super.key});

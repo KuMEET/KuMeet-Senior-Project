@@ -70,6 +70,19 @@ class _CreateEventPageState extends State<CreateEventPage> {
     }
   }
 
+  // Extract latitude and longitude from Google Maps URL
+  void _extractCoordinates(String url) {
+    final regex = RegExp(r'@(-?\d+\.\d+),(-?\d+\.\d+)'); // Matches @latitude,longitude
+    final match = regex.firstMatch(url);
+    if (match != null) {
+      latitude = double.parse(match.group(1)!);
+      longitude = double.parse(match.group(2)!);
+    } else {
+      latitude = null;
+      longitude = null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,7 +109,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   labelText: 'Event Title',
                   prefixIcon: const Icon(Icons.title, color: Colors.teal),
                   filled: true,
-                  fillColor: Colors.grey[800], // Darker grey for input field
+                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
