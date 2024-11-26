@@ -159,12 +159,7 @@ class SearchAndFilterBar extends StatelessWidget {
 class ExploreFloatingActionButton extends StatelessWidget {
   final Function(Event) onAddEvent;
 
-<<<<<<< HEAD
   const ExploreFloatingActionButton({super.key, required this.onAddEvent});
-=======
-  const ExploreFloatingActionButton({Key? key, required this.onAddEvent})
-      : super(key: key);
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
 
   @override
   Widget build(BuildContext context) {

@@ -8,12 +8,7 @@ class GroupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
     return const Scaffold(
-=======
-    return Scaffold(
-      backgroundColor: Colors.grey[900], 
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
       body: Column(
         children: [
           Padding(

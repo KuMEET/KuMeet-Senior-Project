@@ -180,22 +180,9 @@ class SignupButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-<<<<<<< HEAD
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 1, 107, 95)),
         padding: WidgetStateProperty.all<EdgeInsets>(
-=======
-      child: const Text(
-        'Sign Up',
-        style: TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(Colors.deepOrange),
-        padding: MaterialStateProperty.all<EdgeInsets>(
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
           const EdgeInsets.symmetric(vertical: 12),
         ),
         shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -220,17 +207,8 @@ class LoginRedirectButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
-<<<<<<< HEAD
       style: ButtonStyle(
         foregroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 1, 102, 90)),
-=======
-      child: const Text(
-        "Already have an account? Login",
-        style: TextStyle(color: Colors.white),
-      ),
-      style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
       ),
       child: const Text("Already have an account? Login"),
     );

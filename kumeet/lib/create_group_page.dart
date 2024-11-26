@@ -150,7 +150,6 @@ class CreateGroupButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-<<<<<<< HEAD
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.all(Colors.blueGrey),
         padding: WidgetStateProperty.all(
@@ -160,13 +159,6 @@ class CreateGroupButton extends StatelessWidget {
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-=======
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.deepOrange,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
         ),
       ),
       child: const Text(

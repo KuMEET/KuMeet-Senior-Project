@@ -59,15 +59,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-<<<<<<< HEAD
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
-=======
-      initialDate: DateTime.now(), // Set the initial date
-      firstDate: DateTime.now(), // Set the earliest selectable date
-      lastDate: DateTime(2100), // Set the latest selectable date
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -95,21 +89,12 @@ class _CreateEventPageState extends State<CreateEventPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-<<<<<<< HEAD
               // Event Title
-=======
-              // Event Title Field
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: 'Event Title',
-<<<<<<< HEAD
                   prefixIcon: const Icon(Icons.title, color: Colors.teal),
-=======
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  prefixIcon: const Icon(Icons.title, color: Colors.white),
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
                   filled: true,
                   fillColor: Colors.grey[800], // Darker grey for input field
                   border: OutlineInputBorder(
@@ -117,37 +102,18 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-<<<<<<< HEAD
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Please enter a title' : null,
               ),
               const SizedBox(height: 16),
 
               // Event Description
-=======
-                style: const TextStyle(color: Colors.white),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title for the event';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Event Description Field
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: 'Event Description',
-<<<<<<< HEAD
                   prefixIcon: const Icon(Icons.description, color: Colors.teal),
-=======
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  prefixIcon: const Icon(Icons.description, color: Colors.white),
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
                   filled: true,
                   fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
@@ -155,38 +121,18 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-<<<<<<< HEAD
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Please enter a description' : null,
               ),
               const SizedBox(height: 16),
 
               // Number of Seats
-=======
-                style: const TextStyle(color: Colors.white),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please provide a description for the event';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Seats Available Field
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
               TextFormField(
                 controller: _seatsController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-<<<<<<< HEAD
                   labelText: 'Seats Available',
                   prefixIcon: const Icon(Icons.event_seat, color: Colors.teal),
-=======
-                  labelText: 'Number of Seats Available',
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  prefixIcon: const Icon(Icons.event_seat, color: Colors.white),
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
                   filled: true,
                   fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
@@ -194,7 +140,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-<<<<<<< HEAD
                 validator: (value) => value == null || int.tryParse(value) == null
                     ? 'Please enter a valid number'
                     : null,
@@ -217,42 +162,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
                       ),
                     ),
                 ],
-=======
-                style: const TextStyle(color: Colors.white),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please specify the number of seats available';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Location Field
-              TextFormField(
-                controller: _locationController,
-                decoration: InputDecoration(
-                  labelText: 'Event Location',
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  prefixIcon: const Icon(Icons.location_on, color: Colors.white),
-                  filled: true,
-                  fillColor: Colors.grey[800],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-                style: const TextStyle(color: Colors.white),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please provide a location for the event';
-                  }
-                  return null;
-                },
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
               ),
               const SizedBox(height: 16),
 
@@ -265,10 +174,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     _selectedDate == null
                         ? 'Select Event Date'
                         : DateFormat.yMMMd().format(_selectedDate!),
-<<<<<<< HEAD
-=======
-                    style: const TextStyle(color: Colors.white),
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
                   ),
                   const Spacer(),
                   TextButton(
@@ -285,21 +190,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
               // Create Event Button
               ElevatedButton(
                 onPressed: _createEvent,
-<<<<<<< HEAD
                 child: const Text('Create Event'),
-=======
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepOrange,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Create Event',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
               ),
             ],
           ),

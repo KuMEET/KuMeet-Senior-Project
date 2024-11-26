@@ -103,12 +103,7 @@ class YourGroupsSection extends StatelessWidget {
 class UpcomingEventsSection extends StatelessWidget {
   final List<Event> upcomingEvents;
 
-<<<<<<< HEAD
   const UpcomingEventsSection({super.key, required this.upcomingEvents});
-=======
-  const UpcomingEventsSection({Key? key, required this.upcomingEvents})
-      : super(key: key);
->>>>>>> 52f01b7986fdb12aad9c77db1743deaa5d8336a8
 
   @override
   Widget build(BuildContext context) {
