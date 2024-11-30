@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kumeet/event_service.dart';
 import 'createEvent_page.dart';
 import 'eventcard.dart';
 import 'eventDetail_page.dart';
@@ -21,6 +22,8 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> {
   List<Event> events = [];
+  final EventService eventService = EventService(); // Initialize EventService
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -28,25 +31,25 @@ class _ExplorePageState extends State<ExplorePage> {
     initializeEvents();
   }
 
-  void initializeEvents() {
-    events.addAll([
-      Event(
-        imagePath: 'images/event_image.png',
-        title: 'Speakers! Mini Conference!',
-        description: 'An engaging session with industry leaders sharing insights.',
-        location: 'Online',
-        seatsAvailable: 100,
-        date: DateTime.now().add(const Duration(days: 1)),latitude: 0.0, longitude: 0.0,
-      ),
-      Event(
-        imagePath: 'images/event_image.png',
-        title: 'Exandria: Threads of Fate',
-        description: 'A regular tabletop RPG game for fantasy enthusiasts.',
-        location: 'Golem\'s Gate - Gaming & Geekdom',
-        seatsAvailable: 10,
-        date: DateTime.now().add(const Duration(days: 14)), latitude: 0.0, longitude: 0.0,
-      ),
-    ]);
+  void initializeEvents() async {
+    try {
+      // Fetch events from the backend
+      final fetchedEvents = await eventService.getEvents();
+
+      // Update the events list and refresh the UI
+      setState(() {
+        events = fetchedEvents;
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching events: $e');
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load events: $e')),
+      );
+    }
   }
 
   void addEvent(Event newEvent) {
@@ -56,19 +59,27 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[900], 
-      body: ExploreBody(
-        events: events,
-        onAddEventToCalendar: widget.onAddEventToCalendar,
-        isEventAdded: widget.isEventAdded,
-      ),
-      floatingActionButton: ExploreFloatingActionButton(
-        onAddEvent: (Event newEvent) => addEvent(newEvent),
-      ),
-    );
-  }
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.grey[900],
+    body: isLoading
+        ? const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
+            ),
+          )
+        : ExploreBody(
+            events: events,
+            onAddEventToCalendar: widget.onAddEventToCalendar,
+            isEventAdded: widget.isEventAdded,
+          ),
+    floatingActionButton: ExploreFloatingActionButton(
+      onAddEvent: (Event newEvent) => addEvent(newEvent),
+    ),
+  );
+}
+
 }
 
 class ExploreBody extends StatelessWidget {

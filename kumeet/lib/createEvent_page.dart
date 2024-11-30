@@ -20,7 +20,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
   LatLng? _eventLocation; // Holds the picked location
   DateTime? _selectedDate; // Holds the selected date
 
-  // Initialize the EventService with your backend URL
   final EventService eventService = EventService();
 
   // Function to pick a location
