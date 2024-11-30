@@ -6,7 +6,7 @@ import 'event.dart';
 class MapView extends StatefulWidget {
   final List<Event> events;
 
-  const MapView({Key? key, required this.events}) : super(key: key);
+  const MapView({super.key, required this.events});
 
   @override
   State<MapView> createState() => _MapViewState();

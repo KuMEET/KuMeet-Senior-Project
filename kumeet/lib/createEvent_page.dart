@@ -5,7 +5,7 @@ import 'map_picker_page.dart'; // Import the map picker
 import 'event.dart';
 
 class CreateEventPage extends StatefulWidget {
-  const CreateEventPage({Key? key}) : super(key: key);
+  const CreateEventPage({super.key});
 
   @override
   _CreateEventPageState createState() => _CreateEventPageState();
@@ -20,7 +20,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   DateTime? _selectedDate; // Holds the selected date
 
   // Function to pick a location
-  void _pickLocation() async {
+  Future<void> _pickLocation() async {
     final pickedLocation = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const MapPickerPage()),
@@ -49,9 +49,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
         location: 'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
         seatsAvailable: int.parse(_seatsController.text),
         date: _selectedDate,
+        latitude: _eventLocation!.latitude,
+        longitude: _eventLocation!.longitude,
       );
 
-      Navigator.pop(context, newEvent);
+      Navigator.pop(context, newEvent); // Return the event to the previous screen
     }
   }
 
@@ -70,19 +72,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
     }
   }
 
-  // Extract latitude and longitude from Google Maps URL
-  void _extractCoordinates(String url) {
-    final regex = RegExp(r'@(-?\d+\.\d+),(-?\d+\.\d+)'); // Matches @latitude,longitude
-    final match = regex.firstMatch(url);
-    if (match != null) {
-      latitude = double.parse(match.group(1)!);
-      longitude = double.parse(match.group(2)!);
-    } else {
-      latitude = null;
-      longitude = null;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -92,9 +81,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black, // Black app bar
-        iconTheme: const IconThemeData(color: Colors.white), 
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      backgroundColor: Colors.grey[900], 
+      backgroundColor: Colors.grey[900], // Dark background
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -203,6 +192,13 @@ class _CreateEventPageState extends State<CreateEventPage> {
               // Create Event Button
               ElevatedButton(
                 onPressed: _createEvent,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 child: const Text('Create Event'),
               ),
             ],

@@ -138,12 +138,12 @@ class LoginButton extends StatelessWidget {
         padding: WidgetStateProperty.all<EdgeInsets>(
           const EdgeInsets.symmetric(vertical: 12),
         ),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0), // Rounded corners
           ),
         ),
-        elevation: MaterialStateProperty.all<double>(5.0), // Slight elevation for depth
+        elevation: WidgetStateProperty.all<double>(5.0), // Slight elevation for depth
       ),
       child: const Text('Login', style: TextStyle(color: Colors.white)),
     );

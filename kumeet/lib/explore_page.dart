@@ -36,7 +36,7 @@ class _ExplorePageState extends State<ExplorePage> {
         description: 'An engaging session with industry leaders sharing insights.',
         location: 'Online',
         seatsAvailable: 100,
-        date: DateTime.now().add(const Duration(days: 1)),
+        date: DateTime.now().add(const Duration(days: 1)),latitude: 0.0, longitude: 0.0,
       ),
       Event(
         imagePath: 'images/event_image.png',
@@ -44,7 +44,7 @@ class _ExplorePageState extends State<ExplorePage> {
         description: 'A regular tabletop RPG game for fantasy enthusiasts.',
         location: 'Golem\'s Gate - Gaming & Geekdom',
         seatsAvailable: 10,
-        date: DateTime.now().add(const Duration(days: 14)),
+        date: DateTime.now().add(const Duration(days: 14)), latitude: 0.0, longitude: 0.0,
       ),
     ]);
   }
