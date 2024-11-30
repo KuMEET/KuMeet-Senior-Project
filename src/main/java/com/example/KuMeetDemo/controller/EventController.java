@@ -5,6 +5,7 @@ import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Service.EventService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,17 +23,17 @@ public class EventController {
         return eventService.getAllEvents();
     }
     @PostMapping("/create-event")
-    public Events createEvent(@RequestBody EventDto event) {
+    public ResponseEntity<Events> createEvent(@RequestBody EventDto event) {
         return eventService.createEvent(event);
     }
     @DeleteMapping("/delete-event")
     public void deleteEvent(@RequestBody Events event) {
         eventService.deleteEvent(event.getId());
     }
-    @PutMapping("/update-event")
-    public Events updateEvent(@RequestBody Events event) {
-        return eventService.updateEvent(event);
-    }
+//    @PutMapping("/update-event")
+//    public Events updateEvent(@RequestBody Events event) {
+//        return eventService.updateEvent(event);
+//    }
     @GetMapping("/find-event")
     public Events findEvent(@RequestBody Events event) {
         return eventService.getEvent(event.getId());

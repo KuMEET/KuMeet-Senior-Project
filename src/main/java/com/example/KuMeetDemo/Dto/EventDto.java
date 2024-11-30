@@ -8,11 +8,10 @@ import java.util.UUID;
 @Data
 
 public class EventDto {
-    UUID id;
-    String name;
-    String type;
+    String title;
     String description;
-    UUID locationId;
+    Double latitude;
+    Double longitude;
     int capacity;
     Date time;
 

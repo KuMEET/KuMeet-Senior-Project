@@ -14,13 +14,13 @@ public class Events {
     @Id
     private UUID id;
     private String eventTitle;
-    private String eventType;
     private String eventDescription;
+    private Double latitude;
+    private Double longitude;
     private int participantCount;
     private int maxCapacity;
     private Date createdAt;
     private Date eventTime;
-    private Locations location;
     private List<UserReference> participants;
 
 }

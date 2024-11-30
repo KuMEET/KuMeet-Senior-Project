@@ -38,7 +38,7 @@ public class UserService {
         }
 
         // Check if the user already exists by username or email
-        Optional<Users> existingUser = userRepository.findByUserNameOrEmail(
+        Optional<Users> existingUser = userRepository.findByUserNameOrEMail(
                 userDto.getUserName(), userDto.getEmail()
         );
         if (existingUser.isPresent()) {
