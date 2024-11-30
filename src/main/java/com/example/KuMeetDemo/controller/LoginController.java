@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.*;
 public class LoginController {
     @Autowired
     private LoginAuthenticationService loginAuthenticationService;
-    @PostMapping("/register")
-    public ResponseEntity<String> addUser(@RequestBody LoginDto loginDto) {
+    @PostMapping("/login")
+    public ResponseEntity<String> loginUser(@RequestBody LoginDto loginDto) {
         return loginAuthenticationService.login(loginDto);
     }
 }

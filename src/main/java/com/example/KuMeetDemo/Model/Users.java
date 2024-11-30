@@ -19,7 +19,7 @@ public class Users {
     private String userName;
     private String name;
     private String surname;
-    private String eMail;
+    private String EMail;
     private String passWord;
     private Date createdAt;
 
