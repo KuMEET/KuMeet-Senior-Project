@@ -20,4 +20,15 @@ class Event {
     required this.latitude,
     required this.longitude,
   });
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'location': location,
+      'latitude': latitude,
+      'longitude': longitude,
+      'seatsAvailable': seatsAvailable,
+      'date': date!.toIso8601String(),
+    };
+  }
 }

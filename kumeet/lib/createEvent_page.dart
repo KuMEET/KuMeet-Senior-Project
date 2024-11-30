@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // For date formatting
-import 'package:latlong2/latlong.dart'; // For LatLng
-import 'map_picker_page.dart'; // Import the map picker
+import 'package:intl/intl.dart'; 
+import 'package:latlong2/latlong.dart'; 
+import 'map_picker_page.dart';
 import 'event.dart';
+import 'event_service.dart'; // Import the EventService
 
 class CreateEventPage extends StatefulWidget {
   const CreateEventPage({super.key});
@@ -19,6 +20,9 @@ class _CreateEventPageState extends State<CreateEventPage> {
   LatLng? _eventLocation; // Holds the picked location
   DateTime? _selectedDate; // Holds the selected date
 
+  // Initialize the EventService with your backend URL
+  final EventService eventService = EventService();
+
   // Function to pick a location
   Future<void> _pickLocation() async {
     final pickedLocation = await Navigator.push(
@@ -33,7 +37,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   }
 
   // Function to create an event
-  void _createEvent() {
+  void _createEvent() async {
     if (_formKey.currentState!.validate()) {
       if (_eventLocation == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -43,17 +47,27 @@ class _CreateEventPageState extends State<CreateEventPage> {
       }
 
       final newEvent = Event(
-        imagePath: 'images/event_image.png',
         title: _titleController.text,
         description: _descriptionController.text,
         location: 'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
-        seatsAvailable: int.parse(_seatsController.text),
-        date: _selectedDate,
         latitude: _eventLocation!.latitude,
         longitude: _eventLocation!.longitude,
+        seatsAvailable: int.parse(_seatsController.text),
+        date: _selectedDate!, imagePath: 'images/event_image.png',
       );
 
-      Navigator.pop(context, newEvent); // Return the event to the previous screen
+      final success = await eventService.createEvent(newEvent);
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Event created successfully!')),
+        );
+        Navigator.pop(context, newEvent); // Return the event to the previous screen
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to create event.')),
+        );
+      }
     }
   }
 
