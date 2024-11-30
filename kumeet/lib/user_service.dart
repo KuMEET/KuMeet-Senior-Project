@@ -2,18 +2,18 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class UserService {
-  final String baseUrl = 'http://your-backend-url.com';
+  final String baseUrl = 'http://localhost:8080/api';
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<String> login(String userName, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/login'),
+        Uri.parse('$baseUrl/auth/login'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({'email': email, 'password': password}),
+        body: json.encode({'userName': userName, 'password': password}),
       );
 
       if (response.statusCode == 200) {
-        return json.decode(response.body); // Parse and return the JSON response
+        return response.body; // Parse and return the JSON response
       } else {
         throw Exception('Failed to login: ${response.statusCode}');
       }
@@ -23,8 +23,9 @@ class UserService {
   }
   Future<Map<String, dynamic>> signup(Map<String, String> userData) async {
     try {
+
       final response = await http.post(
-        Uri.parse('$baseUrl/signup'),
+        Uri.parse('$baseUrl/register'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(userData),
       );

@@ -1,7 +1,49 @@
 import 'package:flutter/material.dart';
+import 'user_service.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final UserService _userService = UserService(); // UserService instance
+  bool _isLoading = false;
+
+  void _login() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      try {
+        final response = await _userService.login(
+          _usernameController.text,
+          _passwordController.text,
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Welcome back!')),
+        );
+
+        // Navigate to the home page on successful login
+        Navigator.pushReplacementNamed(context, '/home');
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: $e')),
+        );
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,22 +56,91 @@ class LoginPage extends StatelessWidget {
             fontFamily: 'Arial',
           ),
         ),
-        backgroundColor: Colors.black, 
+        backgroundColor: Colors.black,
         centerTitle: true,
       ),
-      body: const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            LogoWidget(),
-            SizedBox(height: 32),
-            LoginForm(),
-          ],
+      backgroundColor: Colors.grey[900],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              const LogoWidget(),
+              const SizedBox(height: 32),
+
+              // Username Field
+              TextFormField(
+                controller: _usernameController,
+                decoration: InputDecoration(
+                  labelText: 'Username',
+                  prefixIcon: const Icon(Icons.person, color: Colors.white),
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  labelStyle: const TextStyle(color: Colors.white),
+                ),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Please enter your username' : null,
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 16),
+
+              // Password Field
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  prefixIcon: const Icon(Icons.lock, color: Colors.white),
+                  filled: true,
+                  fillColor: Colors.grey[800],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  labelStyle: const TextStyle(color: Colors.white),
+                ),
+                obscureText: true,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Please enter your password' : null,
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 32),
+
+              // Login Button
+              ElevatedButton(
+                onPressed: _isLoading ? null : _login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepOrange,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                    : const Text('Login', style: TextStyle(color: Colors.white)),
+              ),
+              const SizedBox(height: 16),
+
+              // Sign Up Button
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/signup');
+                },
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.deepOrange,
+                ),
+                child: const Text("Don't have an account? Sign up"),
+              ),
+            ],
+          ),
         ),
       ),
-      backgroundColor: Colors.grey[900], 
     );
   }
 }
@@ -51,6 +162,7 @@ class LogoWidget extends StatelessWidget {
     );
   }
 }
+
 
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
@@ -85,7 +197,7 @@ class EmailTextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       decoration: InputDecoration(
-        labelText: 'Email',
+        labelText: 'userName',
         labelStyle: const TextStyle(color: Colors.white),
         prefixIcon: const Icon(Icons.email, color: Colors.white),
         border: OutlineInputBorder(

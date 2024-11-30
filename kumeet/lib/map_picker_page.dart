@@ -3,7 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapPickerPage extends StatefulWidget {
-  const MapPickerPage({super.key});
+  const MapPickerPage({Key? key}) : super(key: key);
 
   @override
   _MapPickerPageState createState() => _MapPickerPageState();
@@ -11,6 +11,7 @@ class MapPickerPage extends StatefulWidget {
 
 class _MapPickerPageState extends State<MapPickerPage> {
   LatLng? _pickedLocation;
+  final LatLng _defaultLocation = LatLng(41.0082, 28.9784); // Istanbul
 
   @override
   Widget build(BuildContext context) {
@@ -21,13 +22,16 @@ class _MapPickerPageState extends State<MapPickerPage> {
       ),
       body: Stack(
         children: [
+          // FlutterMap widget for OpenStreetMap
           FlutterMap(
             options: MapOptions(
-              center: LatLng(41.0082, 28.9784), // Default location (Istanbul)
-              zoom: 13.0,
+              
               onTap: (tapPosition, point) {
+              center: _pickedLocation ?? _defaultLocation; // Use picked or default location
+              zoom: 13.0; // Initial zoom level
+              maxZoom: 18.0; // Maximum zoom level
                 setState(() {
-                  _pickedLocation = point; // Update the picked location
+                  _pickedLocation = point; // Update picked location
                 });
               },
             ),
@@ -39,16 +43,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
               if (_pickedLocation != null)
                 MarkerLayer(
                   markers: [
-                    Marker(
-                      point: _pickedLocation!,
-                      width: 80,
-                      height: 80,
-                      builder: (ctx) => const Icon(
-                        Icons.location_pin,
-                        color: Colors.red,
-                        size: 40,
-                      ),
-                    ),
+                    
                   ],
                 ),
             ],
@@ -60,10 +55,14 @@ class _MapPickerPageState extends State<MapPickerPage> {
               right: 20,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context, _pickedLocation);
+                  Navigator.pop(context, _pickedLocation); // Return picked location
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.teal,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 child: const Text(
                   'Confirm Location',

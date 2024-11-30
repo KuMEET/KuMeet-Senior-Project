@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'user_service.dart';
 
+
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
 
@@ -10,12 +11,12 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
+  final _usernameController = TextEditingController(); // New username field
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
-  final UserService _userService = UserService(); // Instance of UserService
+  final UserService _userService = UserService();
   bool _isLoading = false;
 
   void _signup() async {
@@ -25,10 +26,10 @@ class _SignupPageState extends State<SignupPage> {
       });
 
       final userData = {
+        'userName': _usernameController.text,
         'name': _nameController.text,
         'surname': _surnameController.text,
         'email': _emailController.text,
-        'phone': _phoneController.text,
         'password': _passwordController.text,
       };
 
@@ -38,8 +39,7 @@ class _SignupPageState extends State<SignupPage> {
           SnackBar(content: Text('Welcome, ${response['name']}!')),
         );
 
-        // Navigate to login or home page after signup
-        Navigator.pop(context);
+        Navigator.pop(context); // Navigate back to login
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Signup failed: $e')),
@@ -56,71 +56,64 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Sign Up',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Arial',
-          ),
-        ),
+        title: const Text('Sign Up'),
         backgroundColor: Colors.black,
         centerTitle: true,
       ),
+      backgroundColor: Colors.grey[900],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
+            children: [
+              // App Logo or Title
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  child: Text(
+                    'Create an Account',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal[200],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Username Field
+              TextFormField(
+                controller: _usernameController,
+                decoration: _buildInputDecoration('Username', Icons.account_circle),
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Please enter your username' : null,
+              ),
+              const SizedBox(height: 16),
+
               // Name Field
               TextFormField(
                 controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Name',
-                  prefixIcon: const Icon(Icons.person, color: Colors.white),
-                  filled: true,
-                  fillColor: Colors.grey[800],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
+                decoration: _buildInputDecoration('Name', Icons.person),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Please enter your name' : null,
-                style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 16),
 
               // Surname Field
               TextFormField(
                 controller: _surnameController,
-                decoration: InputDecoration(
-                  labelText: 'Surname',
-                  prefixIcon: const Icon(Icons.person_outline, color: Colors.white),
-                  filled: true,
-                  fillColor: Colors.grey[800],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
+                decoration: _buildInputDecoration('Surname', Icons.person_outline),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Please enter your surname' : null,
-                style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 16),
 
               // Email Field
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: const Icon(Icons.email, color: Colors.white),
-                  filled: true,
-                  fillColor: Colors.grey[800],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
+                decoration: _buildInputDecoration('Email', Icons.email),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
@@ -130,43 +123,16 @@ class _SignupPageState extends State<SignupPage> {
                   }
                   return null;
                 },
-                style: const TextStyle(color: Colors.white),
-              ),
-              const SizedBox(height: 16),
-
-              // Phone Field
-              TextFormField(
-                controller: _phoneController,
-                decoration: InputDecoration(
-                  labelText: 'Phone Number',
-                  prefixIcon: const Icon(Icons.phone, color: Colors.white),
-                  filled: true,
-                  fillColor: Colors.grey[800],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                keyboardType: TextInputType.phone,
-                style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 16),
 
               // Password Field
               TextFormField(
                 controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
-                  filled: true,
-                  fillColor: Colors.grey[800],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
+                decoration: _buildInputDecoration('Password', Icons.lock),
                 obscureText: true,
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Please enter your password' : null,
-                style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 32),
 
@@ -174,7 +140,7 @@ class _SignupPageState extends State<SignupPage> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _signup,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 1, 107, 95),
+                  backgroundColor: Colors.teal,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -192,7 +158,7 @@ class _SignupPageState extends State<SignupPage> {
               TextButton(
                 onPressed: () => Navigator.pop(context),
                 style: TextButton.styleFrom(
-                  foregroundColor: const Color.fromARGB(255, 1, 102, 90),
+                  foregroundColor: Colors.teal[200],
                 ),
                 child: const Text("Already have an account? Login"),
               ),
@@ -200,6 +166,20 @@ class _SignupPageState extends State<SignupPage> {
           ),
         ),
       ),
+    );
+  }
+
+  // Helper method for consistent InputDecoration
+  InputDecoration _buildInputDecoration(String labelText, IconData icon) {
+    return InputDecoration(
+      labelText: labelText,
+      prefixIcon: Icon(icon, color: Colors.white),
+      filled: true,
+      fillColor: Colors.grey[800],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      labelStyle: const TextStyle(color: Colors.white),
     );
   }
 }
@@ -212,24 +192,50 @@ class SignupForm extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
+        const UsernameTextField(),
+        const SizedBox(height: 16),
         const NameTextField(),
         const SizedBox(height: 16),
         const SurnameTextField(),
         const SizedBox(height: 16),
         const EmailTextField(),
         const SizedBox(height: 16),
-        const PhoneTextField(),
-        const SizedBox(height: 16),
         const PasswordTextField(),
         const SizedBox(height: 32),
-        SignupButton(onPressed: () {
-          Navigator.pop(context);
-        }),
+        SignupButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         const SizedBox(height: 16),
-        LoginRedirectButton(onPressed: () {
-          Navigator.pop(context);
-        }),
+        LoginRedirectButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ],
+    );
+  }
+}
+
+class UsernameTextField extends StatelessWidget {
+  const UsernameTextField({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      decoration: InputDecoration(
+        labelText: 'Username',
+        labelStyle: const TextStyle(color: Colors.white),
+        prefixIcon: const Icon(Icons.account_circle, color: Colors.white),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: const BorderSide(color: Colors.white),
+        ),
+        filled: true,
+        fillColor: Colors.grey[800],
+      ),
+      style: const TextStyle(color: Colors.white),
     );
   }
 }
@@ -301,31 +307,6 @@ class EmailTextField extends StatelessWidget {
   }
 }
 
-class PhoneTextField extends StatelessWidget {
-  const PhoneTextField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        labelText: 'Phone Number',
-        labelStyle: const TextStyle(color: Colors.white),
-        prefixIcon: const Icon(Icons.phone, color: Colors.white),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: Colors.white),
-        ),
-        filled: true,
-        fillColor: Colors.grey[800],
-        hintText: 'Optional',
-        hintStyle: const TextStyle(color: Colors.white70),
-      ),
-      keyboardType: TextInputType.phone,
-      style: const TextStyle(color: Colors.white),
-    );
-  }
-}
-
 class PasswordTextField extends StatelessWidget {
   const PasswordTextField({super.key});
 
@@ -358,23 +339,18 @@ class SignupButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-      style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 1, 107, 95)),
-        padding: WidgetStateProperty.all<EdgeInsets>(
-          const EdgeInsets.symmetric(vertical: 12),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color.fromARGB(255, 1, 107, 95),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
         ),
-        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-        ),
-        elevation: WidgetStateProperty.all<double>(5.0),
+        elevation: 5.0,
       ),
       child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
     );
   }
 }
-
 
 class LoginRedirectButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -385,8 +361,8 @@ class LoginRedirectButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton(
       onPressed: onPressed,
-      style: ButtonStyle(
-        foregroundColor: WidgetStateProperty.all<Color>(const Color.fromARGB(255, 1, 102, 90)),
+      style: TextButton.styleFrom(
+        foregroundColor: const Color.fromARGB(255, 1, 102, 90),
       ),
       child: const Text("Already have an account? Login"),
     );

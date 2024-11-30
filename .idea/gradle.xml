@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="GradleMigrationSettings" migrationVersion="1" />
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <compositeConfiguration>
           <compositeBuild compositeDefinitionSource="SCRIPT">
             <builds>
-              <build path="$USER_HOME$/Desktop/Kumeet 2/kumeet/flutter/packages/flutter_tools/gradle" name="gradle">
+              <build path="$PROJECT_DIR$/../Desktop/Kumeet 2/kumeet/flutter/packages/flutter_tools/gradle" name="gradle">
                 <projects>
-                  <project path="$USER_HOME$/Desktop/Kumeet 2/kumeet/flutter/packages/flutter_tools/gradle" />
+                  <project path="$PROJECT_DIR$/../Desktop/Kumeet 2/kumeet/flutter/packages/flutter_tools/gradle" />
                 </projects>
               </build>
             </builds>
@@ -18,11 +19,11 @@
         <option name="gradleJvm" value="17" />
         <option name="modules">
           <set>
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.23/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/geolocator_android-4.6.1/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/google_maps_flutter_android-2.14.11/android" />
-            <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+17/android" />
-            <option value="$USER_HOME$/Desktop/Kumeet 2/kumeet/flutter/packages/flutter_tools/gradle" />
+            <option value="$PROJECT_DIR$/../.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.23/android" />
+            <option value="$PROJECT_DIR$/../.pub-cache/hosted/pub.dev/geolocator_android-4.6.1/android" />
+            <option value="$PROJECT_DIR$/../.pub-cache/hosted/pub.dev/google_maps_flutter_android-2.14.11/android" />
+            <option value="$PROJECT_DIR$/../.pub-cache/hosted/pub.dev/image_picker_android-0.8.12+17/android" />
+            <option value="$PROJECT_DIR$/../Desktop/Kumeet 2/kumeet/flutter/packages/flutter_tools/gradle" />
             <option value="$PROJECT_DIR$/kumeet/android" />
             <option value="$PROJECT_DIR$/kumeet/android/app" />
           </set>
