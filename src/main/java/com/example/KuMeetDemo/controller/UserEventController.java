@@ -3,12 +3,12 @@ package com.example.KuMeetDemo.controller;
 import com.example.KuMeetDemo.Service.UserEventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
+
+@RestController
+@CrossOrigin(origins = "*")
 
 public class UserEventController {
     @Autowired

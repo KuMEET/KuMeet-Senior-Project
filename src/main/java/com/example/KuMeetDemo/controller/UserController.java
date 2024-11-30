@@ -5,6 +5,7 @@ import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,13 +13,14 @@ import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
+@CrossOrigin(origins = "*")
 @RequestMapping("/api")
 public class UserController {
     @Autowired
     private UserService userService;
 
     @PostMapping("/register")
-    public Users addUser(@RequestBody UserDto user) {
+    public ResponseEntity<Users> addUser(@RequestBody UserDto user) {
         return userService.registerUser(user);
     }
     @GetMapping("/find/{userId}")

@@ -8,11 +8,14 @@ import com.example.KuMeetDemo.Repository.GroupRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -26,7 +29,23 @@ public class UserService {
     private EventRepository eventRepository;
 
     // create method
-    public Users registerUser(UserDto userDto) {
+    public ResponseEntity<Users> registerUser(UserDto userDto) {
+        // Check for null or missing fields in userDto
+        if (userDto.getUserName() == null || userDto.getUserName().isEmpty() ||
+                userDto.getEmail() == null || userDto.getEmail().isEmpty() ||
+                userDto.getPassword() == null || userDto.getPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
+        }
+
+        // Check if the user already exists by username or email
+        Optional<Users> existingUser = userRepository.findByUserNameOrEmail(
+                userDto.getUserName(), userDto.getEmail()
+        );
+        if (existingUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null); // 409 Conflict
+        }
+
+        // Create and save the new user
         Users user = new Users();
         user.setUserName(userDto.getUserName());
         user.setName(userDto.getName());
@@ -35,8 +54,12 @@ public class UserService {
         user.setPassWord(userDto.getPassword());
         user.setCreatedAt(new Date(System.currentTimeMillis()));
         user.setId(UUID.randomUUID());
-        return userRepository.save(user);
+
+        Users savedUser = userRepository.save(user);
+        // Return created response
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser); // 201 Created
     }
+
     public Users findUserByUserId(UUID userId) {
         Users user = userRepository.findById(userId).get();
         if (ObjectUtils.isEmpty(user)) {
