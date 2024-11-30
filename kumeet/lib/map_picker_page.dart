@@ -3,7 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapPickerPage extends StatefulWidget {
-  const MapPickerPage({Key? key}) : super(key: key);
+  const MapPickerPage({super.key});
 
   @override
   _MapPickerPageState createState() => _MapPickerPageState();
@@ -34,7 +34,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
             children: [
               TileLayer(
                 urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                subdomains: ['a', 'b', 'c'],
+                subdomains: const ['a', 'b', 'c'],
               ),
               if (_pickedLocation != null)
                 MarkerLayer(
