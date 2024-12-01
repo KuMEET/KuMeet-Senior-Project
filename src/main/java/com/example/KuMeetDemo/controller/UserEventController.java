@@ -13,16 +13,16 @@ import java.util.UUID;
 public class UserEventController {
     @Autowired
     private UserEventService userEventService;
-    @PostMapping("/add-to-event/{userId}/{groupId}")
-    public ResponseEntity<String> userAddToEventController(@PathVariable UUID userId, @PathVariable UUID evenId){
-        return userEventService.UserAddToEvent(userId, evenId);
+    @PostMapping("/add-to-event/{userName}/{eventId}")
+    public ResponseEntity<String> userAddToEventController(@PathVariable String userName, @PathVariable UUID eventId){
+        return userEventService.UserAddToEvent(userName, eventId);
     }
-    @DeleteMapping("/remove-from-event/{userId}/{groupId}")
-    public ResponseEntity<String> userDeleteFromEventController(@PathVariable UUID userId, @PathVariable UUID eventId){
-        return userEventService.deleteUserFromEvent(userId, eventId);
+    @DeleteMapping("/remove-from-event/{userName}/{eventId}")
+    public ResponseEntity<String> userDeleteFromEventController(@PathVariable String userName, @PathVariable UUID eventId){
+        return userEventService.deleteUserFromEvent(userName, eventId);
     }
-    @PutMapping("/update-role-event/{userId}/{groupId}/{role}")
-    public ResponseEntity<String> updateUserRoleInEventController(@PathVariable UUID userId, @PathVariable UUID evenId, @PathVariable String role){
-        return userEventService.updateUserRoleInEvent(userId, evenId, role);
+    @PutMapping("/update-role-event/{userName}/{eventId}/{role}")
+    public ResponseEntity<String> updateUserRoleInEventController(@PathVariable String userName, @PathVariable UUID eventId, @PathVariable String role){
+        return userEventService.updateUserRoleInEvent(userName, eventId, role);
     }
 }

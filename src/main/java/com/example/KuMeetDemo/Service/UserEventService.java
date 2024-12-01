@@ -1,10 +1,8 @@
 package com.example.KuMeetDemo.Service;
 
 import com.example.KuMeetDemo.Dto.EventReference;
-import com.example.KuMeetDemo.Dto.GroupReference;
 import com.example.KuMeetDemo.Dto.UserReference;
 import com.example.KuMeetDemo.Model.Events;
-import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Repository.EventRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
@@ -28,19 +26,19 @@ public class UserEventService {
     @Autowired
     EventRepository eventRepository;
 
-    public ResponseEntity<String> UserAddToEvent(UUID userId, UUID eventId){
-        Users user = userRepository.findById(userId).orElse(null);
+    public ResponseEntity<String> UserAddToEvent(String userName, UUID eventId){
+        Users user = userRepository.findByUserName(userName);
         if (user == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body((String.format("User with given id %s could not found!", userId.toString())));
+                    .body((String.format("User with given userName %s could not found!", userName)));
         }
 
         Events events = eventRepository.findById(eventId).orElse(null);
         if (events == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body((String.format("Event with given id %s could not found!", eventId.toString())));
+                    .body((String.format("Event with given id %s could not found!", eventId)));
         }
 
         if (events.getParticipantCount() >= events.getMaxCapacity()) {
@@ -50,7 +48,7 @@ public class UserEventService {
         }
 
         UserReference userReference = new UserReference();
-        userReference.setUserId(userId);
+        userReference.setUserId(user.getId());
         userReference.setJoinAt(new Date(System.currentTimeMillis()));
         userReference.setRole("Member");
 
@@ -60,10 +58,10 @@ public class UserEventService {
         }
         else {
             for(UserReference userReferenceElement: userReferenceList){
-                if(userReferenceElement.getUserId().equals(userId)){
+                if(userReferenceElement.getUserId().equals(user.getId())){
                     return ResponseEntity
                             .status(HttpStatus.BAD_REQUEST)
-                            .body(String.format("User with given id %s already exists!",userId));
+                            .body(String.format("User with given userName %s already exists!",userName));
                 }
             }
         }
@@ -89,17 +87,17 @@ public class UserEventService {
         eventRepository.save(events);
         userRepository.save(user);
 
-        return ResponseEntity.ok(String.format("User with given id %s added successfully to this event with id %s",
-                userId, eventId));
+        return ResponseEntity.ok(String.format("User with given userName %s added successfully to this event with id %s",
+                userName, eventId));
 
     }
 
-    public ResponseEntity<String> deleteUserFromEvent(UUID userId, UUID eventId) {
-        Users user = userRepository.findById(userId).orElse(null);
+    public ResponseEntity<String> deleteUserFromEvent(String userName, UUID eventId) {
+        Users user = userRepository.findByUserName(userName);
         if (user == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(String.format("User with given id %s could not be found!", userId));
+                    .body(String.format("User with given userName %s could not be found!", userName));
         }
 
         Events events = eventRepository.findById(eventId).orElse(null);
@@ -110,10 +108,10 @@ public class UserEventService {
         }
 
         List<UserReference> userReferenceList = events.getParticipants();
-        if (userReferenceList == null || !userReferenceList.removeIf(ref -> ref.getUserId().equals(userId))) {
+        if (userReferenceList == null || !userReferenceList.removeIf(ref -> ref.getUserId().equals(user.getId()))) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(String.format("User with given id %s is not a member of the event %s!", userId, eventId));
+                    .body(String.format("User with given userName %s is not a member of the event %s!", userName, eventId));
         }
 
         events.setParticipants(userReferenceList);
@@ -127,15 +125,15 @@ public class UserEventService {
             userRepository.save(user);
         }
 
-        return ResponseEntity.ok(String.format("User with id %s successfully removed from event with id %s", userId, eventId));
+        return ResponseEntity.ok(String.format("User with userName %s successfully removed from event with id %s", userName, eventId));
     }
 
-    public ResponseEntity<String> updateUserRoleInEvent(UUID userId, UUID eventId, String newRole) {
-        Users user = userRepository.findById(userId).orElse(null);
+    public ResponseEntity<String> updateUserRoleInEvent(String userName, UUID eventId, String newRole) {
+        Users user = userRepository.findByUserName(userName);
         if (user == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(String.format("User with given id %s could not be found!", userId));
+                    .body(String.format("User with given userName %s could not be found!", userName));
         }
 
         Events events = eventRepository.findById(eventId).orElse(null);
@@ -146,14 +144,14 @@ public class UserEventService {
         }
 
         List<UserReference> userReferenceList = events.getParticipants();
-        if (userReferenceList == null || userReferenceList.stream().noneMatch(ref -> ref.getUserId().equals(userId))) {
+        if (userReferenceList == null || userReferenceList.stream().noneMatch(ref -> ref.getUserId().equals(user.getId()))) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(String.format("User with given id %s is not a member of the group %s!", userId, eventId));
+                    .body(String.format("User with given userName %s is not a member of the group %s!", userName, eventId));
         }
 
         userReferenceList.forEach(ref -> {
-            if (ref.getUserId().equals(userId)) {
+            if (ref.getUserId().equals(user.getId())) {
                 ref.setRole(newRole);
             }
         });
@@ -171,7 +169,7 @@ public class UserEventService {
             userRepository.save(user);
         }
 
-        return ResponseEntity.ok(String.format("Role of user with id %s updated to %s in event with id %s", userId, newRole, eventId));
+        return ResponseEntity.ok(String.format("Role of user with userName %s updated to %s in event with id %s", userName, newRole, eventId));
     }
 
 
