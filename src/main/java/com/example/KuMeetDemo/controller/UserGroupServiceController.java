@@ -1,6 +1,6 @@
 package com.example.KuMeetDemo.controller;
 
-import com.example.KuMeetDemo.Dto.GroupReference;
+import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Service.UserGroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class UserGroupServiceController {
         return userGroupService.updateUserRoleInGroup(userName, groupId, role);
     }
     @GetMapping("/get-groups-by-username/{userName}")
-    public ResponseEntity<List<GroupReference>> getGroupsByUsername(@PathVariable String userName){
+    public ResponseEntity<List<Groups>> getGroupsByUsername(@PathVariable String userName){
         return userGroupService.getGroupsByUsername(userName);
     }
 

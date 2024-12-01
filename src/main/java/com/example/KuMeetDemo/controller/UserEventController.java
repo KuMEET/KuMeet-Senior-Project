@@ -1,6 +1,6 @@
 package com.example.KuMeetDemo.controller;
 
-import com.example.KuMeetDemo.Dto.EventReference;
+import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Service.UserEventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ public class UserEventController {
         return userEventService.updateUserRoleInEvent(userName, eventId, role);
     }
     @GetMapping("/get-events-by-username/{userName}")
-    public ResponseEntity<List<EventReference>> getEventsByUsername(@PathVariable String userName){
+    public ResponseEntity<List<Events>> getEventsByUsername(@PathVariable String userName){
         return userEventService.getEventsByUsername(userName);
     }
 }

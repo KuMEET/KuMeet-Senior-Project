@@ -173,15 +173,22 @@ public class UserGroupService {
     }
 
 
-    public ResponseEntity<List<GroupReference>> getGroupsByUsername(String userName) {
+    public ResponseEntity<List<Groups>> getGroupsByUsername(String userName) {
         Users user = userRepository.findByUserName(userName);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
         }
         List<GroupReference> groupReferenceList = user.getGroupReferenceList();
+        List<Groups> groups = new ArrayList<>();
         if (groupReferenceList != null) {
-            return ResponseEntity.ok(groupReferenceList);
+            for (GroupReference groupReference : groupReferenceList) {
+                Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
+                if (group == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                }
+                groups.add(group);
+            }
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        return ResponseEntity.ok(groups);
     }
 }
