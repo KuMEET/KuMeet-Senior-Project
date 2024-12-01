@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'package:kumeet/login_page.dart';
 import 'event.dart';
 
-class EventDetailPage extends StatelessWidget {
+class EventDetailPage extends StatefulWidget {
   final Event event;
   final VoidCallback onAddToCalendar;
   final bool isAdded; // Boolean to check if the event is already added
@@ -10,18 +13,72 @@ class EventDetailPage extends StatelessWidget {
   const EventDetailPage({
     super.key,
     required this.event,
-    required this.onAddToCalendar,
+    required this.onAddToCalendar,    
     required this.isAdded,
   });
+
+  @override
+  _EventDetailPageState createState() => _EventDetailPageState();
+}
+
+class _EventDetailPageState extends State<EventDetailPage> {
+  bool _isAdding = false;
+  String? UserName = GlobalState().userName;
+
+  Future<void> _joinEvent() async {
+    setState(() {
+      _isAdding = true;
+    });
+
+    final url = Uri.parse(
+        'http://localhost:8080/add-to-event/${UserName}/${widget.event.id}');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          widget.onAddToCalendar();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Successfully joined ${widget.event.title}!'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      } else {
+        final error = jsonDecode(response.body)['message'] ?? 'Unknown error';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to join: $error'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isAdding = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.grey[900], 
-        iconTheme: const IconThemeData(color: Colors.white), 
+        backgroundColor: Colors.grey[900],
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      backgroundColor: Colors.grey[900], 
+      backgroundColor: Colors.grey[900],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -33,10 +90,10 @@ class EventDetailPage extends StatelessWidget {
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(event.imagePath),
+                  image: AssetImage(widget.event.imagePath),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
-                    Colors.black.withOpacity(0.6), // Dark overlay for readability
+                    Colors.black.withOpacity(0.6),
                     BlendMode.darken,
                   ),
                 ),
@@ -47,29 +104,29 @@ class EventDetailPage extends StatelessWidget {
 
             // Event Title
             Text(
-              event.title,
+              widget.event.title,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.white, // White for dark theme
+                color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
 
             // Event Description
             Text(
-              event.description,
-              style: const TextStyle(fontSize: 16, color: Colors.white70), // Subtle white
+              widget.event.description,
+              style: const TextStyle(fontSize: 16, color: Colors.white70),
             ),
             const SizedBox(height: 16),
 
             // Location
             Row(
               children: [
-                const Icon(Icons.location_on, color: Colors.deepOrange), // Orange accent
+                const Icon(Icons.location_on, color: Colors.deepOrange),
                 const SizedBox(width: 8),
                 Text(
-                  event.location,
+                  widget.event.location,
                   style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ],
@@ -79,10 +136,10 @@ class EventDetailPage extends StatelessWidget {
             // Seats Available
             Row(
               children: [
-                const Icon(Icons.event_seat, color: Colors.white70), // Subtle white
+                const Icon(Icons.event_seat, color: Colors.white70),
                 const SizedBox(width: 8),
                 Text(
-                  '${event.seatsAvailable} seats available',
+                  '${widget.event.seatsAvailable} seats available',
                   style: const TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ],
@@ -90,45 +147,42 @@ class EventDetailPage extends StatelessWidget {
             const SizedBox(height: 16),
 
             // Date
-            if (event.date != null)
+            if (widget.event.date != null)
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, color: Colors.white70), // Subtle white
+                  const Icon(Icons.calendar_today, color: Colors.white70),
                   const SizedBox(width: 8),
                   Text(
-                    DateFormat.yMMMMd().format(event.date!),
+                    DateFormat.yMMMMd().format(widget.event.date!),
                     style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ],
               ),
             const SizedBox(height: 24),
 
-            // Add to Calendar Button
+            // Join Event Button
             ElevatedButton(
-              onPressed: isAdded
+              onPressed: widget.isAdded || _isAdding
                   ? null
                   : () {
-                      onAddToCalendar();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${event.title} added to your calendar!'),
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                      Navigator.of(context).popUntil;
+                      _joinEvent();
                     },
               style: ElevatedButton.styleFrom(
                 backgroundColor:
-                    isAdded ? Colors.grey : Colors.deepOrange, // Grey if disabled
+                    widget.isAdded ? Colors.grey : Colors.deepOrange,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Rounded button
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              child: Text(
-                isAdded ? 'Already in Calendar' : 'Add to Calendar',
-                style: const TextStyle(fontSize: 18, color: Colors.white),
-              ),
+              child: _isAdding
+                  ? const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
+                  : Text(
+                      widget.isAdded ? 'Already Joined' : 'Join Event',
+                      style: const TextStyle(fontSize: 18, color: Colors.white),
+                    ),
             ),
           ],
         ),

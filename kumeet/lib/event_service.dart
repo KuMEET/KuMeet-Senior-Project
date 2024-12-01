@@ -44,7 +44,6 @@ class EventService {
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
 
-        // Map the response to a list of Event objects
         return data.map((json) => Event.fromJson(json)).toList();
       } else {
         print('Failed to fetch events: ${response.body}');

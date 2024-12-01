@@ -14,7 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   final UserService _userService = UserService(); // UserService instance
   bool _isLoading = false;
-
+  final GlobalState globalState = GlobalState();
   void _login() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -30,6 +30,7 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Welcome back!')),
         );
+        globalState.userName = _usernameController.text; // Assuming the server response includes userName
 
         // Navigate to the home page on successful login
         Navigator.pushReplacementNamed(context, '/home');
@@ -278,4 +279,14 @@ class SignUpButton extends StatelessWidget {
       child: const Text("Don't have an account? Sign up"),
     );
   }
+}
+class GlobalState {
+  static final GlobalState _instance = GlobalState._internal();
+  String? userName;
+
+  factory GlobalState() {
+    return _instance;
+  }
+
+  GlobalState._internal();
 }

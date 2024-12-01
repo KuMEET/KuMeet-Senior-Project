@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 class Event {
+  final String? id;
   final String imagePath;
   final String title;
   final String description;
@@ -10,6 +13,7 @@ class Event {
   final double longitude; // Longitude for event location
 
   Event({
+    this.id,
     required this.imagePath,
     required this.title,
     required this.description,
@@ -33,16 +37,20 @@ class Event {
     };
   }
   factory Event.fromJson(Map<String, dynamic> json) {
+    print(json);
     return Event(
-      imagePath: 'images/event_image.png', // Default image for now
-      title: json['title'],
-      description: json['description'],
-      location: json['location'] ?? '', // Default to empty string if null
-      seatsAvailable: json['capacity'] ?? 0,
-      date: json['time'] != null ? DateTime.parse(json['time']) : null,
-      badge: json['badge'], // Optional field
+      id: json['id'],
+      imagePath: 'images/event_image.png',
+      title: json['eventTitle'],
+      description: json['eventDescription'],
       latitude: json['latitude'] ?? 0.0,
       longitude: json['longitude'] ?? 0.0,
+      location:"lat: ${json['latitude']}, long: ${json['longitude']} ",
+      seatsAvailable: json['maxCapacity'] ?? 0,
+      date: DateTime.parse(json['eventTime']),
+      badge: json['badge'], // Optional field
+      
     );
   }
+  
 }
