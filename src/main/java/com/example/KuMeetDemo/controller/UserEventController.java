@@ -1,10 +1,12 @@
 package com.example.KuMeetDemo.controller;
 
+import com.example.KuMeetDemo.Dto.EventReference;
 import com.example.KuMeetDemo.Service.UserEventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,5 +26,9 @@ public class UserEventController {
     @PutMapping("/update-role-event/{userName}/{eventId}/{role}")
     public ResponseEntity<String> updateUserRoleInEventController(@PathVariable String userName, @PathVariable UUID eventId, @PathVariable String role){
         return userEventService.updateUserRoleInEvent(userName, eventId, role);
+    }
+    @GetMapping("/get-events-by-username/{userName}")
+    public ResponseEntity<List<EventReference>> getEventsByUsername(@PathVariable String userName){
+        return userEventService.getEventsByUsername(userName);
     }
 }

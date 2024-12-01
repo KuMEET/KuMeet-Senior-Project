@@ -173,9 +173,15 @@ public class UserEventService {
     }
 
 
-
-
-
-
-
+    public ResponseEntity<List<EventReference>> getEventsByUsername(String userName) {
+        Users user = userRepository.findByUserName(userName);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        List<EventReference> eventReferenceList = user.getEventReferenceList();
+        if (eventReferenceList != null) {
+            return ResponseEntity.ok(eventReferenceList);
+        }
+        return null;
+    }
 }

@@ -1,4 +1,5 @@
 package com.example.KuMeetDemo.Service;
+
 import com.example.KuMeetDemo.Dto.GroupReference;
 import com.example.KuMeetDemo.Dto.UserReference;
 import com.example.KuMeetDemo.Model.Groups;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.UUID;
 
 
-
 // 09230d94-3721-4374-b3e4-3a2f889ac4f2
 
 @Data
@@ -27,19 +27,20 @@ public class UserGroupService {
     UserRepository userRepository;
     @Autowired
     GroupRepository groupRepository;
-    public ResponseEntity<String> UserAddToGroup(UUID userId, UUID groupId){
-        Users user = userRepository.findById(userId).orElse(null);
+
+    public ResponseEntity<String> UserAddToGroup(String userName, UUID groupId) {
+        Users user = userRepository.findByUserName(userName);
         if (user == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body((String.format("User with given id %s could not found!", userId.toString())));
+                    .body((String.format("User with given userName %s could not found!", userName)));
         }
 
         Groups group = groupRepository.findById(groupId).orElse(null);
         if (group == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body((String.format("Group with given id %s could not found!", groupId.toString())));
+                    .body((String.format("Group with given id %s could not found!", groupId)));
         }
 
         if (group.getMemberCount() >= group.getCapacity()) {
@@ -49,20 +50,19 @@ public class UserGroupService {
         }
 
         UserReference userReference = new UserReference();
-        userReference.setUserId(userId);
+        userReference.setUserId(user.getId());
         userReference.setJoinAt(new Date(System.currentTimeMillis()));
         userReference.setRole("Member");
 
         List<UserReference> userReferenceList = group.getMembers();
-        if(userReferenceList == null){
+        if (userReferenceList == null) {
             userReferenceList = new ArrayList<>();
-        }
-        else {
-            for(UserReference userReferenceElement: userReferenceList){
-                if(userReferenceElement.getUserId().equals(userId)){
+        } else {
+            for (UserReference userReferenceElement : userReferenceList) {
+                if (userReferenceElement.getUserId().equals(user.getId())) {
                     return ResponseEntity
                             .status(HttpStatus.BAD_REQUEST)
-                            .body(String.format("User with given id %s already exists!",userId));
+                            .body(String.format("User with given userName %s already exists!", userName));
                 }
             }
         }
@@ -77,7 +77,7 @@ public class UserGroupService {
         groupReference.setRole("Member");
 
         List<GroupReference> groupReferenceList = user.getGroupReferenceList();
-        if(groupReferenceList == null){
+        if (groupReferenceList == null) {
             groupReferenceList = new ArrayList<>();
         }
         groupReferenceList.add(groupReference);
@@ -86,17 +86,17 @@ public class UserGroupService {
         groupRepository.save(group);
         userRepository.save(user);
 
-        return ResponseEntity.ok(String.format("User with given id %s added successfully to this group with id %s",
-                userId, groupId));
+        return ResponseEntity.ok(String.format("User with given userName %s added successfully to this group with id %s",
+                userName, groupId));
     }
 
 
-    public ResponseEntity<String> deleteUserFromGroup(UUID userId, UUID groupId) {
-        Users user = userRepository.findById(userId).orElse(null);
+    public ResponseEntity<String> deleteUserFromGroup(String userName, UUID groupId) {
+        Users user = userRepository.findByUserName(userName);
         if (user == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(String.format("User with given id %s could not be found!", userId));
+                    .body(String.format("User with given userName %s could not be found!", userName));
         }
 
         Groups group = groupRepository.findById(groupId).orElse(null);
@@ -107,10 +107,10 @@ public class UserGroupService {
         }
 
         List<UserReference> userReferenceList = group.getMembers();
-        if (userReferenceList == null || !userReferenceList.removeIf(ref -> ref.getUserId().equals(userId))) {
+        if (userReferenceList == null || !userReferenceList.removeIf(ref -> ref.getUserId().equals(user.getId()))) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(String.format("User with given id %s is not a member of the group %s!", userId, groupId));
+                    .body(String.format("User with given userName %s is not a member of the group %s!", userName, groupId));
         }
 
         group.setMembers(userReferenceList);
@@ -124,18 +124,16 @@ public class UserGroupService {
             userRepository.save(user);
         }
 
-        return ResponseEntity.ok(String.format("User with id %s successfully removed from group with id %s", userId, groupId));
+        return ResponseEntity.ok(String.format("User with userName %s successfully removed from group with id %s", userName, groupId));
     }
 
 
-
-
-    public ResponseEntity<String> updateUserRoleInGroup(UUID userId, UUID groupId, String newRole) {
-        Users user = userRepository.findById(userId).orElse(null);
+    public ResponseEntity<String> updateUserRoleInGroup(String userName, UUID groupId, String newRole) {
+        Users user = userRepository.findByUserName(userName);
         if (user == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(String.format("User with given id %s could not be found!", userId));
+                    .body(String.format("User with given userName %s could not be found!", userName));
         }
 
         Groups group = groupRepository.findById(groupId).orElse(null);
@@ -146,14 +144,14 @@ public class UserGroupService {
         }
 
         List<UserReference> userReferenceList = group.getMembers();
-        if (userReferenceList == null || userReferenceList.stream().noneMatch(ref -> ref.getUserId().equals(userId))) {
+        if (userReferenceList == null || userReferenceList.stream().noneMatch(ref -> ref.getUserId().equals(user.getId()))) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(String.format("User with given id %s is not a member of the group %s!", userId, groupId));
+                    .body(String.format("User with given userName %s is not a member of the group %s!", userName, groupId));
         }
 
         userReferenceList.forEach(ref -> {
-            if (ref.getUserId().equals(userId)) {
+            if (ref.getUserId().equals(user.getId())) {
                 ref.setRole(newRole);
             }
         });
@@ -171,22 +169,19 @@ public class UserGroupService {
             userRepository.save(user);
         }
 
-        return ResponseEntity.ok(String.format("Role of user with id %s updated to %s in group with id %s", userId, newRole, groupId));
+        return ResponseEntity.ok(String.format("Role of user with userName %s updated to %s in group with id %s", userName, newRole, groupId));
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public ResponseEntity<List<GroupReference>> getGroupsByUsername(String userName) {
+        Users user = userRepository.findByUserName(userName);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        List<GroupReference> groupReferenceList = user.getGroupReferenceList();
+        if (groupReferenceList != null) {
+            return ResponseEntity.ok(groupReferenceList);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+    }
 }
