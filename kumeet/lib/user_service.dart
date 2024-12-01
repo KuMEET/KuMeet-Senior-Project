@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'event.dart';
 
 class UserService {
   final String baseUrl = 'http://localhost:8080/api';
@@ -37,6 +38,20 @@ class UserService {
       }
     } catch (e) {
       throw Exception('Error: $e');
+    }
+  }
+    Future<List<Event>> getUserEvents(String userName) async {
+    try {
+      final response = await http.get(Uri.parse('http://localhost:8080/get-events-by-username/$userName'));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> eventReferences = json.decode(response.body);
+        return eventReferences.map((json) => Event.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to fetch events');
+      }
+    } catch (e) {
+      throw Exception('Error fetching events: $e');
     }
   }
 }

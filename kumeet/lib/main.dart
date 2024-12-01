@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kumeet/user_service.dart';
 import 'explore_page.dart';
 import 'signup_page.dart';
 import 'login_page.dart';
@@ -36,9 +37,34 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
-  List<Event> calendarEvents = []; // List to store calendar events
-
+  List<Event> calendarEvents = [];
+  bool _isLoading = true;
+  
   // Function to add an event if it hasn't been added already
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeCalendarEvents();
+  }
+    Future<void> _initializeCalendarEvents() async {
+    try {
+      // Replace 'yourUserName' with the actual username stored globally or passed to this page
+      String userName = GlobalState().userName ?? "default";
+      UserService userService = UserService();
+      final events = await userService.getUserEvents(userName);
+      setState(() {
+        calendarEvents = events;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      // Handle error appropriately
+      print('Error initializing calendar events: $e');
+    }
+  }
   void addEventToCalendar(Event event) {
     if (!calendarEvents.contains(event)) {
       setState(() {
