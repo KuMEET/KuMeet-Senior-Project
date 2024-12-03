@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'group_card.dart'; // Import the GroupCard widget
+import 'group_card.dart';
 import 'event.dart';
 import 'eventcard.dart';
 import 'eventDetail_page.dart';
 import 'group_details_page.dart';
+import 'group_service.dart';
+import 'group.dart';
 
 class HomeContent extends StatelessWidget {
   final List<Event> calendarEvents;
@@ -18,13 +20,13 @@ class HomeContent extends StatelessWidget {
         .toList();
 
     return Container(
-      color: Colors.grey[900], 
+      color: Colors.grey[900],
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const YourGroupsSection(),
-            const Divider(thickness: 0.5, color: Colors.grey), 
+            YourGroupsSection(), // Displays dynamic groups
+            const Divider(thickness: 0.5, color: Colors.grey),
             UpcomingEventsSection(upcomingEvents: upcomingEvents),
           ],
         ),
@@ -33,27 +35,43 @@ class HomeContent extends StatelessWidget {
   }
 }
 
-class YourGroupsSection extends StatelessWidget {
+class YourGroupsSection extends StatefulWidget {
   const YourGroupsSection({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Example group data
-    final List<Map<String, dynamic>> groups = [
-      {
-        'title': 'Side Project Society',
-        'imagePath': 'images/group_image1.png',
-        'capacity': 50,
-        'occupancy': 35,
-      },
-      {
-        'title': 'Discover more groups',
-        'imagePath': 'images/group_image2.png',
-        'capacity': 30,
-        'occupancy': 28,
-      },
-    ];
+  _YourGroupsSectionState createState() => _YourGroupsSectionState();
+}
 
+class _YourGroupsSectionState extends State<YourGroupsSection> {
+  final GroupService _groupService = GroupService();
+  List<Group> _groups = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchGroups();
+  }
+
+  Future<void> _fetchGroups() async {
+    try {
+      final groups = await _groupService.getGroups();
+      setState(() {
+        _groups = groups;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch groups: $e')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -64,37 +82,42 @@ class YourGroupsSection extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white, 
+              color: Colors.white,
             ),
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: groups.map((group) {
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: GroupCard(
-                  title: group['title'],
-                  imagePath: group['imagePath'],
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => GroupDetailsPage(
-                          title: group['title'],
-                          imagePath: group['imagePath'],
-                          capacity: group['capacity'],
-                          occupancy: group['occupancy'],
+        _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _groups.isEmpty
+                ? const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'No groups available',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: _groups.map((group) {
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: GroupCard(
+                            title: group.name,
+                            imagePath: 'images/group_image.png',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GroupDetailsPage(group: group),
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            );
-          }).toList(),
-        ),
+                      );
+                    }).toList(),
+                  ),
       ],
     );
   }
@@ -117,7 +140,7 @@ class UpcomingEventsSection extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white, 
+              color: Colors.white,
             ),
           ),
         ),

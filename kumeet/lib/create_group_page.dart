@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:io'; // For File
-import 'package:image_picker/image_picker.dart'; // For image picking
+import 'group.dart';
+import 'group_service.dart';
 
 class CreateGroupPage extends StatefulWidget {
   const CreateGroupPage({super.key});
@@ -12,28 +12,33 @@ class CreateGroupPage extends StatefulWidget {
 class _CreateGroupPageState extends State<CreateGroupPage> {
   final _formKey = GlobalKey<FormState>();
   final _groupNameController = TextEditingController();
-  File? _selectedImage; // To store the selected image file
+  final _capacityController = TextEditingController();
+  final GroupService _groupService = GroupService();
+  bool _isLoading = false;
 
-  final ImagePicker _picker = ImagePicker(); // Image picker instance
-
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-    }
-  }
-
-  void _createGroup() {
+  void _createGroup() async {
     if (_formKey.currentState!.validate()) {
-      final groupName = _groupNameController.text;
+      setState(() {
+        _isLoading = true;
+      });
 
-      // Include _selectedImage in the group creation logic if necessary
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Group "$groupName" created successfully!')),
-      );
-      Navigator.pop(context);
+      final group = Group(name: _groupNameController.text, capacity: int.parse(_capacityController.text));
+
+      final success = await _groupService.createGroup(group);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Group "${group.name}" created successfully!')),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to create group')),
+        );
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -42,8 +47,8 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Group', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black, 
-        iconTheme: const IconThemeData(color: Colors.white), 
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       backgroundColor: Colors.grey[900],
       body: SingleChildScrollView(
@@ -53,58 +58,19 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              GroupImagePicker(
-                selectedImage: _selectedImage,
-                onImagePick: _pickImage,
-              ),
-              const SizedBox(height: 16),
+              // Group Name Input Field
               GroupNameField(controller: _groupNameController),
+              const SizedBox(height: 16),
+
+              // Capacity Input Field
+              CapacityField(controller: _capacityController),
               const SizedBox(height: 24),
-              CreateGroupButton(onPressed: _createGroup),
+
+              // Create Group Button
+              CreateGroupButton(onPressed: _isLoading ? null : _createGroup),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class GroupImagePicker extends StatelessWidget {
-  final File? selectedImage;
-  final VoidCallback onImagePick;
-
-  const GroupImagePicker({
-    super.key,
-    required this.selectedImage,
-    required this.onImagePick,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onImagePick, // Call the image picker function
-      child: Container(
-        height: 150,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.grey[800], 
-          border: Border.all(color: Colors.white, width: 1), 
-        ),
-        child: selectedImage == null
-            ? const Center(
-                child: Text(
-                  'Tap to select a group image',
-                  style: TextStyle(color: Colors.white70), 
-                ),
-              )
-            : ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.file(
-                  selectedImage!,
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                ),
-              ),
       ),
     );
   }
@@ -121,16 +87,16 @@ class GroupNameField extends StatelessWidget {
       controller: controller,
       decoration: InputDecoration(
         labelText: 'Group Name',
-        labelStyle: const TextStyle(color: Colors.white70), 
-        prefixIcon: const Icon(Icons.group, color: Colors.white), 
+        labelStyle: const TextStyle(color: Colors.white70),
+        prefixIcon: const Icon(Icons.group, color: Colors.white),
         filled: true,
-        fillColor: Colors.grey[800], 
+        fillColor: Colors.grey[800],
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
       ),
-      style: const TextStyle(color: Colors.white), 
+      style: const TextStyle(color: Colors.white),
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter a group name';
@@ -140,9 +106,43 @@ class GroupNameField extends StatelessWidget {
     );
   }
 }
+class CapacityField extends StatelessWidget {
+  final TextEditingController controller;
+
+  const CapacityField({super.key, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: 'Group Capacity',
+        labelStyle: const TextStyle(color: Colors.white70),
+        prefixIcon: const Icon(Icons.people, color: Colors.white),
+        filled: true,
+        fillColor: Colors.grey[800],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+      ),
+      style: const TextStyle(color: Colors.white),
+      keyboardType: TextInputType.number, // Restrict input to numbers
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter the group capacity';
+        }
+        if (int.tryParse(value) == null) {
+          return 'Please enter a valid number';
+        }
+        return null;
+      },
+    );
+  }
+}
 
 class CreateGroupButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const CreateGroupButton({super.key, required this.onPressed});
 
@@ -150,15 +150,11 @@ class CreateGroupButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
-      style: ButtonStyle(
-        backgroundColor: WidgetStateProperty.all(Colors.blueGrey),
-        padding: WidgetStateProperty.all(
-          const EdgeInsets.symmetric(vertical: 16),
-        ),
-        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.blueGrey,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
       child: const Text(

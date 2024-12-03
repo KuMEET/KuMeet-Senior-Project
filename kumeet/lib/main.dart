@@ -39,8 +39,6 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   List<Event> calendarEvents = [];
   bool _isLoading = true;
-  
-  // Function to add an event if it hasn't been added already
 
   @override
   void initState() {
@@ -49,7 +47,6 @@ class _HomePageState extends State<HomePage> {
   }
     Future<void> _initializeCalendarEvents() async {
     try {
-      // Replace 'yourUserName' with the actual username stored globally or passed to this page
       String userName = GlobalState().userName ?? "default";
       UserService userService = UserService();
       final events = await userService.getUserEvents(userName);
@@ -61,7 +58,6 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _isLoading = false;
       });
-      // Handle error appropriately
       print('Error initializing calendar events: $e');
     }
   }
@@ -88,10 +84,10 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      HomeContent(calendarEvents: calendarEvents), // Pass calendar events to HomeContent
+      HomeContent(calendarEvents: calendarEvents), 
       ExplorePage(
-        onAddEventToCalendar: addEventToCalendar, // Pass the calendar callback to ExplorePage
-        isEventAdded: isEventAdded, // Check if an event has already been added
+        onAddEventToCalendar: addEventToCalendar, 
+        isEventAdded: isEventAdded, 
       ),
       const GroupPage(), 
     ];

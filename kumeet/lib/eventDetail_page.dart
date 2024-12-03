@@ -31,7 +31,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
     });
 
     final url = Uri.parse(
-        'http://localhost:8080/add-to-event/${UserName}/${widget.event.id}');
+        'http://localhost:8080/add-to-group/${UserName}/${widget.event.id}');
     try {
       final response = await http.post(
         url,
