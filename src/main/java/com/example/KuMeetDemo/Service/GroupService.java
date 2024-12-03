@@ -8,11 +8,14 @@ import com.example.KuMeetDemo.Repository.GroupRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -23,26 +26,77 @@ public class GroupService {
     @Autowired
     private UserRepository userRepository;
 
-    public Groups createGroup(GroupDto groupDto) {
+    public ResponseEntity<Groups> createGroup(GroupDto groupDto) {
+        // Validate input
+        if (groupDto.getName() == null || groupDto.getName().isEmpty()) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
+        }
+        if (groupDto.getCapacity() <= 0) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
+        }
+
+
+        Optional<Groups> existingGroups = groupRepository.findById(
+                groupDto.getId()
+        );
+
+        // Check for existing group with the same name
+        if (existingGroups.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null); // 409 Conflict
+        }
+
+        // Create new group
         Groups group = new Groups();
         group.setGroupName(groupDto.getName());
         group.setCapacity(groupDto.getCapacity());
         group.setCreatedAt(new Date(System.currentTimeMillis()));
-        group.setId(UUID.randomUUID());
-        return groupRepository.save(group);
+        group.setId(groupDto.getId());
+
+        try {
+            Groups savedGroup = groupRepository.save(group);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedGroup); // 201 Created
+        } catch (Exception e) {
+            // Log the exception (using your preferred logging framework)
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
+        }
     }
+
     public List<Groups> getAllGroups() {
         return groupRepository.findAll();
     }
-    public Groups updateGroup(Groups updatedGroup) {
-        Groups group = groupRepository.findById(updatedGroup.getId()).orElse(null);
-        if (ObjectUtils.isEmpty(group)) {
-            return null;
+
+    public ResponseEntity<Groups> updateGroup(GroupDto updatedGroupDto) {
+        if (updatedGroupDto.getId() == null) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
         }
-        group.setGroupName(updatedGroup.getGroupName());
-        group.setCapacity(updatedGroup.getCapacity());
-        return groupRepository.save(group);
+
+        Groups group = groupRepository.findById(updatedGroupDto.getId()).orElse(null);
+        if (group == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null); // 404 Not Found
+        }
+
+        if (updatedGroupDto.getName() == null || updatedGroupDto.getName().isEmpty()) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
+        }
+
+        if (updatedGroupDto.getCapacity() <= 0) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
+        }
+
+        group.setGroupName(updatedGroupDto.getName());
+        group.setCapacity(updatedGroupDto.getCapacity());
+
+        try {
+            Groups updatedGroup = groupRepository.save(group);
+            return ResponseEntity.ok(updatedGroup); // 200 OK
+        } catch (Exception e) {
+            // Log the exception (using your preferred logging framework)
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
+        }
     }
+
     // herbir relation icin cascade deletingi manüel yapmalıyız
     public void deleteGroup(UUID id) {
         groupRepository.findById(id).ifPresent(group ->
