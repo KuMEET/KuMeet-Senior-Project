@@ -22,9 +22,9 @@ public class EventController {
     public List<Events> getEvents() {
         return eventService.getAllEvents();
     }
-    @PostMapping("/create-event")
-    public ResponseEntity<Events> createEvent(@RequestBody EventDto event) {
-        return eventService.createEvent(event);
+    @PostMapping("/create-event/{username}")
+    public ResponseEntity<Events> createEvent(@RequestBody EventDto event, @PathVariable String username) {
+        return eventService.createEvent(event, username);
     }
     @DeleteMapping("/delete-event")
     public void deleteEvent(@RequestBody Events event) {

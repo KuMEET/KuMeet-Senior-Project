@@ -21,7 +21,7 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/creategroup/{username}")
-    public ResponseEntity<Groups> GroupCreate(@RequestBody GroupDto group, String username) {
+    public ResponseEntity<Groups> GroupCreate(@RequestBody GroupDto group, @PathVariable String username) {
         return groupService.createGroup(group, username);
     }
 
