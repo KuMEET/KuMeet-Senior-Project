@@ -2,6 +2,7 @@ package com.example.KuMeetDemo.Service;
 
 import com.example.KuMeetDemo.Dto.GroupDto;
 import com.example.KuMeetDemo.Dto.GroupReference;
+import com.example.KuMeetDemo.Dto.UserReference;
 import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Repository.GroupRepository;
@@ -26,7 +27,7 @@ public class GroupService {
     @Autowired
     private UserRepository userRepository;
 
-    public ResponseEntity<Groups> createGroup(GroupDto groupDto) {
+    public ResponseEntity<Groups> createGroup(GroupDto groupDto, String username) {
         // Validate input
         if (groupDto.getName() == null || groupDto.getName().isEmpty()) {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
@@ -34,18 +35,23 @@ public class GroupService {
         if (groupDto.getCapacity() <= 0) {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
         }
+        // tüm grupları getircem isimleri aynı olabilir
+        //
 
-        Optional<Groups> existingGroup = groupRepository.findById(
-                groupDto.getId()
-        );
+        Users existingUser = userRepository.findByUserName(username);
+        if(existingUser == null){
+            return ResponseEntity.badRequest().body(null);
+        }
 
-        // Create new group
         Groups group = new Groups();
         group.setGroupName(groupDto.getName());
         group.setCapacity(groupDto.getCapacity());
         group.setCreatedAt(new Date(System.currentTimeMillis()));
-        group.setId(groupDto.getId());
-
+        group.setId(UUID.randomUUID());
+        UserReference userInfo = new UserReference();
+        userInfo.setUserId(existingUser.getId());
+        userInfo.setRole("Admin");
+        userInfo.setJoinAt(new Date(System.currentTimeMillis()));
         try {
             Groups savedGroup = groupRepository.save(group);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedGroup); // 201 Created

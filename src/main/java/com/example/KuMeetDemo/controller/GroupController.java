@@ -20,9 +20,9 @@ public class GroupController {
     @Autowired
     private GroupService groupService;
 
-    @PostMapping("/creategroup")
-    public ResponseEntity<Groups> GroupCreate(@RequestBody GroupDto group) {
-        return groupService.createGroup(group);
+    @PostMapping("/creategroup/{username}")
+    public ResponseEntity<Groups> GroupCreate(@RequestBody GroupDto group, String username) {
+        return groupService.createGroup(group, username);
     }
 
     @GetMapping("/get-groups")
