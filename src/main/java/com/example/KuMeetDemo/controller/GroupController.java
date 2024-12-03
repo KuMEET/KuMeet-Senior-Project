@@ -6,6 +6,7 @@ import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Service.GroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/creategroup")
-    public Groups GroupCreate(@RequestBody GroupDto group) {
+    public ResponseEntity<Groups> GroupCreate(@RequestBody GroupDto group) {
         return groupService.createGroup(group);
     }
 

@@ -8,11 +8,14 @@ import com.example.KuMeetDemo.Repository.GroupRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Data
@@ -23,14 +26,36 @@ public class GroupService {
     @Autowired
     private UserRepository userRepository;
 
-    public Groups createGroup(GroupDto groupDto) {
+    public ResponseEntity<Groups> createGroup(GroupDto groupDto) {
+        // Validate input
+        if (groupDto.getName() == null || groupDto.getName().isEmpty()) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
+        }
+        if (groupDto.getCapacity() <= 0) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
+        }
+
+        Optional<Groups> existingGroup = groupRepository.findById(
+                groupDto.getId()
+        );
+
+        // Create new group
         Groups group = new Groups();
         group.setGroupName(groupDto.getName());
         group.setCapacity(groupDto.getCapacity());
         group.setCreatedAt(new Date(System.currentTimeMillis()));
-        group.setId(UUID.randomUUID());
-        return groupRepository.save(group);
+        group.setId(groupDto.getId());
+
+        try {
+            Groups savedGroup = groupRepository.save(group);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedGroup); // 201 Created
+        } catch (Exception e) {
+            // Log the exception (using your preferred logging framework)
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
+        }
     }
+
     public List<Groups> getAllGroups() {
         return groupRepository.findAll();
     }
