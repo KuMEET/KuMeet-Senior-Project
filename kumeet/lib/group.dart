@@ -18,7 +18,7 @@ class Group {
 
   Map<String, dynamic> toJson() {
     return {
-      'groupName': name,
+      'name': name,
       //'description': description,
       'capacity': capacity,
 
