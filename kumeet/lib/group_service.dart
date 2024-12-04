@@ -52,7 +52,7 @@ class GroupService {
     }
   }
   Future<List<Group>> getGroupsByUser(String username) async {
-    final url = Uri.parse('http://localhost:8080/get-groups-by-username/${username}');
+    final url = Uri.parse('http://localhost:8080/api/get-groups-by-username/${username}');
     try {
       final response = await http.get(
         url,
