@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MapPickerPage extends StatefulWidget {
   const MapPickerPage({Key? key}) : super(key: key);
@@ -10,8 +10,39 @@ class MapPickerPage extends StatefulWidget {
 }
 
 class _MapPickerPageState extends State<MapPickerPage> {
+  GoogleMapController? _mapController;
   LatLng? _pickedLocation;
-  final LatLng _defaultLocation = LatLng(41.0082, 28.9784); // Istanbul
+  LatLng? _currentLocation; // Nullable to avoid using a default location
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
+      setState(() {
+        _currentLocation = LatLng(position.latitude, position.longitude);
+      });
+
+      if (_mapController != null) {
+        _mapController!.animateCamera(
+          CameraUpdate.newLatLngZoom(_currentLocation!, 15),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error fetching location: $e');
+    }
+  }
+
+  void _onMapTapped(LatLng position) {
+    setState(() {
+      _pickedLocation = position;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,32 +53,29 @@ class _MapPickerPageState extends State<MapPickerPage> {
       ),
       body: Stack(
         children: [
-          // FlutterMap widget for OpenStreetMap
-          FlutterMap(
-            options: MapOptions(
-              
-              onTap: (tapPosition, point) {
-              center: _pickedLocation ?? _defaultLocation; // Use picked or default location
-              zoom: 13.0; // Initial zoom level
-              maxZoom: 18.0; // Maximum zoom level
-                setState(() {
-                  _pickedLocation = point; // Update picked location
-                });
-              },
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                subdomains: const ['a', 'b', 'c'],
-              ),
-              if (_pickedLocation != null)
-                MarkerLayer(
-                  markers: [
-                    
-                  ],
+          _currentLocation == null
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : GoogleMap(
+                  initialCameraPosition: CameraPosition(
+                    target: _currentLocation!,
+                    zoom: 15,
+                  ),
+                  markers: _pickedLocation != null
+                      ? {
+                          Marker(
+                            markerId: const MarkerId('picked-location'),
+                            position: _pickedLocation!,
+                          ),
+                        }
+                      : {},
+                  onTap: _onMapTapped,
+                  onMapCreated: (controller) => _mapController = controller,
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  zoomGesturesEnabled: true, // Enable zoom gestures
                 ),
-            ],
-          ),
           if (_pickedLocation != null)
             Positioned(
               bottom: 20,
@@ -55,7 +83,7 @@ class _MapPickerPageState extends State<MapPickerPage> {
               right: 20,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pop(context, _pickedLocation); // Return picked location
+                  Navigator.pop(context, _pickedLocation); // Return selected location
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),

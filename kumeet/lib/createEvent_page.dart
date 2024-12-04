@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; 
-import 'package:latlong2/latlong.dart'; 
+import 'package:intl/intl.dart';
 import 'map_picker_page.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'event.dart';
-import 'event_service.dart'; // Import the EventService
+import 'event_service.dart';
 
 class CreateEventPage extends StatefulWidget {
   const CreateEventPage({super.key});
@@ -17,17 +17,16 @@ class _CreateEventPageState extends State<CreateEventPage> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _seatsController = TextEditingController();
-  LatLng? _eventLocation; // Holds the picked location
-  DateTime? _selectedDate; // Holds the selected date
+  LatLng? _eventLocation;
+  DateTime? _selectedDate;
 
   final EventService eventService = EventService();
 
-  // Function to pick a location
   Future<void> _pickLocation() async {
-    final pickedLocation = await Navigator.push(
+    final LatLng? pickedLocation = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const MapPickerPage()),
-    ) as LatLng?;
+    );
     if (pickedLocation != null) {
       setState(() {
         _eventLocation = pickedLocation;
@@ -35,7 +34,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
     }
   }
 
-  // Function to create an event
   void _createEvent() async {
     if (_formKey.currentState!.validate()) {
       if (_eventLocation == null) {
@@ -52,7 +50,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
         latitude: _eventLocation!.latitude,
         longitude: _eventLocation!.longitude,
         seatsAvailable: int.parse(_seatsController.text),
-        date: _selectedDate!, imagePath: 'images/event_image.png',
+        date: _selectedDate!,
+        imagePath: 'images/event_image.png',
       );
 
       final success = await eventService.createEvent(newEvent);
@@ -61,7 +60,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Event created successfully!')),
         );
-        Navigator.pop(context, newEvent); // Return the event to the previous screen
+        Navigator.pop(context, newEvent);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to create event.')),
@@ -70,7 +69,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
     }
   }
 
-  // Function to pick a date
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -89,14 +87,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Create Event',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.black, // Black app bar
+        title: const Text('Create Event', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
-      backgroundColor: Colors.grey[900], // Dark background
+      backgroundColor: Colors.grey[900],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -104,7 +99,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Event Title
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
@@ -121,8 +115,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     value == null || value.isEmpty ? 'Please enter a title' : null,
               ),
               const SizedBox(height: 16),
-
-              // Event Description
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
@@ -140,8 +132,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     value == null || value.isEmpty ? 'Please enter a description' : null,
               ),
               const SizedBox(height: 16),
-
-              // Number of Seats
               TextFormField(
                 controller: _seatsController,
                 keyboardType: TextInputType.number,
@@ -160,8 +150,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     : null,
               ),
               const SizedBox(height: 16),
-
-              // Location Picker
               Row(
                 children: [
                   ElevatedButton(
@@ -179,8 +167,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 ],
               ),
               const SizedBox(height: 16),
-
-              // Date Picker
               Row(
                 children: [
                   const Icon(Icons.calendar_today, color: Colors.white),
@@ -193,16 +179,11 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   const Spacer(),
                   TextButton(
                     onPressed: () => _selectDate(context),
-                    child: const Text(
-                      'Pick Date',
-                      style: TextStyle(color: Colors.white),
-                    ),
+                    child: const Text('Pick Date', style: TextStyle(color: Colors.white)),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-
-              // Create Event Button
               ElevatedButton(
                 onPressed: _createEvent,
                 style: ElevatedButton.styleFrom(
