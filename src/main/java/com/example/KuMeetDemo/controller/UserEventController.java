@@ -31,4 +31,10 @@ public class UserEventController {
     public ResponseEntity<List<Events>> getEventsByUsername(@PathVariable String userName){
         return userEventService.getEventsByUsername(userName);
     }
+    @GetMapping("/get-events-for-admin/{userName}")
+    public ResponseEntity<List<Events>> getEventsForAdmin(@PathVariable String userName){
+        return userEventService.getEventsForAdmin(userName);
+    }
+
+
 }

@@ -33,5 +33,9 @@ public class UserGroupServiceController {
     public ResponseEntity<List<Groups>> getGroupsByUsername(@PathVariable String userName){
         return userGroupService.getGroupsByUsername(userName);
     }
+    @GetMapping("/get-groups-for-admin/{userName}")
+    public ResponseEntity<List<Groups>> getGroupsForAdmin(@PathVariable String userName){
+        return userGroupService.getGroupsForAdmin(userName);
+    }
 
 }

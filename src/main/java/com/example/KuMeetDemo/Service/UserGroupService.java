@@ -191,4 +191,29 @@ public class UserGroupService {
         }
         return ResponseEntity.ok(groups);
     }
+
+    public ResponseEntity<List<Groups>> getGroupsForAdmin(String userName) {
+        Users user = userRepository.findByUserName(userName);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        List<GroupReference> groupReferenceList = user.getGroupReferenceList();
+        List<Groups> groups = new ArrayList<>();
+        if (groupReferenceList != null) {
+            for (GroupReference groupReference : groupReferenceList) {
+                Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
+                String role = groupReference.getRole();
+                if (group == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                }
+                if(role.equals("Admin")){
+                    groups.add(group);
+                }
+            }
+        }
+        if(groups.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(groups);
+    }
 }

@@ -191,4 +191,35 @@ public class UserEventService {
         }
         return ResponseEntity.ok(events);
     }
+
+    public ResponseEntity<List<Events>> getEventsForAdmin(String userName) {
+        Users user = userRepository.findByUserName(userName);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        List<EventReference> eventReferenceList = user.getEventReferenceList();
+        List<Events> events = new ArrayList<>();
+        if (eventReferenceList != null) {
+            for (EventReference eventReference : eventReferenceList) {
+                Events event = eventRepository.findById(eventReference.getEventId()).orElse(null);
+                String role = eventReference.getRole();
+                if (event == null) {
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                }
+                if (role.equals("Admin")){
+                    events.add(event);
+                }
+
+            }
+        }
+        if(events.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(events);
+    }
+
+
+
+
+
 }
