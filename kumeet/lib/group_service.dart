@@ -7,7 +7,7 @@ class GroupService {
 
   // Method to create an event
   Future<bool> createGroup(Group group, String username) async {
-    final url = Uri.parse('$baseUrl/creategroup/${username}');
+    final url = Uri.parse('$baseUrl/creategroup/$username');
     try {
       final response = await http.post(
         url,
@@ -52,7 +52,7 @@ class GroupService {
     }
   }
   Future<List<Group>> getGroupsByUser(String username) async {
-    final url = Uri.parse('http://localhost:8080/api/get-groups-by-username/${username}');
+    final url = Uri.parse('http://localhost:8080/api/get-groups-by-username/$username');
     try {
       final response = await http.get(
         url,

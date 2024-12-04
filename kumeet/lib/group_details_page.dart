@@ -26,7 +26,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     });
 
     final url = Uri.parse(
-        'http://localhost:8080/api/add-to-group/${UserName}/${widget.group.id}');
+        'http://localhost:8080/api/add-to-group/$UserName/${widget.group.id}');
     try {
       final response = await http.post(
         url,

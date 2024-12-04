@@ -15,25 +15,24 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   GoogleMapController? mapController;
-  LatLng? initialLocation; // Initial user location
+  LatLng? initialLocation; // User's initial location
   LatLng? mapCenter; // Current center of the map
   Set<Marker> markers = {};
-  List<Event> sortedEvents = [];
+  List<Event> sortedEvents = []; // Initial order sorted by user location
   PageController pageController = PageController(viewportFraction: 0.8);
-  bool isMapInteraction = false;
+  bool isMapInteracting = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchInitialLocation().then((_) {
-      _initializeMarkersAndEvents();
-    });
+    _fetchInitialLocation().then((_) => _initializeMarkersAndEvents());
   }
 
   Future<void> _fetchInitialLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+        desiredAccuracy: LocationAccuracy.high,
+      );
       setState(() {
         initialLocation = LatLng(position.latitude, position.longitude);
         mapCenter = initialLocation; // Set map center to user's location
@@ -50,75 +49,98 @@ class _MapViewState extends State<MapView> {
 
   void _initializeMarkersAndEvents() {
     if (initialLocation != null) {
+      // Sort events by distance from the user's initial location
       sortedEvents = _sortEventsByDistance(widget.events, initialLocation!);
-
-      for (var event in sortedEvents) {
-        markers.add(
-          Marker(
-            markerId: MarkerId(event.title),
-            position: LatLng(event.latitude, event.longitude),
-            infoWindow: InfoWindow(title: event.title),
-            onTap: () {
-              pageController.animateToPage(
-                sortedEvents.indexOf(event),
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-              );
-            },
-          ),
-        );
-      }
+      _createMarkers(); // Add markers based on the sorted events
       setState(() {});
     }
   }
 
+  void _createMarkers() {
+    markers.clear();
+    for (var event in sortedEvents) {
+      markers.add(
+        Marker(
+          markerId: MarkerId(event.title),
+          position: LatLng(event.latitude, event.longitude),
+          infoWindow: InfoWindow(title: event.title),
+          onTap: () {
+            // Navigate to the respective card when tapping a marker
+            pageController.animateToPage(
+              sortedEvents.indexOf(event),
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          },
+        ),
+      );
+    }
+  }
+
   List<Event> _sortEventsByDistance(List<Event> events, LatLng location) {
-    return events
-        .map((event) => {
-              "event": event,
-              "distance": Geolocator.distanceBetween(
-                location.latitude,
-                location.longitude,
-                event.latitude,
-                event.longitude,
-              ),
-            })
-        .toList()
-        .map((map) => map["event"] as Event)
-        .toList()
-        ..sort((a, b) => (Geolocator.distanceBetween(
-                  location.latitude,
-                  location.longitude,
-                  a.latitude,
-                  a.longitude,
-                ) -
-                Geolocator.distanceBetween(
-                  location.latitude,
-                  location.longitude,
-                  b.latitude,
-                  b.longitude,
-                ))
-            .toInt());
+    return List.from(events)
+      ..sort((a, b) {
+        double distanceA = Geolocator.distanceBetween(
+          location.latitude,
+          location.longitude,
+          a.latitude,
+          a.longitude,
+        );
+        double distanceB = Geolocator.distanceBetween(
+          location.latitude,
+          location.longitude,
+          b.latitude,
+          b.longitude,
+        );
+        return distanceA.compareTo(distanceB);
+      });
   }
 
   void _onMapMoved() async {
-    if (isMapInteraction && mapController != null) {
+    if (isMapInteracting && mapController != null) {
       LatLng center = await mapController!.getLatLng(ScreenCoordinate(
         x: MediaQuery.of(context).size.width ~/ 2,
         y: MediaQuery.of(context).size.height ~/ 2,
       ));
       setState(() {
         mapCenter = center; // Update map center
-        sortedEvents = _sortEventsByDistance(widget.events, mapCenter!);
       });
+      _highlightClosestEvent(center);
     }
   }
 
+  void _highlightClosestEvent(LatLng center) {
+    int closestIndex = 0;
+    double minDistance = double.infinity;
+
+    for (int i = 0; i < sortedEvents.length; i++) {
+      final event = sortedEvents[i];
+      final distance = Geolocator.distanceBetween(
+        center.latitude,
+        center.longitude,
+        event.latitude,
+        event.longitude,
+      );
+      if (distance < minDistance) {
+        closestIndex = i;
+        minDistance = distance;
+      }
+    }
+
+    // Highlight the closest event without reordering
+    pageController.animateToPage(
+      closestIndex,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   void _onPageChanged(int index) {
-    isMapInteraction = false; // Stop map interaction logic during card swipe
+    isMapInteracting = false; // Stop map interaction logic during card swipe
+    final selectedEvent = sortedEvents[index];
     mapController?.animateCamera(
       CameraUpdate.newLatLng(
-        LatLng(sortedEvents[index].latitude, sortedEvents[index].longitude),
+        LatLng(selectedEvent.latitude, selectedEvent.longitude),
       ),
     );
   }
@@ -145,7 +167,7 @@ class _MapViewState extends State<MapView> {
                   markers: markers,
                   onMapCreated: (controller) => mapController = controller,
                   onCameraMoveStarted: () {
-                    isMapInteraction = true; // Enable map interaction
+                    isMapInteracting = true; // Enable map interaction
                   },
                   onCameraIdle: _onMapMoved,
                   myLocationEnabled: true,
@@ -164,6 +186,14 @@ class _MapViewState extends State<MapView> {
                 onPageChanged: _onPageChanged,
                 itemBuilder: (context, index) {
                   final event = sortedEvents[index];
+                  final distanceKm = (Geolocator.distanceBetween(
+                            initialLocation?.latitude ?? 0,
+                            initialLocation?.longitude ?? 0,
+                            event.latitude,
+                            event.longitude,
+                          ) /
+                          1000)
+                      .toStringAsFixed(2); // Convert meters to km
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -183,44 +213,40 @@ class _MapViewState extends State<MapView> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: Image.asset(
-                              event.imagePath,
-                              width: 100, // Square image size
-                              height: 100,
-                              fit: BoxFit.cover,
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0), // Added padding
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.asset(
+                                event.imagePath,
+                                width: 100, // Square image size
+                                height: 100,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  event.title,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    event.title,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  "${Geolocator.distanceBetween(
-                                        mapCenter?.latitude ?? 0,
-                                        mapCenter?.longitude ?? 0,
-                                        event.latitude,
-                                        event.longitude,
-                                      ).toStringAsFixed(0)} meters away",
-                                ),
-                              ],
+                                  const SizedBox(height: 8),
+                                  Text("$distanceKm km away"),
+                                ],
+                              ),
                             ),
-                          ),
-                          const Icon(Icons.arrow_forward_ios),
-                        ],
+                            const Icon(Icons.arrow_forward_ios),
+                          ],
+                        ),
                       ),
                     ),
                   );

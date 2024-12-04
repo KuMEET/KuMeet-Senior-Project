@@ -3,7 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
 class MapPickerPage extends StatefulWidget {
-  const MapPickerPage({Key? key}) : super(key: key);
+  const MapPickerPage({super.key});
 
   @override
   _MapPickerPageState createState() => _MapPickerPageState();

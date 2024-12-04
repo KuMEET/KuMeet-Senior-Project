@@ -7,7 +7,7 @@ class EventService {
 
   // Method to create an event
   Future<bool> createEvent(Event event, String username) async {
-    final url = Uri.parse('$baseUrl/create-event/${username}');
+    final url = Uri.parse('$baseUrl/create-event/$username');
     try {
       final response = await http.post(
         url,
@@ -55,7 +55,7 @@ class EventService {
     }
   }
     Future<List<Event>> getEventsByUser(String username) async {
-    final url = Uri.parse('http://localhost:8080/get-events-by-username/${username}');
+    final url = Uri.parse('http://localhost:8080/get-events-by-username/$username');
     try {
       final response = await http.get(
         url,
