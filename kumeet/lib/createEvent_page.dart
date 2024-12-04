@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kumeet/login_page.dart';
 import 'map_picker_page.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'event.dart';
@@ -19,7 +20,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   final _seatsController = TextEditingController();
   LatLng? _eventLocation;
   DateTime? _selectedDate;
-
+  String? UserName = GlobalState().userName;
   final EventService eventService = EventService();
 
   Future<void> _pickLocation() async {
@@ -54,7 +55,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
         imagePath: 'images/event_image.png',
       );
 
-      final success = await eventService.createEvent(newEvent);
+      final success = await eventService.createEvent(newEvent, UserName!);
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -6,8 +6,8 @@ class GroupService {
   final String baseUrl = 'http://localhost:8080/api';
 
   // Method to create an event
-  Future<bool> createGroup(Group group) async {
-    final url = Uri.parse('$baseUrl/creategroup');
+  Future<bool> createGroup(Group group, String username) async {
+    final url = Uri.parse('$baseUrl/creategroup/${username}');
     try {
       final response = await http.post(
         url,
@@ -29,7 +29,7 @@ class GroupService {
       return false;
     }
   }
-    Future<List<Group>> getGroups() async {
+  Future<List<Group>> getGroups() async {
     final url = Uri.parse('$baseUrl/get-groups');
     try {
       final response = await http.get(
@@ -43,11 +43,33 @@ class GroupService {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => Group.fromJson(json)).toList();
       } else {
-        print('Failed to fetch events: ${response.body}');
+        print('Failed to fetch groups: ${response.body}');
         return [];
       }
     } catch (e) {
-      print('Error fetching events: $e');
+      print('Error fetching groups: $e');
+      return [];
+    }
+  }
+  Future<List<Group>> getGroupsByUser(String username) async {
+    final url = Uri.parse('http://localhost:8080/get-groups-by-username/${username}');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => Group.fromJson(json)).toList();
+      } else {
+        print('Failed to fetch groups: ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching groups: $e');
       return [];
     }
   }

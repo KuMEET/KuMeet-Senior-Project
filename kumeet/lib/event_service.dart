@@ -6,8 +6,8 @@ class EventService {
   final String baseUrl = 'http://localhost:8080/api';
 
   // Method to create an event
-  Future<bool> createEvent(Event event) async {
-    final url = Uri.parse('$baseUrl/create-event');
+  Future<bool> createEvent(Event event, String username) async {
+    final url = Uri.parse('$baseUrl/create-event/${username}');
     try {
       final response = await http.post(
         url,
@@ -41,6 +41,28 @@ class EventService {
         },
       );
 
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+
+        return data.map((json) => Event.fromJson(json)).toList();
+      } else {
+        print('Failed to fetch events: ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching events: $e');
+      return [];
+    }
+  }
+    Future<List<Event>> getEventsByUser(String username) async {
+    final url = Uri.parse('http://localhost:8080/get-events-by-username/${username}');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
 

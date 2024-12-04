@@ -24,6 +24,7 @@ class _ExplorePageState extends State<ExplorePage> {
   List<Event> events = [];
   final EventService eventService = EventService(); // Initialize EventService
   bool isLoading = true;
+  
 
   @override
   void initState() {

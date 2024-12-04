@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kumeet/login_page.dart';
 import 'group.dart';
 import 'group_service.dart';
 
@@ -15,7 +16,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   final _capacityController = TextEditingController();
   final GroupService _groupService = GroupService();
   bool _isLoading = false;
-
+  String? UserName = GlobalState().userName;
   void _createGroup() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -24,7 +25,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
       final group = Group(name: _groupNameController.text, capacity: int.parse(_capacityController.text));
 
-      final success = await _groupService.createGroup(group);
+      final success = await _groupService.createGroup(group, UserName!);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Group "${group.name}" created successfully!')),
