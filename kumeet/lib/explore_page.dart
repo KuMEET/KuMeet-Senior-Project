@@ -5,6 +5,7 @@ import 'eventcard.dart';
 import 'eventDetail_page.dart';
 import 'event.dart';
 import 'map_view.dart';
+import 'owned_events.dart';
 
 class ExplorePage extends StatefulWidget {
   final Function(Event) onAddEventToCalendar;
@@ -119,6 +120,20 @@ class ExploreBody extends StatelessWidget {
             ),
            child: const Text('Go to Map View'),
           ),
+          const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const OwnedEventsPage()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.deepOrange,
+              ),
+              child: const Text('Go to Owned Events'),
+            ),
             const SizedBox(height: 16),
             for (var event in events)
               Padding(
