@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'user_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -30,7 +31,7 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Welcome back!')),
         );
-        globalState.userName = _usernameController.text; // Assuming the server response includes userName
+        await globalState.saveUserName(_usernameController.text);
 
         // Navigate to the home page on successful login
         Navigator.pushReplacementNamed(context, '/home');
@@ -280,6 +281,7 @@ class SignUpButton extends StatelessWidget {
     );
   }
 }
+
 class GlobalState {
   static final GlobalState _instance = GlobalState._internal();
   String? userName;
@@ -289,4 +291,25 @@ class GlobalState {
   }
 
   GlobalState._internal();
+
+  // Save username to local storage
+  Future<void> saveUserName(String username) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', username);
+    userName = username;
+  }
+
+  // Load username from local storage
+  Future<void> loadUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    userName = prefs.getString('username');
+  }
+
+  // Clear username from local storage
+  Future<void> clearUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('username');
+    userName = null;
+  }
 }
+

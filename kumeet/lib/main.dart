@@ -7,7 +7,10 @@ import 'event.dart';
 import 'homecontent.dart';
 import 'group_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensure bindings are initialized
+  final globalState = GlobalState();
+  await globalState.loadUserName();
   runApp(const KuMeetApp());
 }
 
