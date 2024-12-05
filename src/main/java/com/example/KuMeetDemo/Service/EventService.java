@@ -60,11 +60,6 @@ public class EventService {
         eventMembers.add(userInfo);
         event.setParticipants(eventMembers);
 
-
-
-
-
-
         try {
             Events savedEvent = eventRepository.save(event);
 
@@ -131,8 +126,8 @@ public class EventService {
             event.setEventTime(eventDto.getTime());
             event.setLatitude(eventDto.getLatitude());
             event.setLongitude(eventDto.getLongitude());
-           eventRepository.save(event);
-
+            eventRepository.save(event);
+            return ResponseEntity.ok(event);
         }
         return ResponseEntity.badRequest().body(null);
     }

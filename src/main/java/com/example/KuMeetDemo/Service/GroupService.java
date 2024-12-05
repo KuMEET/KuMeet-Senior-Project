@@ -1,8 +1,10 @@
 package com.example.KuMeetDemo.Service;
 
+import com.example.KuMeetDemo.Dto.EventDto;
 import com.example.KuMeetDemo.Dto.GroupDto;
 import com.example.KuMeetDemo.Dto.GroupReference;
 import com.example.KuMeetDemo.Dto.UserReference;
+import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Repository.GroupRepository;
@@ -74,15 +76,20 @@ public class GroupService {
     public List<Groups> getAllGroups() {
         return groupRepository.findAll();
     }
-    public Groups updateGroup(Groups updatedGroup) {
-        Groups group = groupRepository.findById(updatedGroup.getId()).orElse(null);
-        if (ObjectUtils.isEmpty(group)) {
-            return null;
+    public ResponseEntity<Groups> updateGroup(UUID id, GroupDto groupDto) {
+        if (groupDto.getName() == null || groupDto.getCapacity() <= 0 ) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
         }
-        group.setGroupName(updatedGroup.getGroupName());
-        group.setCapacity(updatedGroup.getCapacity());
-        return groupRepository.save(group);
+        Groups groups = groupRepository.findById(id).orElse(null);
+        if (groups != null) {
+            groups.setGroupName(groupDto.getName());
+            groups.setCapacity(groupDto.getCapacity());
+            groupRepository.save(groups);
+            return ResponseEntity.ok(groups);
+        }
+        return ResponseEntity.badRequest().body(null);
     }
+
     // herbir relation icin cascade deletingi manüel yapmalıyız
     public void deleteGroup(UUID id) {
         groupRepository.findById(id).ifPresent(group ->
