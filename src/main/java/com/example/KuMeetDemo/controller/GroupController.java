@@ -30,7 +30,7 @@ public class GroupController {
         return groupService.getAllGroups();
     }
     @DeleteMapping("/delete-group")
-    public void deleteGroup(@RequestParam Groups group) {
+    public void deleteGroup(@RequestBody Groups group) {
         groupService.deleteGroup(group.getId());
     }
     @PostMapping("/update-group")
