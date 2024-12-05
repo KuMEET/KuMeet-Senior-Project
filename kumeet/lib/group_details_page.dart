@@ -82,7 +82,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            GroupImage(imagePath: 'images/group_image1'),
+            GroupImage(imagePath: 'images/group_image.png'),
             const SizedBox(height: 16),
             GroupInfo(
               title: widget.group.name,
