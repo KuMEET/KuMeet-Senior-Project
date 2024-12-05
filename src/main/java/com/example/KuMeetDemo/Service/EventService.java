@@ -114,7 +114,7 @@ public class EventService {
     public Events getEvent(UUID id) {
         return eventRepository.findById(id).orElse(null);
     }
-    public ResponseEntity<Events> updateEvent(UUID id, EventDto eventDto, String username) {
+    public ResponseEntity<Events> updateEvent(UUID id, EventDto eventDto) {
         if (eventDto.getTitle() == null || eventDto.getTitle().isEmpty() ||
                 eventDto.getDescription() == null || eventDto.getDescription().isEmpty() ||
                 eventDto.getCapacity() <= 0 ||
@@ -131,43 +131,8 @@ public class EventService {
             event.setEventTime(eventDto.getTime());
             event.setLatitude(eventDto.getLatitude());
             event.setLongitude(eventDto.getLongitude());
-            Users existingUser = userRepository.findByUserName(username);
-            if(existingUser == null){
-                return ResponseEntity.badRequest().body(null);
-            }
+           eventRepository.save(event);
 
-            try {
-                Events savedEvent = eventRepository.save(event);
-                List<EventReference> adminEventReferenceList = existingUser.getEventReferenceList();
-                EventReference adminEventReference = new EventReference();
-                adminEventReference.setEventId(event.getId());
-                adminEventReference.setJoinAt(event.getEventTime());
-                adminEventReference.setRole("Admin");
-                adminEventReferenceList.add(adminEventReference);
-                userRepository.save(existingUser);
-
-                for (Users user: userRepository.findAll()){
-                    if(user.getEventReferenceList()!=null && !user.getEventReferenceList().isEmpty() && !user.equals(existingUser)){
-                        for (EventReference eventReference: user.getEventReferenceList()){
-                            if (eventReference.getEventId().equals(event.getId())){
-                                user.getEventReferenceList().remove(eventReference);
-                                EventReference newEventReference = new EventReference();
-                                newEventReference.setEventId(event.getId());
-                                newEventReference.setJoinAt(event.getEventTime());
-                                newEventReference.setRole("Member");
-                                user.getEventReferenceList().add(eventReference);
-                                userRepository.save(user);
-                            }
-                        }
-                    }
-
-                }
-                return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent); // 201 Created
-            } catch (Exception e) {
-                // Log the exception (using your preferred logging framework)
-                e.printStackTrace();
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
-            }
         }
         return ResponseEntity.badRequest().body(null);
     }

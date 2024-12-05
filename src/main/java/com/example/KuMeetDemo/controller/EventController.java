@@ -31,9 +31,9 @@ public class EventController {
     public void deleteEvent(@RequestBody Events event) {
         eventService.deleteEvent(event.getId());
     }
-    @PutMapping("/update-event/{eventID}/{username}")
-    public ResponseEntity<Events> updateEvent(@RequestParam UUID eventId, @RequestBody EventDto eventDto, @PathVariable String username) {
-        return eventService.updateEvent(eventId, eventDto, username);
+    @PutMapping("/update-event/{eventID}")
+    public ResponseEntity<Events> updateEvent(@RequestParam UUID eventId, @RequestBody EventDto eventDto) {
+        return eventService.updateEvent(eventId, eventDto);
     }
     @GetMapping("/find-event")
     public Events findEvent(@RequestBody Events event) {
