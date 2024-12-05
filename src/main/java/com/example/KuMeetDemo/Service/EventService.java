@@ -92,19 +92,6 @@ public class EventService {
         return eventRepository.findAll();
     }
 
-//    public Events updateEvent(Events updatedEvent) {
-//        Events event = eventRepository.findById(updatedEvent.getId()).orElse(null);
-//        if (event == null) {
-//            return null;
-//        }
-//        event.setEventTitle(updatedEvent.getEventTitle());
-//        event.setEventType(updatedEvent.getEventType());
-//        event.setEventDescription(updatedEvent.getEventDescription());
-//        event.setMaxCapacity(updatedEvent.getMaxCapacity());
-//        event.setEventTime(updatedEvent.getEventTime());
-//        return eventRepository.save(event);
-//    }
-    // event silinince user listesindeki eventreference da silinmeli
     public void deleteEvent(UUID id) {
         eventRepository.findById(id).ifPresent(event ->
                 {
@@ -126,5 +113,62 @@ public class EventService {
     }
     public Events getEvent(UUID id) {
         return eventRepository.findById(id).orElse(null);
+    }
+    public ResponseEntity<Events> updateEvent(UUID id, EventDto eventDto, String username) {
+        if (eventDto.getTitle() == null || eventDto.getTitle().isEmpty() ||
+                eventDto.getDescription() == null || eventDto.getDescription().isEmpty() ||
+                eventDto.getCapacity() <= 0 ||
+                eventDto.getTime() == null ||
+                eventDto.getLatitude() == null || eventDto.getLongitude() == null) {
+            return ResponseEntity.badRequest().body(null); // 400 Bad Request
+        }
+
+        Events event = eventRepository.findById(id).orElse(null);
+        if (event != null) {
+            event.setEventTitle(eventDto.getTitle());
+            event.setEventDescription(eventDto.getDescription());
+            event.setMaxCapacity(eventDto.getCapacity());
+            event.setEventTime(eventDto.getTime());
+            event.setLatitude(eventDto.getLatitude());
+            event.setLongitude(eventDto.getLongitude());
+            Users existingUser = userRepository.findByUserName(username);
+            if(existingUser == null){
+                return ResponseEntity.badRequest().body(null);
+            }
+
+            try {
+                Events savedEvent = eventRepository.save(event);
+                List<EventReference> adminEventReferenceList = existingUser.getEventReferenceList();
+                EventReference adminEventReference = new EventReference();
+                adminEventReference.setEventId(event.getId());
+                adminEventReference.setJoinAt(event.getEventTime());
+                adminEventReference.setRole("Admin");
+                adminEventReferenceList.add(adminEventReference);
+                userRepository.save(existingUser);
+
+                for (Users user: userRepository.findAll()){
+                    if(user.getEventReferenceList()!=null && !user.getEventReferenceList().isEmpty() && !user.equals(existingUser)){
+                        for (EventReference eventReference: user.getEventReferenceList()){
+                            if (eventReference.getEventId().equals(event.getId())){
+                                user.getEventReferenceList().remove(eventReference);
+                                EventReference newEventReference = new EventReference();
+                                newEventReference.setEventId(event.getId());
+                                newEventReference.setJoinAt(event.getEventTime());
+                                newEventReference.setRole("Member");
+                                user.getEventReferenceList().add(eventReference);
+                                userRepository.save(user);
+                            }
+                        }
+                    }
+
+                }
+                return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent); // 201 Created
+            } catch (Exception e) {
+                // Log the exception (using your preferred logging framework)
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // 500 Internal Server Error
+            }
+        }
+        return ResponseEntity.badRequest().body(null);
     }
 }

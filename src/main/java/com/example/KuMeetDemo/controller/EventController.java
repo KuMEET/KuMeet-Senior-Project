@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
@@ -30,10 +31,10 @@ public class EventController {
     public void deleteEvent(@RequestBody Events event) {
         eventService.deleteEvent(event.getId());
     }
-//    @PutMapping("/update-event")
-//    public Events updateEvent(@RequestBody Events event) {
-//        return eventService.updateEvent(event);
-//    }
+    @PutMapping("/update-event/{eventID}/{username}")
+    public ResponseEntity<Events> updateEvent(@RequestParam UUID eventId, @RequestBody EventDto eventDto, @PathVariable String username) {
+        return eventService.updateEvent(eventId, eventDto, username);
+    }
     @GetMapping("/find-event")
     public Events findEvent(@RequestBody Events event) {
         return eventService.getEvent(event.getId());
