@@ -58,6 +58,7 @@ public class EventService {
         userInfo.setUserId(existingUser.getId());
         userInfo.setRole("Admin");
         userInfo.setJoinAt(new Date(System.currentTimeMillis()));
+        eventMembers.add(userInfo);
         event.setParticipants(eventMembers);
 
         try {
