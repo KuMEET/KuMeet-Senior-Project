@@ -109,8 +109,8 @@ public class EventService {
     public Events getEvent(UUID id) {
         return eventRepository.findById(id).orElse(null);
     }
-    public ResponseEntity<Events> updateEvent(String id, EventDto eventDto) {
-        UUID newId = UUID.fromString(id);
+    public ResponseEntity<Events> updateEvent(String eventId, EventDto eventDto) {
+        UUID newId = UUID.fromString(eventId);
         if (eventDto.getTitle() == null || eventDto.getTitle().isEmpty() ||
                 eventDto.getDescription() == null || eventDto.getDescription().isEmpty() ||
                 eventDto.getCapacity() <= 0 ||

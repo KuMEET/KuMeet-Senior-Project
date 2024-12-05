@@ -76,8 +76,8 @@ public class GroupService {
     public List<Groups> getAllGroups() {
         return groupRepository.findAll();
     }
-    public ResponseEntity<Groups> updateGroup(String id, GroupDto groupDto) {
-        UUID newId = UUID.fromString(id);
+    public ResponseEntity<Groups> updateGroup(String groupId, GroupDto groupDto) {
+        UUID newId = UUID.fromString(groupId);
         if (groupDto.getName() == null || groupDto.getCapacity() <= 0 ) {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
         }
