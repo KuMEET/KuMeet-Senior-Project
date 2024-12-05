@@ -33,8 +33,8 @@ public class GroupController {
     public void deleteGroup(@RequestBody Groups group) {
         groupService.deleteGroup(group.getId());
     }
-    @PostMapping("/update-group/{groupid}")
-    public ResponseEntity<Groups> updateGroup(@RequestParam String groupId, @RequestBody GroupDto groupDto) {
+    @PostMapping("/update-group/{groupId}")
+    public ResponseEntity<Groups> updateGroup(@PathVariable String groupId, @RequestBody GroupDto groupDto) {
         return groupService.updateGroup(groupId, groupDto);
     }
     @GetMapping("/find-group")
