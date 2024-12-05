@@ -78,7 +78,7 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
         const Padding(
           padding: EdgeInsets.all(16.0),
           child: Text(
-            'Your Groups',
+            'Recent Groups',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,

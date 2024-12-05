@@ -4,6 +4,7 @@ import 'group_card.dart';
 import 'group_details_page.dart';
 import 'group_service.dart';
 import 'group.dart';
+import 'owned_groups_page.dart';
 
 class GroupPage extends StatefulWidget {
   const GroupPage({super.key});
@@ -42,35 +43,50 @@ class _GroupPageState extends State<GroupPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Groups', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
-      ),
-      body: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: SearchBar(),
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Groups', style: TextStyle(color: Colors.white)),
+      backgroundColor: Colors.black,
+    ),
+    body: Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: SearchBar(),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const OwnedGroupsPage()),
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Colors.deepOrange,
           ),
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _groups.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No groups available',
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                      )
-                    : GroupList(groups: _groups),
-          ),
-        ],
-      ),
-      floatingActionButton: const CreateGroupButton(),
-      backgroundColor: Colors.grey[900],
-    );
-  }
+          child: const Text('Go to Owned Groups'),
+        ),
+        const SizedBox(height: 16),
+        Expanded(
+          child: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _groups.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No groups available',
+                        style: TextStyle(color: Colors.white70),
+                      ),
+                    )
+                  : GroupList(groups: _groups),
+        ),
+      ],
+    ),
+    floatingActionButton: const CreateGroupButton(),
+    backgroundColor: Colors.grey[900],
+  );
+}
+
 }
 
 class SearchBar extends StatelessWidget {
