@@ -1,5 +1,6 @@
 package com.example.KuMeetDemo.Service;
 
+import com.example.KuMeetDemo.Dto.EventReference;
 import com.example.KuMeetDemo.Dto.GroupDto;
 import com.example.KuMeetDemo.Dto.GroupReference;
 import com.example.KuMeetDemo.Dto.UserReference;
@@ -55,6 +56,14 @@ public class GroupService {
         group.setMembers(groupMembers);
         try {
             Groups savedGroup = groupRepository.save(group);
+            List<GroupReference> groupReferenceList = new ArrayList<>();
+            GroupReference groupReference = new GroupReference();
+            groupReference.setRole("Admin");
+            groupReference.setGroupId(group.getId());
+            groupReference.setJoinAt(group.getCreatedAt());
+            groupReferenceList.add(groupReference);
+            existingUser.setGroupReferenceList(groupReferenceList);
+            userRepository.save(existingUser);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedGroup); // 201 Created
         } catch (Exception e) {
             // Log the exception (using your preferred logging framework)

@@ -61,8 +61,22 @@ public class EventService {
         eventMembers.add(userInfo);
         event.setParticipants(eventMembers);
 
+
+
+
+
+
         try {
             Events savedEvent = eventRepository.save(event);
+
+            List<EventReference> eventReferenceList = new ArrayList<>();
+            EventReference eventReference = new EventReference();
+            eventReference.setEventId(event.getId());
+            eventReference.setJoinAt(event.getEventTime());
+            eventReference.setRole("Admin");
+            eventReferenceList.add(eventReference);
+            existingUser.setEventReferenceList(eventReferenceList);
+            userRepository.save(existingUser);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent); // 201 Created
         } catch (Exception e) {
             // Log the exception (using your preferred logging framework)
