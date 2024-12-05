@@ -4,7 +4,6 @@ import com.example.KuMeetDemo.Dto.EventDto;
 import com.example.KuMeetDemo.Dto.EventReference;
 import com.example.KuMeetDemo.Dto.UserReference;
 import com.example.KuMeetDemo.Model.Events;
-import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Repository.EventRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
@@ -112,7 +111,7 @@ public class EventService {
                     for (Users user: userRepository.findAll()){
                         for (EventReference eventReference: user.getEventReferenceList()){
                             if (eventReference.getEventId().equals(event.getId())){
-                                user.getGroupReferenceList().remove(eventReference);
+                                user.getEventReferenceList().remove(eventReference);
                                 userRepository.save(user);
                                 break;
                             }
