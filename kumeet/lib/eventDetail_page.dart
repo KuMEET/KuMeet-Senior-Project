@@ -90,7 +90,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(widget.event.imagePath),
+                  image: AssetImage(widget.event.imagePath!),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
                     Colors.black.withOpacity(0.6),

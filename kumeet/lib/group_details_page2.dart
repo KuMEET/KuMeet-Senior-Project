@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kumeet/edit_groupPage.dart';
 import 'package:kumeet/group_service.dart';
 import 'group.dart';
 import 'package:kumeet/login_page.dart';
@@ -24,10 +25,40 @@ class _GroupDetailsPage2State extends State<GroupDetailsPage2> {
   String? userName = GlobalState().userName;
   final GroupService groupService = GroupService();
 
-  void _editGroup() {
-    // Navigate to the edit group page
-    // After editing, call widget.onGroupUpdated();
-  }
+void _editGroup() {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => EditGroupPage(
+        group: widget.group,
+        onGroupUpdated: (updatedGroup) async {
+          setState(() {
+            widget.group.name = updatedGroup.name;
+            widget.group.capacity = updatedGroup.capacity;
+          });
+
+          // Call the update service
+          final success = await groupService.updateGroup(updatedGroup, widget.group.id);
+          if (success) {
+            widget.onGroupUpdated();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Group "${updatedGroup.name}" updated successfully!',
+                ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to update group.')),
+            );
+          }
+        },
+      ),
+    ),
+  );
+}
+
 
   Future<void> _deleteGroup() async {
     final confirm = await showDialog<bool>(
@@ -53,7 +84,7 @@ class _GroupDetailsPage2State extends State<GroupDetailsPage2> {
         _isProcessing = true;
       });
       try{
-      final success = await groupService.deleteGroup(widget.group.id!);
+      final success = await groupService.deleteGroup(widget.group);
 
       if (success) {
          widget.onGroupDeleted();

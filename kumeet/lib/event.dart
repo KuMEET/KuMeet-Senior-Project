@@ -2,19 +2,19 @@
 
 class Event {
   final String? id;
-  final String imagePath;
-  final String title;
-  final String description;
-  final String location;
-  final int seatsAvailable;
-  final DateTime? date;
+  final String? imagePath;
+  String title;
+  String description;
+  String location;
+  int seatsAvailable;
+  DateTime? date;
   final String? badge;
-  final double latitude;  // Latitude for event location
-  final double longitude; // Longitude for event location
+  double latitude;  // Latitude for event location
+  double longitude; // Longitude for event location
 
   Event({
     this.id,
-    required this.imagePath,
+    this.imagePath,
     required this.title,
     required this.description,
     required this.location,
@@ -40,8 +40,8 @@ class Event {
   Map<String, dynamic> toJson2() {
     return {
       'id': id,
-      'eventTitle': title,
-      'eventDescription': description,
+      'title': title,
+      'description': description,
       'latitude': latitude,
       'longitude': longitude,
       'capacity': seatsAvailable,

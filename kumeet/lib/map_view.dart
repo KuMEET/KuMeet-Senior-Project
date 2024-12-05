@@ -251,7 +251,7 @@ void _showPermissionDeniedDialog() {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: Image.asset(
-                                event.imagePath,
+                                event.imagePath!,
                                 width: 100, // Square image size
                                 height: 100,
                                 fit: BoxFit.cover,

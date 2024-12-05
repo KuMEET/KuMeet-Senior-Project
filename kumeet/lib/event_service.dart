@@ -120,4 +120,27 @@ class EventService {
       return false;
     }
   }
+  Future<bool> updateEvent(Event event, String? eventID) async {
+    final url = Uri.parse('http://localhost:8080/api/update-event/${eventID}');
+    try {
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(event.toJson2()),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        print('EVENT updated successfully!');
+        return true;
+      } else {
+        print('Failed to updated EVENT: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error updated group: $e');
+      return false;
+    }
+  }
 }

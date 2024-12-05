@@ -1,9 +1,9 @@
 class Group {
   final String? id;
   final String? imagePath;
-  final String name;
+  String name;
   //final String description;
-  final int capacity;
+  int capacity;
   final int? memberCount;
 
   Group({

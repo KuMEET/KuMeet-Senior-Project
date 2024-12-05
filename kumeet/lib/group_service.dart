@@ -113,7 +113,7 @@ class GroupService {
       return [];
     }
   }
-  Future<bool> deleteGroup(String id) async {
+  Future<bool> deleteGroup(Group group) async {
     final url = Uri.parse('$baseUrl/delete-group');
     try {
       final response = await http.delete(
@@ -121,10 +121,10 @@ class GroupService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: jsonEncode(id),
+        body: jsonEncode(group.toJson2()),
       );
 
-      if (response.statusCode == 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         print('Group deleted successfully!');
         return true;
       } else {
@@ -133,6 +133,29 @@ class GroupService {
       }
     } catch (e) {
       print('Error deleting group: $e');
+      return false;
+    }
+  }
+    Future<bool> updateGroup(Group group, String? groupId) async {
+    final url = Uri.parse('$baseUrl/update-group/${groupId}');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(group.toJson2()),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        print('Group updated successfully!');
+        return true;
+      } else {
+        print('Failed to updated group: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error updated group: $e');
       return false;
     }
   }

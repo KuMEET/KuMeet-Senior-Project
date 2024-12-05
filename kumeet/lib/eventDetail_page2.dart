@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kumeet/edit_eventPage.dart';
 import 'package:kumeet/login_page.dart';
 import 'event.dart';
 import 'event_service.dart';
@@ -84,9 +85,46 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
     }
   }
 
-  void _editEvent() {
-    // Placeholder for the event editing functionality
-    // Navigate to an edit page and call widget.onEventUpdated() after successful update
+  Future<void> _editEvent() async {
+    final updatedEvent = await Navigator.push<Event>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditEventPage(
+          event: widget.event,
+          onEventUpdated: (updatedEvent) {
+            Navigator.pop(context, updatedEvent);
+          },
+        ),
+      ),
+    );
+    if (updatedEvent != null) {
+      setState(() {
+        widget.event.title = updatedEvent.title;
+        widget.event.description = updatedEvent.description;
+        widget.event.location = updatedEvent.location;
+        widget.event.seatsAvailable = updatedEvent.seatsAvailable;
+        widget.event.date = updatedEvent.date;
+        widget.event.latitude = updatedEvent.latitude;
+        widget.event.longitude = updatedEvent.longitude;
+      });
+      
+      final success = await eventService.updateEvent(updatedEvent,widget.event.id);
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Group "${updatedEvent.title}" updated successfully!',
+                ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to update group.')),
+            );
+          }
+
+      widget.onEventUpdated();
+    }
   }
 
   @override
@@ -108,7 +146,7 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(widget.event.imagePath),
+                  image: AssetImage(widget.event.imagePath!),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
                     Colors.black.withOpacity(0.6),
