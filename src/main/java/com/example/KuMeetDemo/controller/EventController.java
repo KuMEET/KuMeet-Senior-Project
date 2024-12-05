@@ -32,7 +32,7 @@ public class EventController {
         eventService.deleteEvent(event.getId());
     }
     @PutMapping("/update-event/{eventID}")
-    public ResponseEntity<Events> updateEvent(@RequestParam UUID eventId, @RequestBody EventDto eventDto) {
+    public ResponseEntity<Events> updateEvent(@RequestParam String eventId, @RequestBody EventDto eventDto) {
         return eventService.updateEvent(eventId, eventDto);
     }
     @GetMapping("/find-event")

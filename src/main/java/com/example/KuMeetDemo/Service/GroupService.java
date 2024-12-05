@@ -76,11 +76,12 @@ public class GroupService {
     public List<Groups> getAllGroups() {
         return groupRepository.findAll();
     }
-    public ResponseEntity<Groups> updateGroup(UUID id, GroupDto groupDto) {
+    public ResponseEntity<Groups> updateGroup(String id, GroupDto groupDto) {
+        UUID newId = UUID.fromString(id);
         if (groupDto.getName() == null || groupDto.getCapacity() <= 0 ) {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
         }
-        Groups groups = groupRepository.findById(id).orElse(null);
+        Groups groups = groupRepository.findById(newId).orElse(null);
         if (groups != null) {
             groups.setGroupName(groupDto.getName());
             groups.setCapacity(groupDto.getCapacity());

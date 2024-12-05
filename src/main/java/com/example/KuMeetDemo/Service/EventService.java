@@ -109,7 +109,8 @@ public class EventService {
     public Events getEvent(UUID id) {
         return eventRepository.findById(id).orElse(null);
     }
-    public ResponseEntity<Events> updateEvent(UUID id, EventDto eventDto) {
+    public ResponseEntity<Events> updateEvent(String id, EventDto eventDto) {
+        UUID newId = UUID.fromString(id);
         if (eventDto.getTitle() == null || eventDto.getTitle().isEmpty() ||
                 eventDto.getDescription() == null || eventDto.getDescription().isEmpty() ||
                 eventDto.getCapacity() <= 0 ||
@@ -118,7 +119,7 @@ public class EventService {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
         }
 
-        Events event = eventRepository.findById(id).orElse(null);
+        Events event = eventRepository.findById(newId).orElse(null);
         if (event != null) {
             event.setEventTitle(eventDto.getTitle());
             event.setEventDescription(eventDto.getDescription());

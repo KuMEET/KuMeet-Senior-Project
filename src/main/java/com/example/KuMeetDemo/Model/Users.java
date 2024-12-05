@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +24,6 @@ public class Users {
     private String passWord;
     private Date createdAt;
 
-    private List<GroupReference> groupReferenceList;
-    private List<EventReference> eventReferenceList;
+    private List<GroupReference> groupReferenceList = new ArrayList<>();
+    private List<EventReference> eventReferenceList = new ArrayList<>();
 }
