@@ -109,13 +109,16 @@ public class EventService {
         eventRepository.findById(id).ifPresent(event ->
                 {
                     for (Users user: userRepository.findAll()){
-                        for (EventReference eventReference: user.getEventReferenceList()){
-                            if (eventReference.getEventId().equals(event.getId())){
-                                user.getEventReferenceList().remove(eventReference);
-                                userRepository.save(user);
-                                break;
+                        if(user.getEventReferenceList()!=null && !user.getEventReferenceList().isEmpty()){
+                            for (EventReference eventReference: user.getEventReferenceList()){
+                                if (eventReference.getEventId().equals(event.getId())){
+                                    user.getEventReferenceList().remove(eventReference);
+                                    userRepository.save(user);
+                                    break;
+                                }
                             }
                         }
+
                     }
                     eventRepository.delete(event);
                 }
