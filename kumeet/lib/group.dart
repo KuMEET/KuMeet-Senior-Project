@@ -24,6 +24,15 @@ class Group {
 
     };
   }
+    Map<String, dynamic> toJson2() {
+    return {
+      'id':id,
+      'name': name,
+      //'description': description,
+      'capacity': capacity,
+
+    };
+  }
   factory Group.fromJson(Map<String, dynamic> json) {
     return Group(
       id: json['id'],

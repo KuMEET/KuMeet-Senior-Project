@@ -92,7 +92,7 @@ class GroupService {
 
   // Method to get owned groups
   Future<List<Group>> getOwnedGroups(String username) async {
-    final url = Uri.parse('$baseUrl/get-groups-for-admin/$username');
+    final url = Uri.parse('$baseUrl/get-groups-for-admin/${username}');
     try {
       final response = await http.get(
         url,
@@ -100,10 +100,6 @@ class GroupService {
           'Content-Type': 'application/json',
         },
       );
-
-      // Debugging logs
-      print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
@@ -115,6 +111,29 @@ class GroupService {
     } catch (e) {
       print('Error fetching owned groups: $e');
       return [];
+    }
+  }
+  Future<bool> deleteGroup(Group group) async {
+    final url = Uri.parse('$baseUrl/delete-group');
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(group.toJson2()), // Convert Group to JSON
+      );
+
+      if (response.statusCode == 201) {
+        print('Group deleted successfully!');
+        return true;
+      } else {
+        print('Failed to delete group: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error deleting group: $e');
+      return false;
     }
   }
 }

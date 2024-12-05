@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'group.dart';
 import 'group_service.dart';
 import 'group_card.dart';
-import 'group_details_page.dart';
+import 'group_details_page2.dart'; // Ensure this import points to GroupDetailsPage2
 import 'package:kumeet/login_page.dart';
 
 class OwnedGroupsPage extends StatefulWidget {
@@ -46,7 +46,6 @@ class _OwnedGroupsPageState extends State<OwnedGroupsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Owned Groups', style: TextStyle(color: Colors.white)),
-        
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(
           color: Colors.white,
@@ -76,13 +75,20 @@ class _OwnedGroupsPageState extends State<OwnedGroupsPage> {
                       child: GroupCard(
                         title: group.name,
                         imagePath: 'images/group_image.png',
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => GroupDetailsPage(group: group),
+                              builder: (context) => GroupDetailsPage2(
+                                group: group,
+                                onGroupUpdated: fetchOwnedGroups,
+                                onGroupDeleted: fetchOwnedGroups,
+                              ),
                             ),
                           );
+                          if (result == true) {
+                            fetchOwnedGroups();
+                          }
                         },
                       ),
                     );
