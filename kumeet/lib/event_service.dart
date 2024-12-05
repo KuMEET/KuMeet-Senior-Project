@@ -76,4 +76,48 @@ class EventService {
       return [];
     }
   }
+  Future<List<Event>> getEventsByAdmin(String username) async {
+    final url = Uri.parse('http://localhost:8080/get-events-for-admin/${username}');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+
+        return data.map((json) => Event.fromJson(json)).toList();
+      } else {
+        print('Failed to fetch events: ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching events: $e');
+      return [];
+    }
+  }
+  Future<bool> deleteEvent(Event event) async {
+    final url = Uri.parse('http://localhost:8080/api/delete-event');
+    try {
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(event.toJson2()), // Convert Event to JSON
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print('Failed to delete the event: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error deleting the event: $e');
+      return false;
+    }
+  }
 }

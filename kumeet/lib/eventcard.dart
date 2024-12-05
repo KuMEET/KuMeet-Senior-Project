@@ -5,11 +5,12 @@ import 'event.dart';
 class EventCard extends StatelessWidget {
   final Event event;
   final VoidCallback onTap;
+  final Row? trailing;
 
   const EventCard({
     super.key,
     required this.event,
-    required this.onTap,
+    required this.onTap, this.trailing,
   });
 
   @override

@@ -36,6 +36,18 @@ class Event {
       'time': date?.toIso8601String(),
     };
   }
+    // Convert Event to JSON
+  Map<String, dynamic> toJson2() {
+    return {
+      'id': id,
+      'eventTitle': title,
+      'eventDescription': description,
+      'latitude': latitude,
+      'longitude': longitude,
+      'capacity': seatsAvailable,
+      'time': date?.toIso8601String(),
+    };
+  }
   factory Event.fromJson(Map<String, dynamic> json) {
     print(json);
     return Event(

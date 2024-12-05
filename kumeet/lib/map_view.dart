@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'event.dart';
 import 'eventDetail_page.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MapView extends StatefulWidget {
   final List<Event> events;
@@ -28,8 +29,11 @@ class _MapViewState extends State<MapView> {
     _fetchInitialLocation().then((_) => _initializeMarkersAndEvents());
   }
 
-  Future<void> _fetchInitialLocation() async {
-    try {
+Future<void> _fetchInitialLocation() async {
+  try {
+    var status = await Permission.locationWhenInUse.request();
+
+    if (status.isGranted) {
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
@@ -42,10 +46,37 @@ class _MapViewState extends State<MapView> {
           CameraUpdate.newLatLngZoom(initialLocation!, 15),
         );
       }
-    } catch (e) {
-      debugPrint('Error fetching location: $e');
+    } else if (status.isDenied) {
+      debugPrint('Location permission denied.');
+      _showPermissionDeniedDialog();
+    } else if (status.isPermanentlyDenied) {
+      debugPrint('Location permission permanently denied.');
+      await openAppSettings(); // Prompt the user to enable permissions in settings
     }
+  } catch (e) {
+    debugPrint('Error fetching location: $e');
   }
+}
+void _showPermissionDeniedDialog() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Permission Denied'),
+      content: const Text(
+          'Location permission is required to use this feature. Please enable it in Settings.'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () => openAppSettings(),
+          child: const Text('Open Settings'),
+        ),
+      ],
+    ),
+  );
+}
 
   void _initializeMarkersAndEvents() {
     if (initialLocation != null) {

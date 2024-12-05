@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kumeet/login_page.dart';
-import 'map_picker_page.dart';
+//import 'map_picker_page.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'event.dart';
 import 'event_service.dart';
@@ -24,15 +24,16 @@ class _CreateEventPageState extends State<CreateEventPage> {
   final EventService eventService = EventService();
 
   Future<void> _pickLocation() async {
-    final LatLng? pickedLocation = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const MapPickerPage()),
-    );
-    if (pickedLocation != null) {
+    
+    //final LatLng? pickedLocation = await Navigator.push(
+     // context,
+     // MaterialPageRoute(builder: (context) => const MapPickerPage()),
+   // );
+    //if (pickedLocation != null) {
       setState(() {
-        _eventLocation = pickedLocation;
+        _eventLocation = const LatLng(40.9810, 29.0870);
       });
-    }
+   // }
   }
 
   void _createEvent() async {
