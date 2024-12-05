@@ -88,7 +88,7 @@ public class GroupService {
         groupRepository.findById(id).ifPresent(group ->
         {
             for (Users user: userRepository.findAll()){
-                if(user.getEventReferenceList()!=null && !user.getEventReferenceList().isEmpty()){
+                if(user.getGroupReferenceList()!=null && !user.getGroupReferenceList().isEmpty()){
                     for (GroupReference groupReference: user.getGroupReferenceList()){
                         if (groupReference.getGroupId().equals(group.getId())){
                             user.getGroupReferenceList().remove(groupReference);
