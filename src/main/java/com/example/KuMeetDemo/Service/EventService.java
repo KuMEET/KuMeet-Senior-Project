@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -52,11 +53,13 @@ public class EventService {
         event.setLatitude(eventDto.getLatitude());
         event.setLongitude(eventDto.getLongitude());
 
-
+        List<UserReference> eventMembers = new ArrayList<>();
         UserReference userInfo = new UserReference();
         userInfo.setUserId(existingUser.getId());
         userInfo.setRole("Admin");
         userInfo.setJoinAt(new Date(System.currentTimeMillis()));
+        event.setParticipants(eventMembers);
+
         try {
             Events savedEvent = eventRepository.save(event);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedEvent); // 201 Created

@@ -14,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Service
@@ -48,10 +45,14 @@ public class GroupService {
         group.setCapacity(groupDto.getCapacity());
         group.setCreatedAt(new Date(System.currentTimeMillis()));
         group.setId(UUID.randomUUID());
+
+        List<UserReference> groupMembers = new ArrayList<>();
         UserReference userInfo = new UserReference();
         userInfo.setUserId(existingUser.getId());
         userInfo.setRole("Admin");
         userInfo.setJoinAt(new Date(System.currentTimeMillis()));
+        groupMembers.add(userInfo);
+        group.setMembers(groupMembers);
         try {
             Groups savedGroup = groupRepository.save(group);
             return ResponseEntity.status(HttpStatus.CREATED).body(savedGroup); // 201 Created
