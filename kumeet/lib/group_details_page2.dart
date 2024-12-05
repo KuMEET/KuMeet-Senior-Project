@@ -53,7 +53,7 @@ class _GroupDetailsPage2State extends State<GroupDetailsPage2> {
         _isProcessing = true;
       });
       try{
-      final success = await groupService.deleteGroup(widget.group);
+      final success = await groupService.deleteGroup(widget.group.id!);
 
       if (success) {
          widget.onGroupDeleted();

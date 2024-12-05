@@ -113,7 +113,7 @@ class GroupService {
       return [];
     }
   }
-  Future<bool> deleteGroup(Group group) async {
+  Future<bool> deleteGroup(String id) async {
     final url = Uri.parse('$baseUrl/delete-group');
     try {
       final response = await http.delete(
@@ -121,7 +121,7 @@ class GroupService {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: jsonEncode(group.toJson2()), // Convert Group to JSON
+        body: jsonEncode(id),
       );
 
       if (response.statusCode == 201) {

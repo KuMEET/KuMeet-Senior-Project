@@ -27,7 +27,8 @@ class Group {
     Map<String, dynamic> toJson2() {
     return {
       'id':id,
-      'name': name,
+      'groupName': name,
+      'memberCount': memberCount,
       //'description': description,
       'capacity': capacity,
 
