@@ -1,6 +1,5 @@
 package com.example.KuMeetDemo.Service;
 
-import com.example.KuMeetDemo.Dto.EventReference;
 import com.example.KuMeetDemo.Dto.GroupDto;
 import com.example.KuMeetDemo.Dto.GroupReference;
 import com.example.KuMeetDemo.Dto.UserReference;
@@ -89,11 +88,13 @@ public class GroupService {
         groupRepository.findById(id).ifPresent(group ->
         {
             for (Users user: userRepository.findAll()){
-                for (GroupReference groupReference: user.getGroupReferenceList()){
-                    if (groupReference.getGroupId().equals(group.getId())){
-                        user.getGroupReferenceList().remove(groupReference);
-                        userRepository.save(user);
-                        break;
+                if(user.getEventReferenceList()!=null){
+                    for (GroupReference groupReference: user.getGroupReferenceList()){
+                        if (groupReference.getGroupId().equals(group.getId())){
+                            user.getGroupReferenceList().remove(groupReference);
+                            userRepository.save(user);
+                            break;
+                        }
                     }
                 }
             }
