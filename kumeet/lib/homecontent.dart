@@ -20,18 +20,24 @@ class HomeContent extends StatelessWidget {
         .toList();
 
     return Container(
-      color: Colors.grey[900],
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            YourGroupsSection(), // Displays dynamic groups
-            const Divider(thickness: 0.5, color: Colors.grey),
-            UpcomingEventsSection(upcomingEvents: upcomingEvents),
-          ],
+  color: Colors.grey[900],
+  child: Column(
+    children: [
+      Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              YourGroupsSection(),
+              const Divider(thickness: 0.5, color: Colors.grey),
+              UpcomingEventsSection(upcomingEvents: upcomingEvents),
+            ],
+          ),
         ),
       ),
-    );
+    ],
+  ),
+);
   }
 }
 
