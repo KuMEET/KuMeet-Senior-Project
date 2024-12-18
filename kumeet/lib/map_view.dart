@@ -3,7 +3,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'event.dart';
 import 'eventDetail_page.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class MapView extends StatefulWidget {
   final List<Event> events;
@@ -29,54 +28,71 @@ class _MapViewState extends State<MapView> {
     _fetchInitialLocation().then((_) => _initializeMarkersAndEvents());
   }
 
-Future<void> _fetchInitialLocation() async {
-  try {
-    var status = await Permission.locationWhenInUse.request();
+  Future<void> _fetchInitialLocation() async {
+    try {
+      // Check current permission status
+      LocationPermission permission = await Geolocator.checkPermission();
 
-    if (status.isGranted) {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-      setState(() {
-        initialLocation = LatLng(position.latitude, position.longitude);
-        mapCenter = initialLocation; // Set map center to user's location
-      });
-      if (mapController != null && initialLocation != null) {
-        mapController!.animateCamera(
-          CameraUpdate.newLatLngZoom(initialLocation!, 15),
-        );
+      // If permission is denied or deniedForever, request it
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
       }
-    } else if (status.isDenied) {
-      debugPrint('Location permission denied.');
-      _showPermissionDeniedDialog();
-    } else if (status.isPermanentlyDenied) {
-      debugPrint('Location permission permanently denied.');
-      await openAppSettings(); // Prompt the user to enable permissions in settings
+
+      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+        // Permission granted, get current position
+        Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high,
+        );
+        setState(() {
+          initialLocation = LatLng(position.latitude, position.longitude);
+          mapCenter = initialLocation; // Set map center to user's location
+        });
+        if (mapController != null && initialLocation != null) {
+          mapController!.animateCamera(
+            CameraUpdate.newLatLngZoom(initialLocation!, 15),
+          );
+        }
+      } else if (permission == LocationPermission.denied) {
+        // Permission is denied (but not forever), prompt user again or show a dialog
+        debugPrint('Location permission denied (not permanently).');
+        _showPermissionDeniedDialog();
+      } else if (permission == LocationPermission.deniedForever) {
+        debugPrint('Location permission permanently denied.');
+        _showPermissionDeniedDialog(permanentlyDenied: true);
+      }
+    } catch (e) {
+      debugPrint('Error fetching location: $e');
     }
-  } catch (e) {
-    debugPrint('Error fetching location: $e');
   }
-}
-void _showPermissionDeniedDialog() {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Permission Denied'),
-      content: const Text(
-          'Location permission is required to use this feature. Please enable it in Settings.'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+
+  void _showPermissionDeniedDialog({bool permanentlyDenied = false}) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Permission Denied'),
+        content: Text(
+          permanentlyDenied
+              ? 'Location permission is permanently denied. Please enable it in Settings.'
+              : 'Location permission is required to use this feature. Please allow it in Settings.'
         ),
-        TextButton(
-          onPressed: () => openAppSettings(),
-          child: const Text('Open Settings'),
-        ),
-      ],
-    ),
-  );
-}
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          // If permanentlyDenied is true, we can guide user to Settings
+          if (permanentlyDenied)
+            TextButton(
+              onPressed: () {
+                Geolocator.openAppSettings();
+                Navigator.pop(context);
+              },
+              child: const Text('Open Settings'),
+            ),
+        ],
+      ),
+    );
+  }
 
   void _initializeMarkersAndEvents() {
     if (initialLocation != null) {
