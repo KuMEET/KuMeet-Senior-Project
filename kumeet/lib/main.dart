@@ -6,6 +6,7 @@ import 'login_page.dart';
 import 'event.dart';
 import 'homecontent.dart';
 import 'group_page.dart';
+import 'user_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensure bindings are initialized
@@ -48,7 +49,8 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     _initializeCalendarEvents();
   }
-    Future<void> _initializeCalendarEvents() async {
+
+  Future<void> _initializeCalendarEvents() async {
     try {
       String userName = GlobalState().userName ?? "default";
       UserService userService = UserService();
@@ -64,6 +66,7 @@ class _HomePageState extends State<HomePage> {
       print('Error initializing calendar events: $e');
     }
   }
+
   void addEventToCalendar(Event event) {
     if (!calendarEvents.contains(event)) {
       setState(() {
@@ -87,12 +90,13 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      HomeContent(calendarEvents: calendarEvents), 
+      HomeContent(calendarEvents: calendarEvents),
       ExplorePage(
-        onAddEventToCalendar: addEventToCalendar, 
-        isEventAdded: isEventAdded, 
+        onAddEventToCalendar: addEventToCalendar,
+        isEventAdded: isEventAdded,
       ),
-      const GroupPage(), 
+      const GroupPage(),
+      const UserPage(),  // Make sure this line matches the order in the BottomNavigationBar
     ];
 
     return Scaffold(
@@ -106,7 +110,7 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
-            color: Colors.white, 
+            color: Colors.white,
             onPressed: () {},
           ),
         ],
@@ -115,7 +119,7 @@ class _HomePageState extends State<HomePage> {
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.black,
         selectedItemColor: Colors.deepOrange,
-        unselectedItemColor: Colors.grey[400], 
+        unselectedItemColor: Colors.grey[400],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [
@@ -131,10 +135,13 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.groups),
             label: 'Groups',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'User',
+          ),
         ],
-        type: BottomNavigationBarType.fixed, // Ensure labels are always visible
+        type: BottomNavigationBarType.fixed,
       ),
     );
   }
 }
-
