@@ -11,6 +11,7 @@ import java.util.UUID;
 public class GroupDto {
     String name;
     int capacity;
+    Boolean visibility;
 
 }
 

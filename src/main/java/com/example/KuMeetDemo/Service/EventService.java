@@ -51,12 +51,15 @@ public class EventService {
         event.setCreatedAt(new Date(System.currentTimeMillis()));
         event.setLatitude(eventDto.getLatitude());
         event.setLongitude(eventDto.getLongitude());
+        event.setVisibility(eventDto.getVisibility());
+
 
         List<UserReference> eventMembers = new ArrayList<>();
         UserReference userInfo = new UserReference();
         userInfo.setUserId(existingUser.getId());
         userInfo.setRole("Admin");
         userInfo.setJoinAt(new Date(System.currentTimeMillis()));
+        userInfo.setStatus("Approved");
         eventMembers.add(userInfo);
         event.setParticipants(eventMembers);
 
@@ -68,6 +71,7 @@ public class EventService {
             eventReference.setEventId(event.getId());
             eventReference.setJoinAt(event.getEventTime());
             eventReference.setRole("Admin");
+            eventReference.setStatus("Approved");
             eventReferenceList.add(eventReference);
             existingUser.setEventReferenceList(eventReferenceList);
             userRepository.save(existingUser);

@@ -1,5 +1,6 @@
 package com.example.KuMeetDemo.controller;
 
+import com.example.KuMeetDemo.Dto.UserReference;
 import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Service.UserGroupService;
 import lombok.AllArgsConstructor;
@@ -37,5 +38,19 @@ public class UserGroupServiceController {
     public ResponseEntity<List<Groups>> getGroupsForAdmin(@PathVariable String userName){
         return userGroupService.getGroupsForAdmin(userName);
     }
+
+    @GetMapping("/get-pending-groups-for-admin/{groupId}")
+    public ResponseEntity<List<UserReference>> viewPendingUsersForGroup(@PathVariable UUID groupId){
+        return userGroupService.viewPendingUsersForGroup(groupId);
+    }
+    @PostMapping("/approve-pending-groups-for-admin/{groupId}/{userId}")
+    public ResponseEntity<String> approveUserRequestForGroup(@PathVariable UUID groupId, @PathVariable UUID userId){
+        return userGroupService.approveUserRequestForGroup(groupId, userId);
+    }
+    @PostMapping("/reject-pending-groups-for-admin/{groupId}/{userId}")
+    public ResponseEntity<String> rejectUserRequestForGroup(@PathVariable UUID groupId, @PathVariable UUID userId){
+        return userGroupService.rejectUserRequestForGroup(groupId, userId);
+    }
+
 
 }

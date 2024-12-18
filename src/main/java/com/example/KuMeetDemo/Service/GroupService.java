@@ -47,11 +47,13 @@ public class GroupService {
         group.setCapacity(groupDto.getCapacity());
         group.setCreatedAt(new Date(System.currentTimeMillis()));
         group.setId(UUID.randomUUID());
+        group.setVisibility(groupDto.getVisibility());
 
         List<UserReference> groupMembers = new ArrayList<>();
         UserReference userInfo = new UserReference();
         userInfo.setUserId(existingUser.getId());
         userInfo.setRole("Admin");
+        userInfo.setStatus("Approved");
         userInfo.setJoinAt(new Date(System.currentTimeMillis()));
         groupMembers.add(userInfo);
         group.setMembers(groupMembers);
@@ -62,6 +64,7 @@ public class GroupService {
             groupReference.setRole("Admin");
             groupReference.setGroupId(group.getId());
             groupReference.setJoinAt(group.getCreatedAt());
+            groupReference.setStatus("Approved");
             groupReferenceList.add(groupReference);
             existingUser.setGroupReferenceList(groupReferenceList);
             userRepository.save(existingUser);

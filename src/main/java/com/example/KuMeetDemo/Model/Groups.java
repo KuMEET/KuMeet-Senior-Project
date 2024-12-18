@@ -23,6 +23,7 @@ public class Groups {
     private int memberCount;
     private int capacity;
     private Date createdAt;
+    private boolean visibility;
     private List<UserReference> members = new ArrayList<>();
 
 }

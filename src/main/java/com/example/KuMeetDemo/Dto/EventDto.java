@@ -14,5 +14,7 @@ public class EventDto {
     Double longitude;
     int capacity;
     Date time;
+    String status;
+    Boolean visibility;
 
 }

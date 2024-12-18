@@ -9,4 +9,5 @@ public class EventReference {
     private UUID eventId;
     private Date joinAt;
     private String role;
+    private String status;
 }

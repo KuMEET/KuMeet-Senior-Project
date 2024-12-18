@@ -22,6 +22,7 @@ public class Events {
     private int maxCapacity;
     private Date createdAt;
     private Date eventTime;
+    private boolean visibility;
     private List<UserReference> participants = new ArrayList<>();
 
 }

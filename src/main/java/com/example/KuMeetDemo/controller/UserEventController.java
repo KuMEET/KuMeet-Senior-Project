@@ -1,5 +1,6 @@
 package com.example.KuMeetDemo.controller;
 
+import com.example.KuMeetDemo.Dto.UserReference;
 import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Service.UserEventService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,17 @@ public class UserEventController {
     public ResponseEntity<List<Events>> getEventsForAdmin(@PathVariable String userName){
         return userEventService.getEventsForAdmin(userName);
     }
-
+    @GetMapping("/get-pending-events-for-admin/{eventId}")
+    public ResponseEntity<List<UserReference>> viewPendingUsers(@PathVariable UUID eventId){
+        return userEventService.viewPendingUsers(eventId);
+    }
+    @PostMapping("/approve-pending-events-for-admin/{eventId}/{userId}")
+    public ResponseEntity<String> approveUserRequest(@PathVariable UUID eventId, @PathVariable UUID userId){
+        return userEventService.approveUserRequest(eventId, userId);
+    }
+    @PostMapping("/reject-pending-events-for-admin/{eventId}/{userId}")
+    public ResponseEntity<String> rejectUserRequest(@PathVariable UUID eventId, @PathVariable UUID userId){
+        return userEventService.rejectUserRequest(eventId, userId);
+    }
 
 }

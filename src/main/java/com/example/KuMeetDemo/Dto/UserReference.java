@@ -9,4 +9,5 @@ public class UserReference {
     private UUID userId;
     private Date joinAt;
     private String role;
+    private String status;
 }

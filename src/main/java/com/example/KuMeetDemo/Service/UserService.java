@@ -113,7 +113,7 @@ public class UserService {
         return user;
     }
     public List<Users> getAllUsers() {
-        return userRepository.findAll();
+       return userRepository.findAll();
     }
 
     public Users findUser(UUID userId) {
