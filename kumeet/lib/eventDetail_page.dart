@@ -122,7 +122,6 @@ class _EventDetailPageState extends State<EventDetailPage> {
       description: eventDetails.description,
       start: startTime,
       end: endTime,
-      location: eventDetails.location,
     );
 
     final createEventResult = await _deviceCalendarPlugin.createOrUpdateEvent(calendarEvent);
