@@ -3,19 +3,22 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:kumeet/login_page.dart';
-import 'event.dart';
+import 'package:device_calendar/device_calendar.dart';
+import 'package:timezone/timezone.dart' as tz; // for TZDateTime conversion
+
+import 'event.dart' as my_app; // Alias your custom Event class
 
 class EventDetailPage extends StatefulWidget {
-  final Event event;
+  final my_app.Event event;
   final VoidCallback onAddToCalendar;
-  final bool isAdded; // Boolean to check if the event is already added
+  final bool isAdded; // Indicates if the user has already joined the event
 
   const EventDetailPage({
-    super.key,
+    Key? key,
     required this.event,
-    required this.onAddToCalendar,    
+    required this.onAddToCalendar,
     required this.isAdded,
-  });
+  }) : super(key: key);
 
   @override
   _EventDetailPageState createState() => _EventDetailPageState();
@@ -25,13 +28,14 @@ class _EventDetailPageState extends State<EventDetailPage> {
   bool _isAdding = false;
   String? UserName = GlobalState().userName;
 
+  final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
+
   Future<void> _joinEvent() async {
     setState(() {
       _isAdding = true;
     });
 
-    final url = Uri.parse(
-        'http://localhost:8080/add-to-event/$UserName/${widget.event.id}');
+    final url = Uri.parse('http://localhost:8080/add-to-event/$UserName/${widget.event.id}');
     try {
       final response = await http.post(
         url,
@@ -68,6 +72,69 @@ class _EventDetailPageState extends State<EventDetailPage> {
       setState(() {
         _isAdding = false;
       });
+    }
+  }
+
+  Future<bool> _requestPermissions() async {
+    final permissionResult = await _deviceCalendarPlugin.requestPermissions();
+    if (permissionResult.isSuccess && permissionResult.data == true) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<List<Calendar>> _retrieveCalendars() async {
+    final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
+    if (calendarsResult.isSuccess && calendarsResult.data != null) {
+      return calendarsResult.data!;
+    }
+    return [];
+  }
+
+  Future<void> _addEventToDeviceCalendar(my_app.Event eventDetails) async {
+    bool granted = await _requestPermissions();
+    if (!granted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Calendar permission not granted')),
+      );
+      return;
+    }
+
+    List<Calendar> calendars = await _retrieveCalendars();
+    if (calendars.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No calendars available')),
+      );
+      return;
+    }
+
+    final selectedCalendar = calendars.first;
+    final startDate = eventDetails.date ?? DateTime.now();
+    final endDate = startDate.add(const Duration(hours: 1));
+
+    final startTime = tz.TZDateTime.from(startDate, tz.local);
+    final endTime = tz.TZDateTime.from(endDate, tz.local);
+
+    // Note: The Event constructor from device_calendar requires calendarId as the first argument
+    final calendarEvent = Event(
+      selectedCalendar.id!, // provide the calendarId as the first argument
+      title: eventDetails.title,
+      description: eventDetails.description,
+      start: startTime,
+      end: endTime,
+      location: eventDetails.location,
+    );
+
+    final createEventResult = await _deviceCalendarPlugin.createOrUpdateEvent(calendarEvent);
+
+    if (createEventResult!.isSuccess && createEventResult?.data != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Event added to calendar successfully!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to add event to calendar')),
+      );
     }
   }
 
@@ -184,6 +251,26 @@ class _EventDetailPageState extends State<EventDetailPage> {
                       style: const TextStyle(fontSize: 18, color: Colors.white),
                     ),
             ),
+
+            const SizedBox(height: 16),
+            // Show "Add to Calendar" button only if event is joined
+            if (widget.isAdded)
+              ElevatedButton(
+                onPressed: () {
+                  _addEventToDeviceCalendar(widget.event);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueGrey,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  'Add to Calendar',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+              ),
           ],
         ),
       ),
