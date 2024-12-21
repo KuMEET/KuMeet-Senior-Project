@@ -74,15 +74,15 @@ public class UserGroupService {
 
 
         if (group.isVisibility()) {
-            userReference.setStatus("Approved");
-            groupReference.setStatus("Approved");
+            userReference.setStatus("approved");
+            groupReference.setStatus("approved");
             userReference.setJoinAt(new Date(System.currentTimeMillis()));
             group.setMemberCount(group.getMemberCount() + 1);
             groupReference.setJoinAt(new Date(System.currentTimeMillis()));
 
         } else {
-            userReference.setStatus("Pending");
-            groupReference.setStatus("Pending");
+            userReference.setStatus("pending");
+            groupReference.setStatus("pending");
             groupReference.setJoinAt(new Date());
             userReference.setJoinAt(new Date());
 
