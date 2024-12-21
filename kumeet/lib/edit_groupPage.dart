@@ -39,6 +39,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
         id: widget.group.id,
         name: _nameController.text,
         capacity: int.parse(_capacityController.text),
+        visibility: widget.group.visibility
       );
 
       // Notify parent widget with the updated group

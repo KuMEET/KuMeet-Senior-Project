@@ -22,13 +22,13 @@ class _CreateEventPageState extends State<CreateEventPage> {
   DateTime? _selectedDate;
   String? UserName = GlobalState().userName;
   final EventService eventService = EventService();
+  bool _isVisible = true; // Visibility toggle state
 
   Future<void> _pickLocation() async {
-    
     final LatLng? pickedLocation = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const MapPickerPage()),
-   );
+    );
     if (pickedLocation != null) {
       setState(() {
         _eventLocation = pickedLocation;
@@ -54,6 +54,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
         seatsAvailable: int.parse(_seatsController.text),
         date: _selectedDate!,
         imagePath: 'images/event_image.png',
+        visibility: _isVisible,
       );
 
       final success = await eventService.createEvent(newEvent, UserName!);
@@ -182,6 +183,21 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   TextButton(
                     onPressed: () => _selectDate(context),
                     child: const Text('Pick Date', style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('Event Visibility', style: TextStyle(color: Colors.white)),
+                  Switch(
+                    value: _isVisible,
+                    onChanged: (value) {
+                      setState(() {
+                        _isVisible = value;
+                      });
+                    },
                   ),
                 ],
               ),

@@ -10,7 +10,8 @@ class Event {
   DateTime? date;
   final String? badge;
   double latitude;  // Latitude for event location
-  double longitude; // Longitude for event location
+  double longitude;
+  bool visibility; // Longitude for event location
 
   Event({
     this.id,
@@ -23,6 +24,7 @@ class Event {
     this.badge,
     required this.latitude,
     required this.longitude,
+    required this.visibility
   });
 
   // Convert Event to JSON
@@ -34,6 +36,7 @@ class Event {
       'longitude': longitude,
       'capacity': seatsAvailable,
       'time': date?.toIso8601String(),
+      'visibility': visibility
     };
   }
     // Convert Event to JSON
@@ -61,7 +64,7 @@ class Event {
       seatsAvailable: json['maxCapacity'] ?? 0,
       date: DateTime.parse(json['eventTime']),
       badge: json['badge'], // Optional field
-      
+      visibility: json['visibility']
     );
   }
   

@@ -5,6 +5,7 @@ class Group {
   //final String description;
   int capacity;
   final int? memberCount;
+  bool visibility;
 
   Group({
     this.id,
@@ -12,7 +13,8 @@ class Group {
     required this.name,
     //required this.description,
     required this.capacity,
-    this.memberCount
+    this.memberCount,
+    required this.visibility
 
   });
 
@@ -21,7 +23,7 @@ class Group {
       'name': name,
       //'description': description,
       'capacity': capacity,
-
+      'visibility':visibility,
     };
   }
     Map<String, dynamic> toJson2() {
@@ -31,7 +33,7 @@ class Group {
       'memberCount': memberCount,
       //'description': description,
       'capacity': capacity,
-
+      'visibility': visibility
     };
   }
   factory Group.fromJson(Map<String, dynamic> json) {
@@ -41,7 +43,8 @@ class Group {
       name: json['groupName'],
       //description: json['eventDescription'],
       capacity: json['capacity'] ?? 0,
-      memberCount: json['memberCount'] ?? 0
+      memberCount: json['memberCount'] ?? 0,
+      visibility: json['visibility']
     );
   }
   

@@ -16,14 +16,20 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   final _capacityController = TextEditingController();
   final GroupService _groupService = GroupService();
   bool _isLoading = false;
+  bool _isVisible = true; // Visibility toggle state
   String? UserName = GlobalState().userName;
+
   void _createGroup() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
 
-      final group = Group(name: _groupNameController.text, capacity: int.parse(_capacityController.text));
+      final group = Group(
+        name: _groupNameController.text,
+        capacity: int.parse(_capacityController.text),
+        visibility: _isVisible // Pass visibility state
+      );
 
       final success = await _groupService.createGroup(group, UserName!);
       if (success) {
@@ -65,6 +71,26 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
               // Capacity Input Field
               CapacityField(controller: _capacityController),
+              const SizedBox(height: 16),
+
+              // Visibility Switch
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Group Visibility',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  Switch(
+                    value: _isVisible,
+                    onChanged: (value) {
+                      setState(() {
+                        _isVisible = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
               const SizedBox(height: 24),
 
               // Create Group Button
@@ -107,6 +133,7 @@ class GroupNameField extends StatelessWidget {
     );
   }
 }
+
 class CapacityField extends StatelessWidget {
   final TextEditingController controller;
 

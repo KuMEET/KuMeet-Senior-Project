@@ -115,9 +115,8 @@ class _EventDetailPageState extends State<EventDetailPage> {
     final startTime = tz.TZDateTime.from(startDate, tz.local);
     final endTime = tz.TZDateTime.from(endDate, tz.local);
 
-    // Note: The Event constructor from device_calendar requires calendarId as the first argument
     final calendarEvent = Event(
-      selectedCalendar.id!, // provide the calendarId as the first argument
+      selectedCalendar.id!, 
       title: eventDetails.title,
       description: eventDetails.description,
       start: startTime,
