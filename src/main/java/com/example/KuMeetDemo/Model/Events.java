@@ -23,6 +23,8 @@ public class Events {
     private Date createdAt;
     private Date eventTime;
     private boolean visibility;
+    private Categories categories;
+    private UUID groupID;
     private List<UserReference> participants = new ArrayList<>();
 
 }

@@ -4,9 +4,11 @@ import com.example.KuMeetDemo.Dto.EventDto;
 import com.example.KuMeetDemo.Dto.GroupDto;
 import com.example.KuMeetDemo.Dto.GroupReference;
 import com.example.KuMeetDemo.Dto.UserReference;
+import com.example.KuMeetDemo.Model.Categories;
 import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Model.Users;
+import com.example.KuMeetDemo.Repository.EventRepository;
 import com.example.KuMeetDemo.Repository.GroupRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
@@ -25,10 +27,12 @@ public class GroupService {
     private GroupRepository groupRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private EventRepository eventRepository;
 
     public ResponseEntity<Groups> createGroup(GroupDto groupDto, String username) {
         // Validate input
-        if (groupDto.getName() == null || groupDto.getName().isEmpty()) {
+        if (groupDto.getName() == null || groupDto.getName().isEmpty() || groupDto.getVisibility() == null || groupDto.getCategories().isEmpty()) {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
         }
         if (groupDto.getCapacity() <= 0) {
@@ -38,7 +42,7 @@ public class GroupService {
         //
 
         Users existingUser = userRepository.findByUserName(username);
-        if(existingUser == null){
+        if (existingUser == null) {
             return ResponseEntity.badRequest().body(null);
         }
 
@@ -48,6 +52,7 @@ public class GroupService {
         group.setCreatedAt(new Date(System.currentTimeMillis()));
         group.setId(UUID.randomUUID());
         group.setVisibility(groupDto.getVisibility());
+        group.setCategories(Categories.valueOf(groupDto.getCategories()));
 
         List<UserReference> groupMembers = new ArrayList<>();
         UserReference userInfo = new UserReference();
@@ -79,15 +84,18 @@ public class GroupService {
     public List<Groups> getAllGroups() {
         return groupRepository.findAll();
     }
+
     public ResponseEntity<Groups> updateGroup(String groupId, GroupDto groupDto) {
         UUID newId = UUID.fromString(groupId);
-        if (groupDto.getName() == null || groupDto.getCapacity() <= 0 ) {
+        if (groupDto.getName() == null || groupDto.getCapacity() <= 0 || groupDto.getVisibility() == null || groupDto.getCategories().isEmpty()) {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
         }
         Groups groups = groupRepository.findById(newId).orElse(null);
         if (groups != null) {
             groups.setGroupName(groupDto.getName());
             groups.setCapacity(groupDto.getCapacity());
+            groups.setCategories(Categories.valueOf(groupDto.getCategories()));
+            groups.setVisibility(groupDto.getVisibility());
             groupRepository.save(groups);
             return ResponseEntity.ok(groups);
         }
@@ -95,25 +103,44 @@ public class GroupService {
     }
 
     // herbir relation icin cascade deletingi manüel yapmalıyız
+    // eventin baglı oldugu group silinince eventin relation oldugu groupu da sil
     public void deleteGroup(UUID id) {
         groupRepository.findById(id).ifPresent(group ->
-        {
-            for (Users user: userRepository.findAll()){
-                if(user.getGroupReferenceList()!=null && !user.getGroupReferenceList().isEmpty()){
-                    for (GroupReference groupReference: user.getGroupReferenceList()){
-                        if (groupReference.getGroupId().equals(group.getId())){
-                            user.getGroupReferenceList().remove(groupReference);
-                            userRepository.save(user);
-                            break;
+                {
+                    for (Users user : userRepository.findAll()) {
+                        if (user.getGroupReferenceList() != null && !user.getGroupReferenceList().isEmpty()) {
+                            for (GroupReference groupReference : user.getGroupReferenceList()) {
+                                if (groupReference.getGroupId().equals(group.getId())) {
+                                    user.getGroupReferenceList().remove(groupReference);
+                                    userRepository.save(user);
+                                    break;
+                                }
+                            }
                         }
                     }
+
+
+                    List<UUID> eventsList = group.getEventsList();
+                    if (!eventsList.isEmpty()) {
+                        eventsList.forEach(
+                                element -> {
+                                    Events events = eventRepository.findById(element).orElse(null);
+                                    events.setGroupID(null);
+                                    eventRepository.save(events);
+                                }
+                        );
+                    }
+                    groupRepository.delete(group);
                 }
-            }
-            groupRepository.delete(group);
-        }
         );
     }
+
     public Groups findGroupById(UUID id) {
         return groupRepository.findById(id).orElse(null);
+    }
+
+    public ResponseEntity<List<Groups>> FilterEventsBasedOnCategories(String category) {
+        Categories categories = Categories.valueOf(category);
+        return ResponseEntity.ok(groupRepository.findByCategories(categories));
     }
 }

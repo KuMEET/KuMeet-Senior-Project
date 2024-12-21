@@ -1,5 +1,6 @@
 package com.example.KuMeetDemo.Dto;
 
+import com.example.KuMeetDemo.Model.Categories;
 import lombok.Data;
 
 import java.util.Date;
@@ -14,7 +15,7 @@ public class EventDto {
     Double longitude;
     int capacity;
     Date time;
-    String status;
     Boolean visibility;
+    String categories;
 
 }

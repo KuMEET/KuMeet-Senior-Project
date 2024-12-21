@@ -69,15 +69,15 @@ public class UserEventService {
         eventReference.setRole("Member");
 
         if (events.isVisibility()) {
-            userReference.setStatus("approved");
-            eventReference.setStatus("approved");
+            userReference.setStatus("Approved");
+            eventReference.setStatus("Approved");
             userReference.setJoinAt(new Date(System.currentTimeMillis()));
             events.setParticipantCount(events.getParticipantCount() + 1);
             eventReference.setJoinAt(new Date(System.currentTimeMillis()));
 
         } else {
-            userReference.setStatus("pending");
-            eventReference.setStatus("pending");
+            userReference.setStatus("Pending");
+            eventReference.setStatus("Pending");
             eventReference.setJoinAt(new Date());
             userReference.setJoinAt(new Date());
 
@@ -245,7 +245,7 @@ public class UserEventService {
         }
 
         UserReference userReference = event.getParticipants().stream()
-                .filter(p -> p.getUserId().equals(userID) && p.getStatus().equals("pending"))
+                .filter(p -> p.getUserId().equals(userID) && p.getStatus().equals("Pending"))
                 .findFirst()
                 .orElse(null);
 
@@ -255,16 +255,16 @@ public class UserEventService {
                     .body("No pending user request found for this event!");
         }
 
-        userReference.setStatus("approved");
+        userReference.setStatus("Approved");
         userReference.setJoinAt(new Date(System.currentTimeMillis()));
         event.setParticipantCount(event.getParticipantCount() + 1);
 
         Users user = userRepository.findById(userID).orElse(null);
         if (user != null) {
             user.getEventReferenceList().stream()
-                    .filter(e -> e.getEventId().equals(eventID) && e.getStatus().equals("pending"))
+                    .filter(e -> e.getEventId().equals(eventID) && e.getStatus().equals("Pending"))
                     .forEach(e -> {
-                        e.setStatus("approved");
+                        e.setStatus("Approved");
                         e.setJoinAt(new Date(System.currentTimeMillis()));
                     });
             userRepository.save(user);
@@ -284,7 +284,7 @@ public class UserEventService {
         }
 
         List<UserReference> pendingUsers = event.getParticipants().stream()
-                .filter(p -> p.getStatus().equals("pending"))
+                .filter(p -> p.getStatus().equals("Pending"))
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(pendingUsers);
@@ -303,7 +303,7 @@ public class UserEventService {
 
         List<UserReference> participants = event.getParticipants();
         UserReference userReference = participants.stream()
-                .filter(p -> p.getUserId().equals(userID) && p.getStatus().equals("pending"))
+                .filter(p -> p.getUserId().equals(userID) && p.getStatus().equals("Pending"))
                 .findFirst()
                 .orElse(null);
 
@@ -318,7 +318,7 @@ public class UserEventService {
 
         Users user = userRepository.findById(userID).orElse(null);
         if (user != null) {
-            user.getEventReferenceList().removeIf(e -> e.getEventId().equals(eventID) && e.getStatus().equals("pending"));
+            user.getEventReferenceList().removeIf(e -> e.getEventId().equals(eventID) && e.getStatus().equals("Pending"));
             userRepository.save(user);
         }
 

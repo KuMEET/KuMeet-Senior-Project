@@ -2,6 +2,7 @@ package com.example.KuMeetDemo.controller;
 
 import com.example.KuMeetDemo.Dto.EventDto;
 import com.example.KuMeetDemo.Model.Events;
+import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Service.EventService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,4 +41,16 @@ public class EventController {
         return eventService.getEvent(event.getId());
     }
 
+    @GetMapping("/get-all-events-category/{category}")
+    public ResponseEntity<List<Events>> FilterEventsBasedOnCategories(@PathVariable String category) {
+        return eventService.FilterEventsBasedOnCategories(category);
+    }
+    @GetMapping("get-members-for-events/{eventId}")
+    public ResponseEntity<List<Users>> ShowMembers(@PathVariable String eventId) {
+        return eventService.ShowMembers(eventId);
+    }
+    @GetMapping("get-admin-for-events/{eventId}")
+    public ResponseEntity<Users> ShowAdmin(@PathVariable String eventId) {
+        return eventService.ShowAdmin(eventId);
+    }
 }

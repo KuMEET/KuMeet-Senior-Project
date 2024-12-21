@@ -12,6 +12,7 @@ public class GroupDto {
     String name;
     int capacity;
     Boolean visibility;
+    String categories;
 
 }
 

@@ -2,6 +2,7 @@ package com.example.KuMeetDemo.controller;
 
 
 import com.example.KuMeetDemo.Dto.GroupDto;
+import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Service.GroupService;
 import lombok.AllArgsConstructor;
@@ -40,6 +41,10 @@ public class GroupController {
     @GetMapping("/find-group")
     public Groups findGroup(@RequestParam UUID id) {
         return groupService.findGroupById(id);
+    }
+    @GetMapping("/get-all-groups-category/{category}")
+    public ResponseEntity<List<Groups>> FilterEventsBasedOnCategories(@PathVariable String category) {
+        return groupService.FilterEventsBasedOnCategories(category);
     }
 
 

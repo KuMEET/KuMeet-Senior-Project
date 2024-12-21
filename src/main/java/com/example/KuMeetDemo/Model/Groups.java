@@ -24,6 +24,9 @@ public class Groups {
     private int capacity;
     private Date createdAt;
     private boolean visibility;
+    private Categories categories;
+    private List<UUID> eventsList = new ArrayList<>();
     private List<UserReference> members = new ArrayList<>();
+
 
 }

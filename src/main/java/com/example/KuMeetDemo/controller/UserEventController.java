@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @RestController
 @CrossOrigin(origins = "*")
-
+@RequestMapping("/api")
 public class UserEventController {
     @Autowired
     private UserEventService userEventService;

@@ -74,15 +74,15 @@ public class UserGroupService {
 
 
         if (group.isVisibility()) {
-            userReference.setStatus("approved");
-            groupReference.setStatus("approved");
+            userReference.setStatus("Approved");
+            groupReference.setStatus("Approved");
             userReference.setJoinAt(new Date(System.currentTimeMillis()));
             group.setMemberCount(group.getMemberCount() + 1);
             groupReference.setJoinAt(new Date(System.currentTimeMillis()));
 
         } else {
-            userReference.setStatus("pending");
-            groupReference.setStatus("pending");
+            userReference.setStatus("Pending");
+            groupReference.setStatus("Pending");
             groupReference.setJoinAt(new Date());
             userReference.setJoinAt(new Date());
 
@@ -103,7 +103,7 @@ public class UserGroupService {
         groupRepository.save(group);
         userRepository.save(user);
         String message = group.isVisibility()
-                ? String.format("User %s added successfully to public grouo %s.", userName, groupId)
+                ? String.format("User %s added successfully to public group %s.", userName, groupId)
                 : String.format("User %s requested to join private group %s. Awaiting admin approval.", userName, groupId);
         return ResponseEntity.ok(message);
     }
