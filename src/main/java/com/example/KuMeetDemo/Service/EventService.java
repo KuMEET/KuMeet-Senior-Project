@@ -16,10 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Service
@@ -57,8 +54,10 @@ public class EventService {
         event.setLatitude(eventDto.getLatitude());
         event.setLongitude(eventDto.getLongitude());
         event.setVisibility(eventDto.getVisibility());
-        event.setCategories(Categories.valueOf(eventDto.getCategories()));
-
+        Arrays.stream(Categories.values())
+                .filter(x -> x.name.equals(eventDto.getCategories()))
+                .findFirst()
+                .ifPresent(event::setCategories);
 
         List<UserReference> eventMembers = new ArrayList<>();
         UserReference userInfo = new UserReference();
@@ -154,7 +153,10 @@ public class EventService {
             event.setLatitude(eventDto.getLatitude());
             event.setLongitude(eventDto.getLongitude());
             event.setVisibility(eventDto.getVisibility());
-            event.setCategories(Categories.valueOf(eventDto.getCategories()));
+            Arrays.stream(Categories.values())
+                    .filter(x -> x.name.equals(eventDto.getCategories()))
+                    .findFirst()
+                    .ifPresent(event::setCategories);
             eventRepository.save(event);
             return ResponseEntity.ok(event);
         }
@@ -162,8 +164,16 @@ public class EventService {
     }
 
     public ResponseEntity<List<Events>> FilterEventsBasedOnCategories(String category) {
-        Categories categories = Categories.valueOf(category);
-        return ResponseEntity.ok(eventRepository.findByCategories(categories));
+        Optional<Categories> optionalCategory = Arrays.stream(Categories.values())
+                .filter(x -> x.name.equals(category))
+                .findFirst();
+
+        if (optionalCategory.isPresent()) {
+            Categories categories = optionalCategory.get();
+            return ResponseEntity.ok(eventRepository.findByCategories(categories));
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
     public ResponseEntity<List<Users>> ShowMembers(String eventId) {
