@@ -9,13 +9,16 @@ import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Repository.EventRepository;
 import com.example.KuMeetDemo.Repository.GroupRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 
 import java.util.*;
-
+@Data
+@Service
 public class GroupEventService {
     @Autowired
     GroupRepository groupRepository;
