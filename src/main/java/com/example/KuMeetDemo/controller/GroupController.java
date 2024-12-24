@@ -43,8 +43,8 @@ public class GroupController {
         return groupService.findGroupById(id);
     }
     @GetMapping("/get-all-groups-category/{category}")
-    public ResponseEntity<List<Groups>> FilterEventsBasedOnCategories(@PathVariable String category) {
-        return groupService.FilterEventsBasedOnCategories(category);
+    public ResponseEntity<List<Groups>> FilterGroupsBasedOnCategories(@PathVariable String category) {
+        return groupService.FilterGroupsBasedOnCategories(category);
     }
 
 

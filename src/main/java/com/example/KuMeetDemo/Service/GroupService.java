@@ -52,7 +52,11 @@ public class GroupService {
         group.setCreatedAt(new Date(System.currentTimeMillis()));
         group.setId(UUID.randomUUID());
         group.setVisibility(groupDto.getVisibility());
-        group.setCategories(Categories.valueOf(groupDto.getCategories()));
+
+        Arrays.stream(Categories.values())
+                .filter(x -> x.name.equals(groupDto.getCategories()))
+                .findFirst()
+                .ifPresent(group::setCategories);
 
         List<UserReference> groupMembers = new ArrayList<>();
         UserReference userInfo = new UserReference();
@@ -94,7 +98,10 @@ public class GroupService {
         if (groups != null) {
             groups.setGroupName(groupDto.getName());
             groups.setCapacity(groupDto.getCapacity());
-            groups.setCategories(Categories.valueOf(groupDto.getCategories()));
+            Arrays.stream(Categories.values())
+                    .filter(x -> x.name.equals(groupDto.getCategories()))
+                    .findFirst()
+                    .ifPresent(groups::setCategories);
             groups.setVisibility(groupDto.getVisibility());
             groupRepository.save(groups);
             return ResponseEntity.ok(groups);
@@ -139,8 +146,18 @@ public class GroupService {
         return groupRepository.findById(id).orElse(null);
     }
 
-    public ResponseEntity<List<Groups>> FilterEventsBasedOnCategories(String category) {
-        Categories categories = Categories.valueOf(category);
-        return ResponseEntity.ok(groupRepository.findByCategories(categories));
+    public ResponseEntity<List<Groups>> FilterGroupsBasedOnCategories(String category) {
+        Optional<Categories> optionalCategory = Arrays.stream(Categories.values())
+                .filter(x -> x.name.equals(category))
+                .findFirst();
+
+        if (optionalCategory.isPresent()) {
+            Categories categories = optionalCategory.get();
+            return ResponseEntity.ok(groupRepository.findByCategories(categories));
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+
+
     }
 }
