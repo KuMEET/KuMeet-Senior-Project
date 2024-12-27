@@ -6,6 +6,7 @@ import 'eventDetail_page.dart';
 import 'event.dart';
 import 'map_view.dart';
 import 'owned_events.dart';
+import 'owned_groups_page.dart'; // Import OwnedGroupsPage
 
 class ExplorePage extends StatefulWidget {
   final Function(Event) onAddEventToCalendar;
@@ -23,9 +24,8 @@ class ExplorePage extends StatefulWidget {
 
 class _ExplorePageState extends State<ExplorePage> {
   List<Event> events = [];
-  final EventService eventService = EventService(); // Initialize EventService
+  final EventService eventService = EventService();
   bool isLoading = true;
-  
 
   @override
   void initState() {
@@ -35,10 +35,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
   void initializeEvents() async {
     try {
-      // Fetch events from the backend
       final fetchedEvents = await eventService.getEvents();
-
-      // Update the events list and refresh the UI
       setState(() {
         events = fetchedEvents;
         isLoading = false;
@@ -61,27 +58,25 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 
   @override
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.grey[900],
-    body: isLoading
-        ? const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[900],
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
+              ),
+            )
+          : ExploreBody(
+              events: events,
+              onAddEventToCalendar: widget.onAddEventToCalendar,
+              isEventAdded: widget.isEventAdded,
             ),
-          )
-        : ExploreBody(
-            events: events,
-            onAddEventToCalendar: widget.onAddEventToCalendar,
-            isEventAdded: widget.isEventAdded,
-          ),
-    floatingActionButton: ExploreFloatingActionButton(
-      onAddEvent: (Event newEvent) => addEvent(newEvent),
-    ),
-  );
-}
-
+      floatingActionButton: ExploreFloatingActionButton(
+        onAddEvent: (Event newEvent) => addEvent(newEvent),
+      ),
+    );
+  }
 }
 
 class ExploreBody extends StatelessWidget {
@@ -107,25 +102,28 @@ class ExploreBody extends StatelessWidget {
             const SearchAndFilterBar(),
             const SizedBox(height: 16),
             ElevatedButton(
-            onPressed: () {
-             Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MapView(events: events),
-                ),
-              );
-            },
-          style: ElevatedButton.styleFrom(
-             foregroundColor: Colors.white, backgroundColor: Colors.deepOrange,
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MapView(events: events),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.deepOrange,
+              ),
+              child: const Text('Go to Map View'),
             ),
-           child: const Text('Go to Map View'),
-          ),
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const OwnedEventsPage()),
+                  MaterialPageRoute(
+                    builder: (context) => const OwnedEventsPage(),
+                  ),
                 );
               },
               style: ElevatedButton.styleFrom(
@@ -164,7 +162,6 @@ class ExploreBody extends StatelessWidget {
   }
 }
 
-
 class SearchAndFilterBar extends StatelessWidget {
   const SearchAndFilterBar({super.key});
 
@@ -179,7 +176,7 @@ class SearchAndFilterBar extends StatelessWidget {
               hintStyle: const TextStyle(color: Colors.grey),
               prefixIcon: const Icon(Icons.search, color: Colors.white),
               filled: true,
-              fillColor: Colors.grey[800], 
+              fillColor: Colors.grey[800],
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: const BorderSide(color: Colors.white, width: 1.0),
@@ -209,12 +206,24 @@ class ExploreFloatingActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton(
       onPressed: () async {
-        final newEvent = await Navigator.push(
+        // Navigate to OwnedGroupsPage to select a group first
+        final selectedGroup = await Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const CreateEventPage()),
-        ) as Event?;
-        if (newEvent != null) {
-          onAddEvent(newEvent);
+          MaterialPageRoute(builder: (context) => const OwnedGroupsPage()),
+        );
+
+        if (selectedGroup != null) {
+          // After selecting a group, navigate to CreateEventPage
+          final newEvent = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CreateEventPage(selectedGroup: selectedGroup),
+            ),
+          ) as Event?;
+
+          if (newEvent != null) {
+            onAddEvent(newEvent); // Add the event to the list
+          }
         }
       },
       backgroundColor: Colors.deepOrange,

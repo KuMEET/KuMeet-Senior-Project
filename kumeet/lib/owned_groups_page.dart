@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:kumeet/login_page.dart';
 import 'group.dart';
 import 'group_service.dart';
 import 'group_card.dart';
-import 'group_details_page2.dart'; // Ensure this import points to GroupDetailsPage2
-import 'package:kumeet/login_page.dart';
+import 'createEvent_page.dart';
 
 class OwnedGroupsPage extends StatefulWidget {
   const OwnedGroupsPage({super.key});
@@ -37,6 +37,36 @@ class _OwnedGroupsPageState extends State<OwnedGroupsPage> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load owned groups: $e')),
+      );
+    }
+  }
+
+  Future<void> _confirmGroupSelection(BuildContext context, Group group) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Group Selection'),
+        content: Text('Do you want to create an event for the group "${group.name}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Yes'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      // Navigate to Create Event Page with the selected group
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CreateEventPage(selectedGroup: group),
+        ),
       );
     }
   }
@@ -75,21 +105,7 @@ class _OwnedGroupsPageState extends State<OwnedGroupsPage> {
                       child: GroupCard(
                         title: group.name,
                         imagePath: 'images/group_image.png',
-                        onTap: () async {
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => GroupDetailsPage2(
-                                group: group,
-                                onGroupUpdated: fetchOwnedGroups,
-                                onGroupDeleted: fetchOwnedGroups,
-                              ),
-                            ),
-                          );
-                          if (result == true) {
-                            fetchOwnedGroups();
-                          }
-                        },
+                        onTap: () => _confirmGroupSelection(context, group),
                       ),
                     );
                   },

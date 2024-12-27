@@ -61,7 +61,8 @@ class _EditEventPageState extends State<EditEventPage> {
         date: _selectedDate, 
         latitude: _eventLocation!.latitude,
         longitude: _eventLocation!.longitude,
-        visibility: widget.event.visibility
+        visibility: widget.event.visibility,
+        categories: widget.event.categories
       );
       widget.onEventUpdated(updatedEvent);
       ScaffoldMessenger.of(context).showSnackBar(

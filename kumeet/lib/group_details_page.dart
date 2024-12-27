@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:kumeet/groupEventsPage.dart';
 import 'dart:convert';
 import 'group.dart';
 import 'package:kumeet/login_page.dart';
@@ -7,10 +8,7 @@ import 'package:kumeet/login_page.dart';
 class GroupDetailsPage extends StatefulWidget {
   final Group group;
 
-  const GroupDetailsPage({
-    super.key,
-    required this.group
-  });
+  const GroupDetailsPage({super.key, required this.group});
 
   @override
   _GroupDetailsPageState createState() => _GroupDetailsPageState();
@@ -87,12 +85,36 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             GroupInfo(
               title: widget.group.name,
               capacity: widget.group.capacity,
+              category: widget.group.categories,
             ),
             const SizedBox(height: 24),
             JoinButton(
               title: widget.group.name,
               isJoining: _isJoining,
               onJoin: _joinGroup,
+            ),
+            const SizedBox(height: 24),
+            // Button or section for navigating to events page
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GroupEventsPage(group: widget.group),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Colors.deepOrange,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'See Events',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -125,11 +147,13 @@ class GroupImage extends StatelessWidget {
 class GroupInfo extends StatelessWidget {
   final String title;
   final int capacity;
+  final String category;
 
   const GroupInfo({
     super.key,
     required this.title,
     required this.capacity,
+    required this.category,
   });
 
   @override
@@ -150,7 +174,11 @@ class GroupInfo extends StatelessWidget {
           'Capacity: $capacity',
           style: const TextStyle(fontSize: 18, color: Colors.white70),
         ),
-
+        const SizedBox(height: 8),
+        Text(
+          'Category: $category',
+          style: const TextStyle(fontSize: 18, color: Colors.white70),
+        ),
       ],
     );
   }
@@ -190,4 +218,3 @@ class JoinButton extends StatelessWidget {
     );
   }
 }
-

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:kumeet/event.dart';
 import 'group.dart';
 
 class GroupService {
@@ -33,6 +34,21 @@ class GroupService {
       return false;
     }
   }
+  Future<bool> addEventToGroup(Group group, Event event) async {
+    String? eventId = event.id;
+    String? groupId = group.id;
+    final url = Uri.parse('$baseUrl/add-event-to-group/$eventId/$groupId');
+    try {
+      final response = await http.post(url);
+      if (response.statusCode == 201 || response.statusCode == 200 ) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
 
   // Method to get all groups
   Future<List<Group>> getGroups() async {
@@ -61,6 +77,28 @@ class GroupService {
       return [];
     }
   }
+  Future<List<Event>> getEventsforGroups(Group group) async {
+    String? groupId = group.id;
+    final url = Uri.parse('$baseUrl/get-events-for-groups/$groupId');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => Event.fromJson(json)).toList();
+      } else {
+        print('Failed to fetch groups: ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching groups: $e');
+      return [];
+    }
+  }
 
   // Method to get groups by user
   Future<List<Group>> getGroupsByUser(String username) async {
@@ -77,7 +115,7 @@ class GroupService {
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 ) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => Group.fromJson(json)).toList();
       } else {
