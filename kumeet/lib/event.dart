@@ -13,6 +13,7 @@ class Event {
   double longitude;
   bool visibility; // Longitude for event location
   String categories;
+  String? groupID;
 
   Event({
     this.id,
@@ -26,7 +27,8 @@ class Event {
     required this.latitude,
     required this.longitude,
     required this.visibility,
-    required this.categories
+    required this.categories,
+    this.groupID
   });
 
   // Convert Event to JSON
@@ -39,7 +41,8 @@ class Event {
       'capacity': seatsAvailable,
       'time': date?.toIso8601String(),
       'visibility': visibility,
-      'categories': categories
+      'categories': categories,
+      'groupID': groupID
     };
   }
     // Convert Event to JSON
@@ -52,7 +55,9 @@ class Event {
       'longitude': longitude,
       'capacity': seatsAvailable,
       'time': date?.toIso8601String(),
-      'categories': categories
+      'visibility': visibility,
+      'categories': categories,
+      'groupID': groupID
     };
   }
   factory Event.fromJson(Map<String, dynamic> json) {
@@ -69,7 +74,8 @@ class Event {
       date: DateTime.parse(json['eventTime']),
       badge: json['badge'], // Optional field
       visibility: json['visibility'],
-      categories: json['categories']
+      categories: json['categories'],
+      groupID: json['groupID']
     );
   }
   

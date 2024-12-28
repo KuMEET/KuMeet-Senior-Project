@@ -55,7 +55,29 @@ class EventService {
     }
   }
     Future<List<Event>> getEventsByUser(String username) async {
-    final url = Uri.parse('http://localhost:8080/get-events-by-username/$username');
+    final url = Uri.parse('http://localhost:8080/api/get-events-by-username/$username');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+
+        return data.map((json) => Event.fromJson(json)).toList();
+      } else {
+        print('Failed to fetch events: ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching events: $e');
+      return [];
+    }
+  }
+  Future<List<Event>> getEventsByCategory(String categories) async {
+    final url = Uri.parse('$baseUrl/get-all-events-category/$categories');
     try {
       final response = await http.get(
         url,
@@ -77,7 +99,7 @@ class EventService {
     }
   }
   Future<List<Event>> getEventsByAdmin(String username) async {
-    final url = Uri.parse('http://localhost:8080/get-events-for-admin/${username}');
+    final url = Uri.parse('http://localhost:8080/api/get-events-for-admin/$username');
     try {
       final response = await http.get(
         url,

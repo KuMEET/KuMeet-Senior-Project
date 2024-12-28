@@ -2,32 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kumeet/event.dart';
 import 'package:kumeet/eventDetail_page.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:kumeet/group_service.dart';
 import 'group.dart';
 
 class GroupEventsPage extends StatefulWidget {
   final Group group;
 
-  const GroupEventsPage({super.key, required this.group});
+  const GroupEventsPage({Key? key, required this.group}) : super(key: key);
 
   @override
   _GroupEventsPageState createState() => _GroupEventsPageState();
 }
 
 class _GroupEventsPageState extends State<GroupEventsPage> {
+  Group get _group => widget.group; // Corrected the recursive getter issue.
+
   Future<List<Event>> _getEventsForGroup() async {
+    GroupService groupService = GroupService();
     try {
-      final url = Uri.parse('http://localhost:8080/api/events/${widget.group.id}');
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List<dynamic>;
-        return data.map((json) => Event.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load events');
-      }
+      return await groupService.getEventsforGroups(_group);
     } catch (e) {
-      throw Exception('Failed to load events: $e');
+      throw Exception('Failed to fetch events: $e'); // Better error handling
     }
   }
 
@@ -41,7 +36,7 @@ class _GroupEventsPageState extends State<GroupEventsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Events for ${widget.group.name}'),
+        title: Text('Events for ${_group.name}'),
       ),
       body: FutureBuilder<List<Event>>(
         future: _getEventsForGroup(),
@@ -49,7 +44,7 @@ class _GroupEventsPageState extends State<GroupEventsPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('Error: ${snapshot.error}')); // Clear error display
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(child: Text('No events available.'));
           } else {

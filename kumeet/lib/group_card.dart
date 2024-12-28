@@ -6,11 +6,11 @@ class GroupCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const GroupCard({
-    super.key,
+    Key? key,
     required this.title,
     required this.imagePath,
     required this.onTap,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +26,7 @@ class GroupCard extends StatelessWidget {
           ),
           elevation: 4,
           child: Stack(
+            alignment: Alignment.center,
             children: [
               Image.asset(
                 imagePath,
@@ -33,16 +34,18 @@ class GroupCard extends StatelessWidget {
                 height: double.infinity,
                 fit: BoxFit.cover,
               ),
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.5), // Semi-transparent black overlay
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white, // Ensuring text is white for better visibility
                   ),
                 ),
               ),

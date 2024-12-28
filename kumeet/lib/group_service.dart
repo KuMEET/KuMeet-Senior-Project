@@ -23,9 +23,7 @@ class GroupService {
     }
   }
 
-  Future<bool> addEventToGroup(Group group, Event event) async {
-    final eventId = event.id;
-    final groupId = group.id;
+  Future<bool> addEventToGroup(String groupId, String eventId) async {
     final url = Uri.parse('$baseUrl/add-event-to-group/$eventId/$groupId');
     try {
       final response = await http.post(url);

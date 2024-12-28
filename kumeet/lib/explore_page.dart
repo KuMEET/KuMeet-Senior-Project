@@ -7,7 +7,6 @@ import 'eventcard.dart';
 import 'eventDetail_page.dart';
 import 'event.dart';
 import 'map_view.dart';
-import 'owned_events.dart';
 import 'owned_groups_page.dart';
 
 class ExplorePage extends StatefulWidget {
@@ -25,37 +24,55 @@ class ExplorePage extends StatefulWidget {
 }
 
 class _ExplorePageState extends State<ExplorePage> {
-  List<Event> events = [];
   final EventService eventService = EventService();
+  final List<String> categories = [
+    "ART_CULTURE",
+    "CAREER_BUSINESS",
+    "DANCING",
+    "GAMES",
+    "MUSIC",
+    "SCIENCE_EDUCATION",
+    "IDENTITY_LANGUAGE",
+    "SOCIAL_ACTIVITIES",
+    "SPORTS_FITNESS",
+    "TRAVEL_OUTDOOR",
+  ];
+  final Map<String, List<Event>> categorizedEvents = {};
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    initializeEvents();
+    _fetchAllEvents();
   }
 
-  void initializeEvents() async {
+  Future<void> _fetchAllEvents() async {
     try {
-      final fetchedEvents = await eventService.getEvents();
+      final events = await eventService.getEvents();
+      final Map<String, List<Event>> categorized = {};
+      for (var category in categories) {
+        List<Event> eventsCat = [];
+        for(var event in events){
+          if(event.categories == category){
+            eventsCat.add(event);
+          }
+        }
+        categorized[category] = eventsCat;
+      }
+      print('Categorized Events: $categorized');
+
       setState(() {
-        events = fetchedEvents;
-        isLoading = false;
+        categorizedEvents.addAll(categorized);
       });
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load events: $e')),
       );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
-  }
-
-  void addEvent(Event newEvent) {
-    setState(() {
-      events.add(newEvent);
-    });
   }
 
   @override
@@ -66,25 +83,31 @@ class _ExplorePageState extends State<ExplorePage> {
               child: CircularProgressIndicator(),
             )
           : ExploreBody(
-              events: events,
+              categorizedEvents: categorizedEvents,
               onAddEventToCalendar: widget.onAddEventToCalendar,
               isEventAdded: widget.isEventAdded,
             ),
       floatingActionButton: ExploreFloatingActionButton(
-        onAddEvent: (Event newEvent) => addEvent(newEvent),
+        onAddEvent: (Event newEvent) {
+          setState(() {
+            // Adjust to handle single-category events
+            categorizedEvents[newEvent.categories]?.add(newEvent);
+          });
+        },
       ),
     );
   }
 }
 
+
 class ExploreBody extends StatefulWidget {
-  final List<Event> events;
+  final Map<String, List<Event>> categorizedEvents;
   final Function(Event) onAddEventToCalendar;
   final bool Function(Event) isEventAdded;
 
   const ExploreBody({
     super.key,
-    required this.events,
+    required this.categorizedEvents,
     required this.onAddEventToCalendar,
     required this.isEventAdded,
   });
@@ -127,7 +150,6 @@ class _ExploreBodyState extends State<ExploreBody> {
         children: [
           const SearchAndFilterBar(),
           const SizedBox(height: 16),
-          // Small Map Section with Clickable Overlay
           SizedBox(
             height: 200,
             child: Stack(
@@ -141,7 +163,8 @@ class _ExploreBodyState extends State<ExploreBody> {
                             target: userLocation!,
                             zoom: 10,
                           ),
-                          markers: widget.events
+                          markers: widget.categorizedEvents.values
+                              .expand((events) => events)
                               .map(
                                 (event) => Marker(
                                   markerId: MarkerId(event.title),
@@ -156,21 +179,20 @@ class _ExploreBodyState extends State<ExploreBody> {
                           myLocationButtonEnabled: false,
                         ),
                 ),
-                // Transparent overlay for tap detection
                 Positioned.fill(
                   child: GestureDetector(
                     onTap: () {
-                      // Debug: Check if tap is detected
-                      debugPrint('Map tapped');
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MapView(events: widget.events),
+                          builder: (context) => MapView(
+                            events: widget.categorizedEvents.values.expand((e) => e).toList(),
+                          ),
                         ),
                       );
                     },
                     child: Container(
-                      color: Colors.transparent, // Fully transparent overlay
+                      color: Colors.transparent,
                     ),
                   ),
                 ),
@@ -178,35 +200,58 @@ class _ExploreBodyState extends State<ExploreBody> {
             ),
           ),
           const SizedBox(height: 16),
-          for (var event in widget.events)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: EventCard(
-                event: event,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EventDetailPage(
-                        event: event,
-                        onAddToCalendar: () {
-                          widget.onAddEventToCalendar(event);
-                          Navigator.pop(context);
-                        },
-                        isAdded: widget.isEventAdded(event),
-                      ),
+          for (var category in widget.categorizedEvents.keys)
+            if (widget.categorizedEvents[category] != null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    category,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
-                },
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 250,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: widget.categorizedEvents[category]!.length,
+                      itemBuilder: (context, index) {
+                        final event = widget.categorizedEvents[category]![index];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: EventCard(
+                            event: event,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EventDetailPage(
+                                    event: event,
+                                    onAddToCalendar: () {
+                                      widget.onAddEventToCalendar(event);
+                                      Navigator.pop(context);
+                                    },
+                                    isAdded: widget.isEventAdded(event),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
               ),
-            ),
         ],
       ),
     );
   }
 }
-
-
 
 class SearchAndFilterBar extends StatelessWidget {
   const SearchAndFilterBar({super.key});

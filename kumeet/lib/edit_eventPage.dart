@@ -67,6 +67,7 @@ class _EditEventPageState extends State<EditEventPage> {
         longitude: _eventLocation!.longitude,
         visibility: widget.event.visibility,
         categories: widget.event.categories,
+        groupID: widget.event.groupID
       );
 
       widget.onEventUpdated(updatedEvent);
