@@ -1,0 +1,12 @@
+package com.example.kumeet;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class KuMeetApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(KuMeetApplication.class, args);
+	}
+
+}
