@@ -130,11 +130,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create Event', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Create Event'),
       ),
-      backgroundColor: Colors.grey[900],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -147,9 +144,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: 'Event Title',
-                  prefixIcon: const Icon(Icons.title, color: Colors.teal),
+                  prefixIcon: const Icon(Icons.title),
                   filled: true,
-                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -164,9 +160,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: 'Event Description',
-                  prefixIcon: const Icon(Icons.description, color: Colors.teal),
+                  prefixIcon: const Icon(Icons.description),
                   filled: true,
-                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -181,9 +176,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Seats Available',
-                  prefixIcon: const Icon(Icons.event_seat, color: Colors.teal),
+                  prefixIcon: const Icon(Icons.event_seat),
                   filled: true,
-                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -198,9 +192,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(
                   labelText: 'Event Category',
-                  prefixIcon: const Icon(Icons.category, color: Colors.teal),
+                  prefixIcon: const Icon(Icons.category),
                   filled: true,
-                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -232,7 +225,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     Expanded(
                       child: Text(
                         'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
-                        style: const TextStyle(color: Colors.teal),
                       ),
                     ),
                 ],
@@ -241,7 +233,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
               // Date picker row
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, color: Colors.white),
                   const SizedBox(width: 8),
                   Text(
                     _selectedDate == null
@@ -251,7 +242,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   const Spacer(),
                   TextButton(
                     onPressed: () => _selectDate(context),
-                    child: const Text('Pick Date', style: TextStyle(color: Colors.white)),
+                    child: const Text('Pick Date'),
                   ),
                 ],
               ),
@@ -260,7 +251,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Event Visibility', style: TextStyle(color: Colors.white)),
+                  const Text('Event Visibility'),
                   Switch(
                     value: _isVisible,
                     onChanged: (value) {
@@ -276,7 +267,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ElevatedButton(
                 onPressed: _createEvent,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

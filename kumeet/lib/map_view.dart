@@ -15,10 +15,10 @@ class MapView extends StatefulWidget {
 
 class _MapViewState extends State<MapView> {
   GoogleMapController? mapController;
-  LatLng? initialLocation; // User's initial location
-  LatLng? mapCenter; // Current center of the map
+  LatLng? initialLocation;
+  LatLng? mapCenter;
   Set<Marker> markers = {};
-  List<Event> sortedEvents = []; // Initial order sorted by user location
+  List<Event> sortedEvents = [];
   PageController pageController = PageController(viewportFraction: 0.8);
   bool isMapInteracting = false;
 
@@ -30,35 +30,24 @@ class _MapViewState extends State<MapView> {
 
   Future<void> _fetchInitialLocation() async {
     try {
-      // Check current permission status
       LocationPermission permission = await Geolocator.checkPermission();
-
-      // If permission is denied or deniedForever, request it
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
       }
 
       if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-        // Permission granted, get current position
-        Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high,
-        );
+        Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
         setState(() {
           initialLocation = LatLng(position.latitude, position.longitude);
-          mapCenter = initialLocation; // Set map center to user's location
+          mapCenter = initialLocation;
         });
         if (mapController != null && initialLocation != null) {
           mapController!.animateCamera(
             CameraUpdate.newLatLngZoom(initialLocation!, 15),
           );
         }
-      } else if (permission == LocationPermission.denied) {
-        // Permission is denied (but not forever), prompt user again or show a dialog
-        debugPrint('Location permission denied (not permanently).');
-        _showPermissionDeniedDialog();
-      } else if (permission == LocationPermission.deniedForever) {
-        debugPrint('Location permission permanently denied.');
-        _showPermissionDeniedDialog(permanentlyDenied: true);
+      } else {
+        _showPermissionDeniedDialog(permanentlyDenied: permission == LocationPermission.deniedForever);
       }
     } catch (e) {
       debugPrint('Error fetching location: $e');
@@ -70,17 +59,14 @@ class _MapViewState extends State<MapView> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Permission Denied'),
-        content: Text(
-          permanentlyDenied
-              ? 'Location permission is permanently denied. Please enable it in Settings.'
-              : 'Location permission is required to use this feature. Please allow it in Settings.'
-        ),
+        content: Text(permanentlyDenied
+            ? 'Location permission is permanently denied. Please enable it in Settings.'
+            : 'Location permission is required to use this feature. Please allow it in Settings.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('Cancel'),
           ),
-          // If permanentlyDenied is true, we can guide user to Settings
           if (permanentlyDenied)
             TextButton(
               onPressed: () {
@@ -96,9 +82,8 @@ class _MapViewState extends State<MapView> {
 
   void _initializeMarkersAndEvents() {
     if (initialLocation != null) {
-      // Sort events by distance from the user's initial location
       sortedEvents = _sortEventsByDistance(widget.events, initialLocation!);
-      _createMarkers(); // Add markers based on the sorted events
+      _createMarkers();
       setState(() {});
     }
   }
@@ -112,7 +97,6 @@ class _MapViewState extends State<MapView> {
           position: LatLng(event.latitude, event.longitude),
           infoWindow: InfoWindow(title: event.title),
           onTap: () {
-            // Navigate to the respective card when tapping a marker
             pageController.animateToPage(
               sortedEvents.indexOf(event),
               duration: const Duration(milliseconds: 300),
@@ -127,63 +111,14 @@ class _MapViewState extends State<MapView> {
   List<Event> _sortEventsByDistance(List<Event> events, LatLng location) {
     return List.from(events)
       ..sort((a, b) {
-        double distanceA = Geolocator.distanceBetween(
-          location.latitude,
-          location.longitude,
-          a.latitude,
-          a.longitude,
-        );
-        double distanceB = Geolocator.distanceBetween(
-          location.latitude,
-          location.longitude,
-          b.latitude,
-          b.longitude,
-        );
+        double distanceA = Geolocator.distanceBetween(location.latitude, location.longitude, a.latitude, a.longitude);
+        double distanceB = Geolocator.distanceBetween(location.latitude, location.longitude, b.latitude, b.longitude);
         return distanceA.compareTo(distanceB);
       });
   }
 
-  void _onMapMoved() async {
-    if (isMapInteracting && mapController != null) {
-      LatLng center = await mapController!.getLatLng(ScreenCoordinate(
-        x: MediaQuery.of(context).size.width ~/ 2,
-        y: MediaQuery.of(context).size.height ~/ 2,
-      ));
-      setState(() {
-        mapCenter = center; // Update map center
-      });
-      _highlightClosestEvent(center);
-    }
-  }
-
-  void _highlightClosestEvent(LatLng center) {
-    int closestIndex = 0;
-    double minDistance = double.infinity;
-
-    for (int i = 0; i < sortedEvents.length; i++) {
-      final event = sortedEvents[i];
-      final distance = Geolocator.distanceBetween(
-        center.latitude,
-        center.longitude,
-        event.latitude,
-        event.longitude,
-      );
-      if (distance < minDistance) {
-        closestIndex = i;
-        minDistance = distance;
-      }
-    }
-
-    // Highlight the closest event without reordering
-    pageController.animateToPage(
-      closestIndex,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-  }
-
   void _onPageChanged(int index) {
-    isMapInteracting = false; // Stop map interaction logic during card swipe
+    isMapInteracting = false;
     final selectedEvent = sortedEvents[index];
     mapController?.animateCamera(
       CameraUpdate.newLatLng(
@@ -194,13 +129,10 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        elevation: 0,
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
       ),
       body: Stack(
         children: [
@@ -213,10 +145,6 @@ class _MapViewState extends State<MapView> {
                   ),
                   markers: markers,
                   onMapCreated: (controller) => mapController = controller,
-                  onCameraMoveStarted: () {
-                    isMapInteracting = true; // Enable map interaction
-                  },
-                  onCameraIdle: _onMapMoved,
                   myLocationEnabled: true,
                   myLocationButtonEnabled: true,
                   zoomGesturesEnabled: true,
@@ -226,7 +154,7 @@ class _MapViewState extends State<MapView> {
             left: 0,
             right: 0,
             child: SizedBox(
-              height: 180, // Adjusted height to show 1.5 cards
+              height: 180,
               child: PageView.builder(
                 controller: pageController,
                 itemCount: sortedEvents.length,
@@ -240,7 +168,8 @@ class _MapViewState extends State<MapView> {
                             event.longitude,
                           ) /
                           1000)
-                      .toStringAsFixed(2); // Convert meters to km
+                      .toStringAsFixed(2);
+
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -248,27 +177,25 @@ class _MapViewState extends State<MapView> {
                         MaterialPageRoute(
                           builder: (context) => EventDetailPage(
                             event: event,
-                            onAddToCalendar: () {}, // Add your callback logic
-                            isAdded: false, // Replace with your condition
+                            onAddToCalendar: () {},
+                            isAdded: false,
                           ),
                         ),
                       );
                     },
                     child: Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 8),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(12.0), // Added padding
+                        padding: const EdgeInsets.all(12.0),
                         child: Row(
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: Image.asset(
                                 event.imagePath!,
-                                width: 100, // Square image size
+                                width: 100,
                                 height: 100,
                                 fit: BoxFit.cover,
                               ),
@@ -277,21 +204,16 @@ class _MapViewState extends State<MapView> {
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
                                     event.title,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text("$distanceKm km away"),
+                                  Text('$distanceKm km away', style: theme.textTheme.bodyMedium),
                                 ],
                               ),
                             ),
-                            const Icon(Icons.arrow_forward_ios),
+                            Icon(Icons.arrow_forward_ios, color: theme.iconTheme.color),
                           ],
                         ),
                       ),

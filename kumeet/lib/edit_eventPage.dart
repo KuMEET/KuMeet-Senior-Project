@@ -31,8 +31,11 @@ class _EditEventPageState extends State<EditEventPage> {
     super.initState();
     _titleController = TextEditingController(text: widget.event.title);
     _descriptionController = TextEditingController(text: widget.event.description);
-    _capacityController = TextEditingController(text: widget.event.seatsAvailable.toString());
+    _capacityController = TextEditingController(
+      text: widget.event.seatsAvailable.toString(),
+    );
   }
+
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -46,6 +49,7 @@ class _EditEventPageState extends State<EditEventPage> {
       });
     }
   }
+
   Future<void> _updateEvent() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -56,14 +60,15 @@ class _EditEventPageState extends State<EditEventPage> {
         id: widget.event.id,
         title: _titleController.text,
         description: _descriptionController.text,
-        location: "Lat: ${_eventLocation!.latitude}, Long: ${_eventLocation!.longitude}",
+        location: 'Lat: ${_eventLocation!.latitude}, Long: ${_eventLocation!.longitude}',
         seatsAvailable: int.parse(_capacityController.text),
-        date: _selectedDate, 
+        date: _selectedDate,
         latitude: _eventLocation!.latitude,
         longitude: _eventLocation!.longitude,
         visibility: widget.event.visibility,
-        categories: widget.event.categories
+        categories: widget.event.categories,
       );
+
       widget.onEventUpdated(updatedEvent);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Event updated successfully!')),
@@ -72,28 +77,23 @@ class _EditEventPageState extends State<EditEventPage> {
       Navigator.pop(context); // Go back to the previous page
     }
   }
-    Future<void> _pickLocation() async {
-    
-    //final LatLng? pickedLocation = await Navigator.push(
-     // context,
-     // MaterialPageRoute(builder: (context) => const MapPickerPage()),
-   // );
-    //if (pickedLocation != null) {
-      setState(() {
-        _eventLocation = const LatLng(40.9810, 29.0870);
-      });
-   // }
+
+  Future<void> _pickLocation() async {
+    // Normally you’d present a map picker here:
+    // final LatLng? pickedLocation = await Navigator.push(...);
+    // if (pickedLocation != null) { setState(() => _eventLocation = pickedLocation); }
+    // For now, we’re just hardcoding a location:
+    setState(() {
+      _eventLocation = const LatLng(40.9810, 29.0870);
+    });
   }
-  
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Event', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
+        title: const Text('Edit Event'),
       ),
-      backgroundColor: Colors.grey[900],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -101,31 +101,28 @@ class _EditEventPageState extends State<EditEventPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Title
               const Text(
                 'Edit Event Details',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
                 ),
-                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
+
+              // Event Title Field
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: 'Event Title',
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[800],
+                  filled: true, 
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                style: const TextStyle(color: Colors.white, fontSize: 18),
+                style: const TextStyle(fontSize: 18),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the event title';
@@ -134,21 +131,18 @@ class _EditEventPageState extends State<EditEventPage> {
                 },
               ),
               const SizedBox(height: 16),
+
+              // Event Description Field
               TextFormField(
                 controller: _descriptionController,
                 decoration: InputDecoration(
                   labelText: 'Description',
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[800],
+                  filled: true, 
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                style: const TextStyle(color: Colors.white, fontSize: 18),
+                style: const TextStyle(fontSize: 18),
                 maxLines: 3,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -158,21 +152,18 @@ class _EditEventPageState extends State<EditEventPage> {
                 },
               ),
               const SizedBox(height: 16),
+
+              // Capacity Field
               TextFormField(
                 controller: _capacityController,
                 decoration: InputDecoration(
                   labelText: 'Capacity',
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
                   filled: true,
-                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                style: const TextStyle(color: Colors.white, fontSize: 18),
+                style: const TextStyle(fontSize: 18),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -184,6 +175,9 @@ class _EditEventPageState extends State<EditEventPage> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
+
+              // Pick Location Button & Display
               Row(
                 children: [
                   ElevatedButton(
@@ -195,15 +189,16 @@ class _EditEventPageState extends State<EditEventPage> {
                     Expanded(
                       child: Text(
                         'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
-                        style: const TextStyle(color: Colors.teal),
                       ),
                     ),
                 ],
               ),
               const SizedBox(height: 16),
+
+              // Date Row
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, color: Colors.white),
+                  const Icon(Icons.calendar_today),
                   const SizedBox(width: 8),
                   Text(
                     _selectedDate == null
@@ -213,30 +208,28 @@ class _EditEventPageState extends State<EditEventPage> {
                   const Spacer(),
                   TextButton(
                     onPressed: () => _selectDate(context),
-                    child: const Text('Pick Date', style: TextStyle(color: Colors.white)),
+                    child: const Text('Pick Date'),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
+
+              // Update Button
               ElevatedButton(
                 onPressed: _isLoading ? null : _updateEvent,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: _isLoading
-                    ? const CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      )
+                    ? const CircularProgressIndicator()
                     : const Text(
                         'Update Group',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
                         ),
                       ),
               ),
@@ -247,4 +240,3 @@ class _EditEventPageState extends State<EditEventPage> {
     );
   }
 }
-

@@ -16,20 +16,16 @@ class GroupDetailsPage extends StatefulWidget {
 
 class _GroupDetailsPageState extends State<GroupDetailsPage> {
   bool _isJoining = false;
-  String? UserName = GlobalState().userName;
+  String? userName = GlobalState().userName;
 
   Future<void> _joinGroup() async {
     setState(() {
       _isJoining = true;
     });
 
-    final url = Uri.parse(
-        'http://localhost:8080/api/add-to-group/$UserName/${widget.group.id}');
+    final url = Uri.parse('http://localhost:8080/api/add-to-group/$userName/${widget.group.id}');
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await http.post(url, headers: {'Content-Type': 'application/json'});
 
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -64,21 +60,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.grey[900],
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      backgroundColor: Colors.grey[900],
+      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             GroupImage(imagePath: 'images/group_image1.png'),
             const SizedBox(height: 16),
@@ -94,7 +79,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               onJoin: _joinGroup,
             ),
             const SizedBox(height: 24),
-            // Button or section for navigating to events page
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
@@ -104,17 +88,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   ),
                 );
               },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: Colors.deepOrange,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text(
-                'See Events',
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
+              child: const Text('See Events'),
             ),
           ],
         ),
@@ -137,8 +111,6 @@ class GroupImage extends StatelessWidget {
         fit: BoxFit.cover,
         height: 200,
         width: double.infinity,
-        color: Colors.black.withOpacity(0.6),
-        colorBlendMode: BlendMode.darken,
       ),
     );
   }
@@ -166,18 +138,17 @@ class GroupInfo extends StatelessWidget {
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           'Capacity: $capacity',
-          style: const TextStyle(fontSize: 18, color: Colors.white70),
+          style: const TextStyle(fontSize: 18),
         ),
         const SizedBox(height: 8),
         Text(
           'Category: $category',
-          style: const TextStyle(fontSize: 18, color: Colors.white70),
+          style: const TextStyle(fontSize: 18),
         ),
       ],
     );
@@ -200,20 +171,11 @@ class JoinButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: isJoining ? null : onJoin,
-      style: ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        backgroundColor: Colors.deepOrange,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
-      ),
       child: isJoining
-          ? const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-            )
+          ? const CircularProgressIndicator()
           : const Text(
               'Join',
-              style: TextStyle(fontSize: 18, color: Colors.white),
+              style: TextStyle(fontSize: 18),
             ),
     );
   }

@@ -9,7 +9,7 @@ import 'group_page.dart';
 import 'user_page.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensure bindings are initialized
+  WidgetsFlutterBinding.ensureInitialized();
   final globalState = GlobalState();
   await globalState.loadUserName();
   runApp(const KuMeetApp());
@@ -22,6 +22,92 @@ class KuMeetApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
+      // ------------------- LIGHT THEME -------------------
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: const ColorScheme.light(
+          primary: Color(0xFFFF6F3C), // Vibrant Orange
+          secondary: Color(0xFF37474F), // Complementary Deep Gray
+          background: Color(0xFFF9F9F9), // Light Background
+          surface: Color(0xFFFFFFFF), // White for surfaces
+          onPrimary: Colors.white,    // Text on Orange
+          onSecondary: Colors.white,  // Text on Secondary
+          onBackground: Colors.black, // Text on Light Background
+          onSurface: Colors.black,    // Text/Icon on Surface
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF9F9F9),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black, fontSize: 16),
+          bodyMedium: TextStyle(color: Colors.black, fontSize: 14),
+          bodySmall: TextStyle(color: Colors.black54, fontSize: 12),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white,       // Text color
+            backgroundColor: Color(0xFFFF6F3C),  // Button color
+          ),
+        ),
+
+        /// IMPORTANT: Force the AppBar background to white (instead of orange).
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          elevation: 4,         // Adds a shadow
+          shadowColor: Colors.grey,
+          iconTheme: IconThemeData(color: Colors.black),
+        ),
+
+        /// Give the BottomNavigationBar some elevation too, if you want the shadow
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          elevation: 4,
+          backgroundColor: Color(0xFFFFFFFF),
+          selectedItemColor: Color(0xFFFF6F3C),
+          unselectedItemColor: Colors.black54,
+        ),
+      ),
+
+      // ------------------- DARK THEME -------------------
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFFFF6F3C), // Vibrant Orange
+          secondary: Color(0xFF90A4AE),
+          background: Color(0xFF121212),
+          surface: Color(0xFF1E1E1E),
+          onPrimary: Colors.white,
+          onSecondary: Colors.black,
+          onBackground: Colors.white,
+          onSurface: Colors.white,
+        ),
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.white, fontSize: 16),
+          bodyMedium: TextStyle(color: Colors.white70, fontSize: 14),
+          bodySmall: TextStyle(color: Colors.white60, fontSize: 12),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.black, // Text color
+            backgroundColor: Color(0xFFFF6F3C), // Button color
+          ),
+        ),
+
+        /// Dark mode: no shadow or minimal shadow
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1E1E1E),
+          elevation: 0,
+          shadowColor: Colors.transparent,
+          iconTheme: IconThemeData(color: Colors.white),
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          elevation: 0,
+          backgroundColor: Color(0xFF1E1E1E),
+          selectedItemColor: Color(0xFFFF6F3C),
+          unselectedItemColor: Colors.white70,
+        ),
+      ),
+
+      themeMode: ThemeMode.system, // Use system theme (light/dark) by default
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginPage(),
@@ -71,12 +157,11 @@ class _HomePageState extends State<HomePage> {
     if (!calendarEvents.contains(event)) {
       setState(() {
         calendarEvents.add(event);
-        calendarEvents.sort((a, b) => a.date!.compareTo(b.date!)); // Sort by date
+        calendarEvents.sort((a, b) => a.date!.compareTo(b.date!));
       });
     }
   }
 
-  // Check if an event is already added to the calendar
   bool isEventAdded(Event event) {
     return calendarEvents.contains(event);
   }
@@ -89,6 +174,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final List<Widget> pages = [
       HomeContent(calendarEvents: calendarEvents),
       ExplorePage(
@@ -96,30 +182,38 @@ class _HomePageState extends State<HomePage> {
         isEventAdded: isEventAdded,
       ),
       const GroupPage(),
-      const UserPage(),  // Make sure this line matches the order in the BottomNavigationBar
+      const UserPage(),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        // The AppBar background color is now determined by appBarTheme above
+        centerTitle: true,
         title: Image.asset(
           'images/kumeet_logo.png',
           height: 100,
+          color: theme.brightness == Brightness.light
+              ? theme.colorScheme.primary
+              : null,
+          colorBlendMode: theme.brightness == Brightness.light
+              ? BlendMode.modulate
+              : null,
         ),
-        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications),
-            color: Colors.white,
+            color: theme.colorScheme.onSurface,
             onPressed: () {},
           ),
         ],
       ),
-      body: pages[_selectedIndex],
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.black,
-        selectedItemColor: Colors.deepOrange,
-        unselectedItemColor: Colors.grey[400],
+        backgroundColor: theme.colorScheme.surface,
+        selectedItemColor: theme.colorScheme.primary,
+        unselectedItemColor: theme.colorScheme.onSurface.withOpacity(0.6),
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: const [

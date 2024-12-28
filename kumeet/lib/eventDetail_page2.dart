@@ -23,7 +23,7 @@ class EventDetailPage2 extends StatefulWidget {
 
 class _EventDetailPage2State extends State<EventDetailPage2> {
   bool _isProcessing = false;
-  final EventService eventService = EventService(); // EventService instance
+  final EventService eventService = EventService();
   String? userName = GlobalState().userName;
 
   Future<void> _deleteEvent() async {
@@ -52,7 +52,6 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
 
       try {
         final success = await eventService.deleteEvent(widget.event);
-
         if (success) {
           widget.onEventDeleted();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -61,7 +60,7 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
               duration: const Duration(seconds: 2),
             ),
           );
-          Navigator.of(context).pop(); // Navigate back after deletion
+          Navigator.of(context).pop();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -97,6 +96,7 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
         ),
       ),
     );
+
     if (updatedEvent != null) {
       setState(() {
         widget.event.title = updatedEvent.title;
@@ -107,21 +107,19 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
         widget.event.latitude = updatedEvent.latitude;
         widget.event.longitude = updatedEvent.longitude;
       });
-      
-      final success = await eventService.updateEvent(updatedEvent,widget.event.id);
-          if (success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Group "${updatedEvent.title}" updated successfully!',
-                ),
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Failed to update group.')),
-            );
-          }
+
+      final success = await eventService.updateEvent(updatedEvent, widget.event.id);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Group "${updatedEvent.title}" updated successfully!'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update group.')),
+        );
+      }
 
       widget.onEventUpdated();
     }
@@ -130,130 +128,90 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.grey[900],
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      backgroundColor: Colors.grey[900],
+      appBar: AppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Event Image
             Container(
               height: 200,
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(widget.event.imagePath!),
+                  image: AssetImage(widget.event.imagePath ?? ''),
                   fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    Colors.black.withOpacity(0.6),
-                    BlendMode.darken,
-                  ),
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
             const SizedBox(height: 16),
-
-            // Event Title
             Text(
               widget.event.title,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
-
-            // Event Description
             Text(
               widget.event.description,
-              style: const TextStyle(fontSize: 16, color: Colors.white70),
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
-
-            // Location
             Row(
               children: [
-                const Icon(Icons.location_on, color: Colors.deepOrange),
+                const Icon(Icons.location_on),
                 const SizedBox(width: 8),
                 Text(
                   widget.event.location,
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
-            // Seats Available
             Row(
               children: [
-                const Icon(Icons.event_seat, color: Colors.white70),
+                const Icon(Icons.event_seat),
                 const SizedBox(width: 8),
                 Text(
                   '${widget.event.seatsAvailable} seats available',
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
-            // Date
             if (widget.event.date != null)
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, color: Colors.white70),
+                  const Icon(Icons.calendar_today),
                   const SizedBox(width: 8),
                   Text(
                     DateFormat.yMMMMd().format(widget.event.date!),
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ],
               ),
             const SizedBox(height: 24),
-
-            // Edit and Delete Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 ElevatedButton(
                   onPressed: _isProcessing ? null : _editEvent,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                   child: _isProcessing
-                      ? const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
+                      ? const CircularProgressIndicator()
                       : const Text(
                           'Edit Event',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+                          style: TextStyle(fontSize: 18),
                         ),
                 ),
                 ElevatedButton(
                   onPressed: _isProcessing ? null : _deleteEvent,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                   child: _isProcessing
-                      ? const CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
+                      ? const CircularProgressIndicator()
                       : const Text(
                           'Delete Event',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
+                          style: TextStyle(fontSize: 18),
                         ),
                 ),
               ],

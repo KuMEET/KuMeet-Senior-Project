@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:kumeet/event_service.dart';
 import 'createEvent_page.dart';
 import 'eventcard.dart';
@@ -6,7 +8,7 @@ import 'eventDetail_page.dart';
 import 'event.dart';
 import 'map_view.dart';
 import 'owned_events.dart';
-import 'owned_groups_page.dart'; // Import OwnedGroupsPage
+import 'owned_groups_page.dart';
 
 class ExplorePage extends StatefulWidget {
   final Function(Event) onAddEventToCalendar;
@@ -41,7 +43,6 @@ class _ExplorePageState extends State<ExplorePage> {
         isLoading = false;
       });
     } catch (e) {
-      print('Error fetching events: $e');
       setState(() {
         isLoading = false;
       });
@@ -60,12 +61,9 @@ class _ExplorePageState extends State<ExplorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[900],
       body: isLoading
           ? const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
-              ),
+              child: CircularProgressIndicator(),
             )
           : ExploreBody(
               events: events,
@@ -79,7 +77,7 @@ class _ExplorePageState extends State<ExplorePage> {
   }
 }
 
-class ExploreBody extends StatelessWidget {
+class ExploreBody extends StatefulWidget {
   final List<Event> events;
   final Function(Event) onAddEventToCalendar;
   final bool Function(Event) isEventAdded;
@@ -92,75 +90,123 @@ class ExploreBody extends StatelessWidget {
   });
 
   @override
+  State<ExploreBody> createState() => _ExploreBodyState();
+}
+
+class _ExploreBodyState extends State<ExploreBody> {
+  LatLng? userLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    _getUserLocation();
+  }
+
+  Future<void> _getUserLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      setState(() {
+        userLocation = LatLng(position.latitude, position.longitude);
+      });
+    } catch (e) {
+      debugPrint('Error fetching user location: $e');
+      setState(() {
+        userLocation = const LatLng(41.0082, 28.9784); // Default to Istanbul
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SearchAndFilterBar(),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MapView(events: events),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.deepOrange,
-              ),
-              child: const Text('Go to Map View'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const OwnedEventsPage(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.deepOrange,
-              ),
-              child: const Text('Go to Owned Events'),
-            ),
-            const SizedBox(height: 16),
-            for (var event in events)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: EventCard(
-                  event: event,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EventDetailPage(
-                          event: event,
-                          onAddToCalendar: () {
-                            onAddEventToCalendar(event);
-                            Navigator.pop(context);
-                          },
-                          isAdded: isEventAdded(event),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SearchAndFilterBar(),
+          const SizedBox(height: 16),
+          // Small Map Section with Clickable Overlay
+          SizedBox(
+            height: 200,
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: userLocation == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                            target: userLocation!,
+                            zoom: 10,
+                          ),
+                          markers: widget.events
+                              .map(
+                                (event) => Marker(
+                                  markerId: MarkerId(event.title),
+                                  position: LatLng(event.latitude, event.longitude),
+                                  infoWindow: InfoWindow(title: event.title),
+                                ),
+                              )
+                              .toSet(),
+                          zoomGesturesEnabled: false,
+                          scrollGesturesEnabled: false,
+                          myLocationEnabled: false,
+                          myLocationButtonEnabled: false,
                         ),
-                      ),
-                    );
-                  },
                 ),
+                // Transparent overlay for tap detection
+                Positioned.fill(
+                  child: GestureDetector(
+                    onTap: () {
+                      // Debug: Check if tap is detected
+                      debugPrint('Map tapped');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MapView(events: widget.events),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      color: Colors.transparent, // Fully transparent overlay
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          for (var event in widget.events)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: EventCard(
+                event: event,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EventDetailPage(
+                        event: event,
+                        onAddToCalendar: () {
+                          widget.onAddEventToCalendar(event);
+                          Navigator.pop(context);
+                        },
+                        isAdded: widget.isEventAdded(event),
+                      ),
+                    ),
+                  );
+                },
               ),
-          ],
-        ),
+            ),
+        ],
       ),
     );
   }
 }
+
+
 
 class SearchAndFilterBar extends StatelessWidget {
   const SearchAndFilterBar({super.key});
@@ -173,21 +219,17 @@ class SearchAndFilterBar extends StatelessWidget {
           child: TextField(
             decoration: InputDecoration(
               hintText: 'Events • Koç University',
-              hintStyle: const TextStyle(color: Colors.grey),
-              prefixIcon: const Icon(Icons.search, color: Colors.white),
+              prefixIcon: const Icon(Icons.search),
               filled: true,
-              fillColor: Colors.grey[800],
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: const BorderSide(color: Colors.white, width: 1.0),
               ),
             ),
-            style: const TextStyle(color: Colors.white),
           ),
         ),
         const SizedBox(width: 8),
         IconButton(
-          icon: const Icon(Icons.filter_list, color: Colors.white),
+          icon: const Icon(Icons.filter_list),
           onPressed: () {
             // Add filter functionality
           },
@@ -206,31 +248,24 @@ class ExploreFloatingActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return FloatingActionButton(
       onPressed: () async {
-        // Navigate to OwnedGroupsPage to select a group first
         final selectedGroup = await Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const OwnedGroupsPage()),
         );
 
         if (selectedGroup != null) {
-          // After selecting a group, navigate to CreateEventPage
-          final newEvent = await Navigator.push(
+          final newEvent = await Navigator.push<Event>(
             context,
             MaterialPageRoute(
               builder: (context) => CreateEventPage(selectedGroup: selectedGroup),
             ),
-          ) as Event?;
-
+          );
           if (newEvent != null) {
-            onAddEvent(newEvent); // Add the event to the list
+            onAddEvent(newEvent);
           }
         }
       },
-      backgroundColor: Colors.deepOrange,
-      child: const Icon(
-        Icons.add,
-        color: Colors.white,
-      ),
+      child: const Icon(Icons.add),
     );
   }
 }

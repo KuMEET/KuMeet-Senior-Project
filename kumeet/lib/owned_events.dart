@@ -92,16 +92,17 @@ class _OwnedEventsPageState extends State<OwnedEventsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Colors.grey[900],
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Owned Events'),
-        backgroundColor: Colors.black,
       ),
       body: isLoading
-          ? const Center(
+          ? Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
+                valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
               ),
             )
           : OwnedEventsBody(
@@ -127,19 +128,17 @@ class OwnedEventsBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Your Owned Events',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+              style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             for (var event in ownedEvents)
@@ -154,7 +153,7 @@ class OwnedEventsBody extends StatelessWidget {
                         builder: (context) => EventDetailPage2(
                           event: event,
                           onEventUpdated: () async {
-                            // await fetchOwnedEvents();
+                            // Optionally refresh owned events
                           },
                           onEventDeleted: () async {
                             await onDelete(event);
@@ -167,11 +166,11 @@ class OwnedEventsBody extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.white),
+                        icon: Icon(Icons.edit, color: theme.colorScheme.onSurface),
                         onPressed: () => onEdit(event),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.white),
+                        icon: Icon(Icons.delete, color: theme.colorScheme.onSurface),
                         onPressed: () => onDelete(event),
                       ),
                     ],

@@ -60,9 +60,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Group'),
-        backgroundColor: Colors.grey[900],
       ),
-      backgroundColor: Colors.grey[900],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -75,7 +73,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                 decoration: InputDecoration(
                   labelText: 'Group Name',
                   filled: true,
-                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -92,7 +89,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                 decoration: InputDecoration(
                   labelText: 'Capacity',
                   filled: true,
-                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -114,7 +110,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                 decoration: InputDecoration(
                   labelText: 'Select Category',
                   filled: true,
-                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -134,7 +129,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                 onPressed: _createGroup,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.deepOrange,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

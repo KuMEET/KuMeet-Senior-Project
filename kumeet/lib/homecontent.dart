@@ -19,25 +19,22 @@ class HomeContent extends StatelessWidget {
         .where((event) => event.date != null && event.date!.isAfter(now))
         .toList();
 
-    return Container(
-  color: Colors.grey[900],
-  child: Column(
-    children: [
-      Expanded(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              YourGroupsSection(),
-              const Divider(thickness: 0.5, color: Colors.grey),
-              UpcomingEventsSection(upcomingEvents: upcomingEvents),
-            ],
+    return Column(
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const YourGroupsSection(),
+                const Divider(thickness: 0.5),
+                UpcomingEventsSection(upcomingEvents: upcomingEvents),
+              ],
+            ),
           ),
         ),
-      ),
-    ],
-  ),
-);
+      ],
+    );
   }
 }
 
@@ -88,7 +85,6 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
             ),
           ),
         ),
@@ -97,10 +93,7 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
             : _groups.isEmpty
                 ? const Padding(
                     padding: EdgeInsets.all(16.0),
-                    child: Text(
-                      'No groups available',
-                      style: TextStyle(color: Colors.white70),
-                    ),
+                    child: Text('No groups available'),
                   )
                 : Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -146,23 +139,18 @@ class UpcomingEventsSection extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
             ),
           ),
         ),
         if (upcomingEvents.isEmpty)
           const Padding(
             padding: EdgeInsets.all(16.0),
-            child: Text(
-              'No upcoming events',
-              style: TextStyle(color: Colors.grey),
-            ),
+            child: Text('No upcoming events'),
           )
         else
           for (var event in upcomingEvents)
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  vertical: 8.0, horizontal: 16.0),
+              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               child: EventCard(
                 event: event,
                 onTap: () {

@@ -6,8 +6,6 @@ import 'package:kumeet/eventcard.dart';
 import 'package:kumeet/group.dart';
 import 'package:kumeet/group_service.dart';
 import 'package:kumeet/group_card.dart';
-
-// Import your new user detail pages
 import 'package:kumeet/user_event_detail_page.dart';
 import 'package:kumeet/user_group_detail_page.dart';
 
@@ -36,10 +34,7 @@ class _UserPageState extends State<UserPage> {
 
   Future<void> _fetchUserData() async {
     try {
-      // Fetch Owned Events
       final events = await eventService.getEventsByAdmin(userName!);
-
-      // Fetch Owned Groups
       final groups = await groupService.getOwnedGroups(userName!);
 
       setState(() {
@@ -77,20 +72,12 @@ class _UserPageState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final displayUserName = userName ?? "Unknown User";
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("User Page", style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
-      ),
-      backgroundColor: Colors.grey[900],
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.deepOrange),
-              ),
-            )
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -102,15 +89,17 @@ class _UserPageState extends State<UserPage> {
                     children: [
                       Text(
                         displayUserName,
-                        style: const TextStyle(fontSize: 24, color: Colors.white),
+                        style: theme.textTheme.headlineSmall,
                       ),
                       TextButton(
                         onPressed: () {
                           // Edit button (Currently not functional)
                         },
-                        child: const Text(
+                        child: Text(
                           "Edit",
-                          style: TextStyle(color: Colors.deepOrange),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.primary,
+                          ),
                         ),
                       ),
                     ],
@@ -118,20 +107,22 @@ class _UserPageState extends State<UserPage> {
                   const SizedBox(height: 8),
                   Text(
                     "Username: $displayUserName",
-                    style: const TextStyle(color: Colors.white70),
+                    style: theme.textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 24),
 
                   // My Events Section
-                  const Text(
+                  Text(
                     "My Events",
-                    style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   ownedEvents.isEmpty
-                      ? const Text(
+                      ? Text(
                           'You have no owned events.',
-                          style: TextStyle(color: Colors.white70),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          ),
                         )
                       : Column(
                           children: ownedEvents.map((event) {
@@ -144,19 +135,20 @@ class _UserPageState extends State<UserPage> {
                             );
                           }).toList(),
                         ),
-
                   const SizedBox(height: 24),
 
                   // My Groups Section
-                  const Text(
+                  Text(
                     "My Groups",
-                    style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   ownedGroups.isEmpty
-                      ? const Text(
+                      ? Text(
                           'You have no owned groups.',
-                          style: TextStyle(color: Colors.white70),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          ),
                         )
                       : Column(
                           children: ownedGroups.map((group) {

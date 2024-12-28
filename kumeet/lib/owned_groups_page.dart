@@ -73,26 +73,25 @@ class _OwnedGroupsPageState extends State<OwnedGroupsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Owned Groups', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
+        title: const Text('Owned Groups'),
       ),
-      backgroundColor: Colors.grey[900],
       body: isLoading
-          ? const Center(
+          ? Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.teal),
+                valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
               ),
             )
           : ownedGroups.isEmpty
-              ? const Center(
+              ? Center(
                   child: Text(
                     'No owned groups found.',
-                    style: TextStyle(color: Colors.white),
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onBackground,
+                    ),
                   ),
                 )
               : ListView.builder(

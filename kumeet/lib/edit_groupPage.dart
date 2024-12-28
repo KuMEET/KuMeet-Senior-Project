@@ -26,7 +26,8 @@ class _EditGroupPageState extends State<EditGroupPage> {
     super.initState();
     _nameController = TextEditingController(text: widget.group.name);
     _capacityController = TextEditingController(
-        text: widget.group.capacity.toString());
+      text: widget.group.capacity.toString(),
+    );
   }
 
   Future<void> _updateGroup() async {
@@ -40,17 +41,16 @@ class _EditGroupPageState extends State<EditGroupPage> {
         name: _nameController.text,
         capacity: int.parse(_capacityController.text),
         visibility: widget.group.visibility,
-        categories: widget.group.categories
+        categories: widget.group.categories,
       );
 
-      // Notify parent widget with the updated group
       widget.onGroupUpdated(updatedGroup);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Group updated successfully!')),
       );
 
-      Navigator.pop(context); // Go back to the previous page
+      Navigator.pop(context);
     }
   }
 
@@ -58,10 +58,8 @@ class _EditGroupPageState extends State<EditGroupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Group', style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.black,
+        title: const Text('Edit Group'),
       ),
-      backgroundColor: Colors.grey[900],
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -71,29 +69,22 @@ class _EditGroupPageState extends State<EditGroupPage> {
             children: [
               const Text(
                 'Edit Group Details',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
                 ),
-                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
                   labelText: 'Group Name',
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                style: const TextStyle(color: Colors.white, fontSize: 18),
+                style: const TextStyle(fontSize: 18),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter the group name';
@@ -106,17 +97,11 @@ class _EditGroupPageState extends State<EditGroupPage> {
                 controller: _capacityController,
                 decoration: InputDecoration(
                   labelText: 'Capacity',
-                  labelStyle: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[800],
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                style: const TextStyle(color: Colors.white, fontSize: 18),
+                style: const TextStyle(fontSize: 18),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -132,22 +117,18 @@ class _EditGroupPageState extends State<EditGroupPage> {
               ElevatedButton(
                 onPressed: _isLoading ? null : _updateGroup,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: _isLoading
-                    ? const CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      )
+                    ? const CircularProgressIndicator()
                     : const Text(
                         'Update Group',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
                         ),
                       ),
               ),

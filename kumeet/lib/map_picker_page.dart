@@ -12,7 +12,7 @@ class MapPickerPage extends StatefulWidget {
 class _MapPickerPageState extends State<MapPickerPage> {
   GoogleMapController? _mapController;
   LatLng? _pickedLocation;
-  LatLng? _currentLocation; // Nullable to avoid using a default location
+  LatLng? _currentLocation;
 
   @override
   void initState() {
@@ -22,13 +22,14 @@ class _MapPickerPageState extends State<MapPickerPage> {
 
   Future<void> _getCurrentLocation() async {
     try {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
       setState(() {
         _currentLocation = LatLng(position.latitude, position.longitude);
       });
 
-      if (_mapController != null) {
+      if (_mapController != null && _currentLocation != null) {
         _mapController!.animateCamera(
           CameraUpdate.newLatLngZoom(_currentLocation!, 15),
         );
@@ -44,54 +45,47 @@ class _MapPickerPageState extends State<MapPickerPage> {
     });
   }
 
+  void _confirmLocation() {
+    Navigator.pop(context, _pickedLocation);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pick Event Location'),
-        backgroundColor: Colors.teal,
       ),
       body: Stack(
         children: [
-          _currentLocation == null
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : GoogleMap(
-                  initialCameraPosition: CameraPosition(
-                    target: _currentLocation!,
-                    zoom: 15,
-                  ),
-                  markers: _pickedLocation != null
-                      ? {
-                          Marker(
-                            markerId: const MarkerId('picked-location'),
-                            position: _pickedLocation!,
-                          ),
-                        }
-                      : {},
-                  onTap: _onMapTapped,
-                  onMapCreated: (controller) => _mapController = controller,
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                  zoomGesturesEnabled: true, // Enable zoom gestures
-                ),
+          if (_currentLocation == null)
+            const Center(child: CircularProgressIndicator())
+          else
+            GoogleMap(
+              initialCameraPosition: CameraPosition(
+                target: _currentLocation!,
+                zoom: 15,
+              ),
+              markers: _pickedLocation != null
+                  ? {
+                      Marker(
+                        markerId: const MarkerId('picked-location'),
+                        position: _pickedLocation!,
+                      ),
+                    }
+                  : {},
+              onTap: _onMapTapped,
+              onMapCreated: (controller) => _mapController = controller,
+              myLocationEnabled: true,
+              myLocationButtonEnabled: true,
+              zoomGesturesEnabled: true,
+            ),
           if (_pickedLocation != null)
             Positioned(
               bottom: 20,
               left: 20,
               right: 20,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, _pickedLocation); // Return selected location
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  backgroundColor: Colors.teal,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                onPressed: _confirmLocation,
                 child: const Text(
                   'Confirm Location',
                   style: TextStyle(fontSize: 18),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'user_service.dart';
 
-
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
 
@@ -11,7 +10,7 @@ class SignupPage extends StatefulWidget {
 
 class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController(); // New username field
+  final _usernameController = TextEditingController();
   final _nameController = TextEditingController();
   final _surnameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -54,39 +53,24 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign Up'),
-        backgroundColor: Colors.black,
-        centerTitle: true,
-      ),
-      backgroundColor: Colors.grey[900],
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(top: 80.0, left: 16.0, right: 16.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // App Logo or Title
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  child: Text(
-                    'Create an Account',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.teal[200],
-                    ),
-                  ),
-                ),
-              ),
+              // Logo
+              const LogoWidget(),
+              const SizedBox(height: 32),
 
               // Username Field
               TextFormField(
                 controller: _usernameController,
-                decoration: _buildInputDecoration('Username', Icons.account_circle),
+                decoration: _buildInputDecoration('Username', Icons.account_circle, theme),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Please enter your username' : null,
               ),
@@ -95,7 +79,7 @@ class _SignupPageState extends State<SignupPage> {
               // Name Field
               TextFormField(
                 controller: _nameController,
-                decoration: _buildInputDecoration('Name', Icons.person),
+                decoration: _buildInputDecoration('Name', Icons.person, theme),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Please enter your name' : null,
               ),
@@ -104,7 +88,7 @@ class _SignupPageState extends State<SignupPage> {
               // Surname Field
               TextFormField(
                 controller: _surnameController,
-                decoration: _buildInputDecoration('Surname', Icons.person_outline),
+                decoration: _buildInputDecoration('Surname', Icons.person_outline, theme),
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Please enter your surname' : null,
               ),
@@ -113,7 +97,7 @@ class _SignupPageState extends State<SignupPage> {
               // Email Field
               TextFormField(
                 controller: _emailController,
-                decoration: _buildInputDecoration('Email', Icons.email),
+                decoration: _buildInputDecoration('Email', Icons.email, theme),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
@@ -129,7 +113,7 @@ class _SignupPageState extends State<SignupPage> {
               // Password Field
               TextFormField(
                 controller: _passwordController,
-                decoration: _buildInputDecoration('Password', Icons.lock),
+                decoration: _buildInputDecoration('Password', Icons.lock, theme),
                 obscureText: true,
                 validator: (value) =>
                     value == null || value.isEmpty ? 'Please enter your password' : null,
@@ -139,17 +123,8 @@ class _SignupPageState extends State<SignupPage> {
               // Signup Button
               ElevatedButton(
                 onPressed: _isLoading ? null : _signup,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
                 child: _isLoading
-                    ? const CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      )
+                    ? const CircularProgressIndicator()
                     : const Text('Sign Up'),
               ),
               const SizedBox(height: 16),
@@ -157,9 +132,6 @@ class _SignupPageState extends State<SignupPage> {
               // Login Redirect Button
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.teal[200],
-                ),
                 child: const Text("Already have an account? Login"),
               ),
             ],
@@ -169,202 +141,33 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  // Helper method for consistent InputDecoration
-  InputDecoration _buildInputDecoration(String labelText, IconData icon) {
+  InputDecoration _buildInputDecoration(String labelText, IconData icon, ThemeData theme) {
     return InputDecoration(
       labelText: labelText,
-      prefixIcon: Icon(icon, color: Colors.white),
+      prefixIcon: Icon(icon, color: theme.colorScheme.onSurface),
       filled: true,
-      fillColor: Colors.grey[800],
+      fillColor: theme.colorScheme.surface,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
-      labelStyle: const TextStyle(color: Colors.white),
     );
   }
 }
 
-class SignupForm extends StatelessWidget {
-  const SignupForm({super.key});
+class LogoWidget extends StatelessWidget {
+  const LogoWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        const UsernameTextField(),
-        const SizedBox(height: 16),
-        const NameTextField(),
-        const SizedBox(height: 16),
-        const SurnameTextField(),
-        const SizedBox(height: 16),
-        const EmailTextField(),
-        const SizedBox(height: 16),
-        const PasswordTextField(),
-        const SizedBox(height: 32),
-        SignupButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
+    return SizedBox(
+      height: 180,
+      child: Center(
+        child: Image.asset(
+          'images/kumeet_logo.png',
+          color: Colors.deepOrange.withOpacity(0.7),
+          colorBlendMode: BlendMode.modulate,
         ),
-        const SizedBox(height: 16),
-        LoginRedirectButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ],
-    );
-  }
-}
-
-class UsernameTextField extends StatelessWidget {
-  const UsernameTextField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        labelText: 'Username',
-        labelStyle: const TextStyle(color: Colors.white),
-        prefixIcon: const Icon(Icons.account_circle, color: Colors.white),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: Colors.white),
-        ),
-        filled: true,
-        fillColor: Colors.grey[800],
       ),
-      style: const TextStyle(color: Colors.white),
-    );
-  }
-}
-
-class NameTextField extends StatelessWidget {
-  const NameTextField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        labelText: 'Name',
-        labelStyle: const TextStyle(color: Colors.white),
-        prefixIcon: const Icon(Icons.person, color: Colors.white),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: Colors.white),
-        ),
-        filled: true,
-        fillColor: Colors.grey[800],
-      ),
-      style: const TextStyle(color: Colors.white),
-    );
-  }
-}
-
-class SurnameTextField extends StatelessWidget {
-  const SurnameTextField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        labelText: 'Surname',
-        labelStyle: const TextStyle(color: Colors.white),
-        prefixIcon: const Icon(Icons.person_outline, color: Colors.white),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: Colors.white),
-        ),
-        filled: true,
-        fillColor: Colors.grey[800],
-      ),
-      style: const TextStyle(color: Colors.white),
-    );
-  }
-}
-
-class EmailTextField extends StatelessWidget {
-  const EmailTextField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        labelText: 'Email',
-        labelStyle: const TextStyle(color: Colors.white),
-        prefixIcon: const Icon(Icons.email, color: Colors.white),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: Colors.white),
-        ),
-        filled: true,
-        fillColor: Colors.grey[800],
-      ),
-      keyboardType: TextInputType.emailAddress,
-      style: const TextStyle(color: Colors.white),
-    );
-  }
-}
-
-class PasswordTextField extends StatelessWidget {
-  const PasswordTextField({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      decoration: InputDecoration(
-        labelText: 'Password',
-        labelStyle: const TextStyle(color: Colors.white),
-        prefixIcon: const Icon(Icons.lock_outline, color: Colors.white),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: const BorderSide(color: Colors.white),
-        ),
-        filled: true,
-        fillColor: Colors.grey[800],
-      ),
-      obscureText: true,
-      style: const TextStyle(color: Colors.white),
-    );
-  }
-}
-
-class SignupButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const SignupButton({super.key, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color.fromARGB(255, 1, 107, 95),
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-        elevation: 5.0,
-      ),
-      child: const Text('Sign Up', style: TextStyle(color: Colors.white)),
-    );
-  }
-}
-
-class LoginRedirectButton extends StatelessWidget {
-  final VoidCallback onPressed;
-
-  const LoginRedirectButton({super.key, required this.onPressed});
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      onPressed: onPressed,
-      style: TextButton.styleFrom(
-        foregroundColor: const Color.fromARGB(255, 1, 102, 90),
-      ),
-      child: const Text("Already have an account? Login"),
     );
   }
 }

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
-import 'package:kumeet/login_page.dart';
 import 'package:device_calendar/device_calendar.dart';
-import 'package:timezone/timezone.dart' as tz; // for TZDateTime conversion
+import 'package:timezone/timezone.dart' as tz;
 
-import 'event.dart' as my_app; // Alias your custom Event class
+import 'event.dart' as my_app;
+import 'package:kumeet/login_page.dart';
 
 class EventDetailPage extends StatefulWidget {
   final my_app.Event event;
   final VoidCallback onAddToCalendar;
-  final bool isAdded; // Indicates if the user has already joined the event
+  final bool isAdded;
 
   const EventDetailPage({
     Key? key,
@@ -26,8 +26,7 @@ class EventDetailPage extends StatefulWidget {
 
 class _EventDetailPageState extends State<EventDetailPage> {
   bool _isAdding = false;
-  String? UserName = GlobalState().userName;
-
+  String? userName = GlobalState().userName;
   final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
 
   Future<void> _joinEvent() async {
@@ -35,12 +34,9 @@ class _EventDetailPageState extends State<EventDetailPage> {
       _isAdding = true;
     });
 
-    final url = Uri.parse('http://localhost:8080/add-to-event/$UserName/${widget.event.id}');
+    final url = Uri.parse('http://localhost:8080/add-to-event/$userName/${widget.event.id}');
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-      );
+      final response = await http.post(url, headers: {'Content-Type': 'application/json'});
 
       if (response.statusCode == 200) {
         setState(() {
@@ -92,7 +88,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
   }
 
   Future<void> _addEventToDeviceCalendar(my_app.Event eventDetails) async {
-    bool granted = await _requestPermissions();
+    final granted = await _requestPermissions();
     if (!granted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Calendar permission not granted')),
@@ -100,7 +96,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
       return;
     }
 
-    List<Calendar> calendars = await _retrieveCalendars();
+    final calendars = await _retrieveCalendars();
     if (calendars.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('No calendars available')),
@@ -116,7 +112,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
     final endTime = tz.TZDateTime.from(endDate, tz.local);
 
     final calendarEvent = Event(
-      selectedCalendar.id!, 
+      selectedCalendar.id!,
       title: eventDetails.title,
       description: eventDetails.description,
       start: startTime,
@@ -124,8 +120,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
     );
 
     final createEventResult = await _deviceCalendarPlugin.createOrUpdateEvent(calendarEvent);
-
-    if (createEventResult!.isSuccess && createEventResult?.data != null) {
+    if (createEventResult!.isSuccess && createEventResult.data != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Event added to calendar successfully!')),
       );
@@ -139,23 +134,18 @@ class _EventDetailPageState extends State<EventDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.grey[900],
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      backgroundColor: Colors.grey[900],
+      appBar: AppBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Event Image
             Container(
               height: 200,
               width: double.infinity,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage(widget.event.imagePath!),
+                  image: AssetImage(widget.event.imagePath ?? ''),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
                     Colors.black.withOpacity(0.6),
@@ -166,107 +156,73 @@ class _EventDetailPageState extends State<EventDetailPage> {
               ),
             ),
             const SizedBox(height: 16),
-
-            // Event Title
             Text(
               widget.event.title,
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
               ),
             ),
             const SizedBox(height: 8),
-
-            // Event Description
             Text(
               widget.event.description,
-              style: const TextStyle(fontSize: 16, color: Colors.white70),
+              style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
-
-            // Location
             Row(
               children: [
-                const Icon(Icons.location_on, color: Colors.deepOrange),
+                const Icon(Icons.location_on),
                 const SizedBox(width: 8),
                 Text(
                   widget.event.location,
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
-            // Seats Available
             Row(
               children: [
-                const Icon(Icons.event_seat, color: Colors.white70),
+                const Icon(Icons.event_seat),
                 const SizedBox(width: 8),
                 Text(
                   '${widget.event.seatsAvailable} seats available',
-                  style: const TextStyle(fontSize: 16, color: Colors.white),
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-
-            // Date
             if (widget.event.date != null)
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, color: Colors.white70),
+                  const Icon(Icons.calendar_today),
                   const SizedBox(width: 8),
                   Text(
                     DateFormat.yMMMMd().format(widget.event.date!),
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ],
               ),
             const SizedBox(height: 24),
-
-            // Join Event Button
             ElevatedButton(
               onPressed: widget.isAdded || _isAdding
                   ? null
-                  : () {
-                      _joinEvent();
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    widget.isAdded ? Colors.grey : Colors.deepOrange,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
+                  : _joinEvent,
               child: _isAdding
-                  ? const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    )
+                  ? const CircularProgressIndicator()
                   : Text(
                       widget.isAdded ? 'Already Joined' : 'Join Event',
-                      style: const TextStyle(fontSize: 18, color: Colors.white),
+                      style: const TextStyle(fontSize: 18),
                     ),
             ),
-
             const SizedBox(height: 16),
-            // Show "Add to Calendar" button only if event is joined
             if (widget.isAdded)
               ElevatedButton(
                 onPressed: () {
                   _addEventToDeviceCalendar(widget.event);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueGrey,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
                 child: const Text(
                   'Add to Calendar',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
           ],

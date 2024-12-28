@@ -43,50 +43,35 @@ class _GroupPageState extends State<GroupPage> {
 
   @override
   Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Groups', style: TextStyle(color: Colors.white)),
-      backgroundColor: Colors.black,
-    ),
-    body: Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(16.0),
-          child: SearchBar(),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const OwnedGroupsPage()),
-            );
-          },
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: Colors.deepOrange,
+    return Scaffold(
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: SearchBar(),
           ),
-          child: const Text('Go to Owned Groups'),
-        ),
-        const SizedBox(height: 16),
-        Expanded(
-          child: _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _groups.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No groups available',
-                        style: TextStyle(color: Colors.white70),
-                      ),
-                    )
-                  : GroupList(groups: _groups),
-        ),
-      ],
-    ),
-    floatingActionButton: const CreateGroupButton(),
-    backgroundColor: Colors.grey[900],
-  );
-}
-
+          ElevatedButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const OwnedGroupsPage()),
+              );
+            },
+            child: const Text('Go to Owned Groups'),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _groups.isEmpty
+                    ? const Center(child: Text('No groups available'))
+                    : GroupList(groups: _groups),
+          ),
+        ],
+      ),
+      floatingActionButton: const CreateGroupButton(),
+    );
+  }
 }
 
 class SearchBar extends StatelessWidget {
@@ -97,16 +82,12 @@ class SearchBar extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         hintText: 'Search Groups',
-        hintStyle: const TextStyle(color: Colors.grey),
-        prefixIcon: const Icon(Icons.search, color: Colors.white),
+        prefixIcon: const Icon(Icons.search),
         filled: true,
-        fillColor: Colors.grey[800],
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.white, width: 1.0),
         ),
       ),
-      style: const TextStyle(color: Colors.white),
     );
   }
 }
@@ -154,11 +135,7 @@ class CreateGroupButton extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const CreateGroupPage()),
         );
       },
-      backgroundColor: Colors.deepOrange,
-      child: const Icon(
-        Icons.add,
-        color: Colors.white,
-      ),
+      child: const Icon(Icons.add),
     );
   }
 }

@@ -1,193 +1,94 @@
 import 'package:flutter/material.dart';
-import 'package:kumeet/edit_groupPage.dart';
-import 'package:kumeet/group_service.dart';
+import 'package:http/http.dart' as http;
+import 'package:kumeet/groupEventsPage.dart';
+import 'dart:convert';
 import 'group.dart';
 import 'package:kumeet/login_page.dart';
 
-class GroupDetailsPage2 extends StatefulWidget {
+class GroupDetailsPage extends StatefulWidget {
   final Group group;
-  final VoidCallback onGroupUpdated;
-  final VoidCallback onGroupDeleted;
 
-  const GroupDetailsPage2({
-    Key? key,
-    required this.group,
-    required this.onGroupUpdated,
-    required this.onGroupDeleted,
-  }) : super(key: key);
+  const GroupDetailsPage({super.key, required this.group});
 
   @override
-  _GroupDetailsPage2State createState() => _GroupDetailsPage2State();
+  _GroupDetailsPageState createState() => _GroupDetailsPageState();
 }
 
-class _GroupDetailsPage2State extends State<GroupDetailsPage2> {
-  bool _isProcessing = false;
+class _GroupDetailsPageState extends State<GroupDetailsPage> {
+  bool _isJoining = false;
   String? userName = GlobalState().userName;
-  final GroupService groupService = GroupService();
 
-void _editGroup() {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => EditGroupPage(
-        group: widget.group,
-        onGroupUpdated: (updatedGroup) async {
-          setState(() {
-            widget.group.name = updatedGroup.name;
-            widget.group.capacity = updatedGroup.capacity;
-          });
+  Future<void> _joinGroup() async {
+    setState(() {
+      _isJoining = true;
+    });
 
-          // Call the update service
-          final success = await groupService.updateGroup(updatedGroup, widget.group.id);
-          if (success) {
-            widget.onGroupUpdated();
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Group "${updatedGroup.name}" updated successfully!',
-                ),
-              ),
-            );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Failed to update group.')),
-            );
-          }
-        },
-      ),
-    ),
-  );
-}
+    final url = Uri.parse('http://localhost:8080/api/add-to-group/$userName/${widget.group.id}');
+    try {
+      final response = await http.post(url, headers: {'Content-Type': 'application/json'});
 
-
-  Future<void> _deleteGroup() async {
-    final confirm = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Deletion'),
-        content: const Text('Are you sure you want to delete this group?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('No'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Yes'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirm == true) {
-      setState(() {
-        _isProcessing = true;
-      });
-      try{
-      final success = await groupService.deleteGroup(widget.group);
-
-      if (success) {
-         widget.onGroupDeleted();
-         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(
-             content: Text('Group "${widget.group.name}" deleted successfully.'),
-             duration: const Duration(seconds: 2),
-           ),
-         );
-         Navigator.of(context).pop(); // Navigate back after deletion
-       } else {
-         ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(
-             content: Text('Failed to delete group.'),
-             duration: const Duration(seconds: 2),
-           ),
-         );
-       }
-      } catch (e) {
+      if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error deleting event: $e'),
+            content: Text('Successfully joined ${widget.group.name}!'),
             duration: const Duration(seconds: 2),
           ),
         );
-      } finally {
-        setState(() {
-          _isProcessing = false;
-        });
+      } else {
+        final error = jsonDecode(response.body)['message'] ?? 'Unknown error';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to join: $error'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } finally {
+      setState(() {
+        _isJoining = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.grey[900],
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      backgroundColor: Colors.grey[900],
+      appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            GroupImage(imagePath: 'images/group_image.png'),
+            GroupImage(imagePath: 'images/group_image1.png'),
             const SizedBox(height: 16),
             GroupInfo(
               title: widget.group.name,
               capacity: widget.group.capacity,
+              category: widget.group.categories,
             ),
             const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: _isProcessing ? null : _editGroup,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 16, horizontal: 24),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+            JoinButton(
+              title: widget.group.name,
+              isJoining: _isJoining,
+              onJoin: _joinGroup,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GroupEventsPage(group: widget.group),
                   ),
-                  child: _isProcessing
-                      ? const CircularProgressIndicator(
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
-                      : const Text(
-                          'Edit Group',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                ),
-                ElevatedButton(
-                  onPressed: _isProcessing ? null : _deleteGroup,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 16, horizontal: 24),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: _isProcessing
-                      ? const CircularProgressIndicator(
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Colors.white),
-                        )
-                      : const Text(
-                          'Delete Group',
-                          style: TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                ),
-              ],
+                );
+              },
+              child: const Text('See Events'),
             ),
           ],
         ),
@@ -199,7 +100,7 @@ void _editGroup() {
 class GroupImage extends StatelessWidget {
   final String imagePath;
 
-  const GroupImage({Key? key, required this.imagePath}) : super(key: key);
+  const GroupImage({super.key, required this.imagePath});
 
   @override
   Widget build(BuildContext context) {
@@ -210,8 +111,6 @@ class GroupImage extends StatelessWidget {
         fit: BoxFit.cover,
         height: 200,
         width: double.infinity,
-        color: Colors.black.withOpacity(0.6),
-        colorBlendMode: BlendMode.darken,
       ),
     );
   }
@@ -220,12 +119,14 @@ class GroupImage extends StatelessWidget {
 class GroupInfo extends StatelessWidget {
   final String title;
   final int capacity;
+  final String category;
 
   const GroupInfo({
-    Key? key,
+    super.key,
     required this.title,
     required this.capacity,
-  }) : super(key: key);
+    required this.category,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -237,15 +138,45 @@ class GroupInfo extends StatelessWidget {
           style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           'Capacity: $capacity',
-          style: const TextStyle(fontSize: 18, color: Colors.white70),
+          style: const TextStyle(fontSize: 18),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Category: $category',
+          style: const TextStyle(fontSize: 18),
         ),
       ],
+    );
+  }
+}
+
+class JoinButton extends StatelessWidget {
+  final String title;
+  final bool isJoining;
+  final VoidCallback onJoin;
+
+  const JoinButton({
+    super.key,
+    required this.title,
+    required this.isJoining,
+    required this.onJoin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: isJoining ? null : onJoin,
+      child: isJoining
+          ? const CircularProgressIndicator()
+          : const Text(
+              'Join',
+              style: TextStyle(fontSize: 18),
+            ),
     );
   }
 }
