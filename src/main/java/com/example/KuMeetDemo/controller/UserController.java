@@ -23,9 +23,9 @@ public class UserController {
     public ResponseEntity<Users> addUser(@RequestBody UserDto user) {
         return userService.registerUser(user);
     }
-    @GetMapping("/find/{userId}")
-    public Users findUser(@PathVariable UUID userId) {
-        return userService.findUser(userId);
+    @GetMapping("/find/{userName}")
+    public Users findUser(@PathVariable String userName) {
+        return userService.findByUserName(userName);
     }
 
     @PutMapping("/update/{userName}")
