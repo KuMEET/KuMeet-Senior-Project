@@ -169,44 +169,37 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
                 style: const TextStyle(fontSize: 16),
               ),
             const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isProcessing ? null : _editEvent,
-                    child: _isProcessing
-                        ? const CircularProgressIndicator()
-                        : const Text(
-                            'Edit Event',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                  ),
+                ElevatedButton(
+                  onPressed: _isProcessing ? null : _editEvent,
+                  child: _isProcessing
+                      ? const CircularProgressIndicator()
+                      : const Text(
+                          'Edit Event',
+                          style: TextStyle(fontSize: 18),
+                        ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _isProcessing ? null : _deleteEvent,
-                    child: _isProcessing
-                        ? const CircularProgressIndicator()
-                        : const Text(
-                            'Delete Event',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                  ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _isProcessing ? null : _deleteEvent,
+                  child: _isProcessing
+                      ? const CircularProgressIndicator()
+                      : const Text(
+                          'Delete Event',
+                          style: TextStyle(fontSize: 18),
+                        ),
                 ),
-                if (!widget.event.visibility) ...[
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _isProcessing ? null : _navigateToPendingUsers,
-                      child: const Text(
-                        'Pending Users',
-                        style: TextStyle(fontSize: 18),
-                      ),
+                const SizedBox(height: 16),
+                if (!widget.event.visibility)
+                  ElevatedButton(
+                    onPressed: _isProcessing ? null : _navigateToPendingUsers,
+                    child: const Text(
+                      'Pending Users',
+                      style: TextStyle(fontSize: 18),
                     ),
                   ),
-                ],
               ],
             ),
           ],
