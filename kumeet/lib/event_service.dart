@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:kumeet/userReference.dart';
 import 'event.dart';
 
 class EventService {
@@ -54,8 +55,10 @@ class EventService {
       return [];
     }
   }
-    Future<List<Event>> getEventsByUser(String username) async {
-    final url = Uri.parse('http://localhost:8080/api/get-events-by-username/$username');
+
+  Future<List<Event>> getEventsByUser(String username) async {
+    final url =
+        Uri.parse('http://localhost:8080/api/get-events-by-username/$username');
     try {
       final response = await http.get(
         url,
@@ -76,6 +79,7 @@ class EventService {
       return [];
     }
   }
+
   Future<List<Event>> getEventsByCategory(String categories) async {
     final url = Uri.parse('$baseUrl/get-all-events-category/$categories');
     try {
@@ -98,8 +102,10 @@ class EventService {
       return [];
     }
   }
+
   Future<List<Event>> getEventsByAdmin(String username) async {
-    final url = Uri.parse('http://localhost:8080/api/get-events-for-admin/$username');
+    final url =
+        Uri.parse('http://localhost:8080/api/get-events-for-admin/$username');
     try {
       final response = await http.get(
         url,
@@ -120,6 +126,7 @@ class EventService {
       return [];
     }
   }
+
   Future<bool> deleteEvent(Event event) async {
     final url = Uri.parse('http://localhost:8080/api/delete-event');
     try {
@@ -142,6 +149,7 @@ class EventService {
       return false;
     }
   }
+
   Future<bool> updateEvent(Event event, String? eventID) async {
     final url = Uri.parse('http://localhost:8080/api/update-event/${eventID}');
     try {
@@ -163,6 +171,53 @@ class EventService {
     } catch (e) {
       print('Error updated group: $e');
       return false;
+    }
+  }
+    Future<List<UserReference>> getPendingUsersForEvent(String eventId) async {
+    final url = Uri.parse('$baseUrl/get-pending-events-for-admin/$eventId');
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as List;
+        return data.map((json) => UserReference.fromJson(json)).toList();
+      } else {
+        throw Exception(
+            'Failed to load pending users: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching pending users: $e');
+    }
+  }
+
+  // Approve a user request for an event
+  Future<String> approveUserRequest(String eventId, String userId) async {
+    final url = Uri.parse(
+        '$baseUrl/approve-pending-events-for-admin/$eventId/$userId');
+    try {
+      final response = await http.post(url);
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        throw Exception('Failed to approve user: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw Exception('Error approving user request: $e');
+    }
+  }
+
+  // Reject a user request for an event
+  Future<String> rejectUserRequest(String eventId, String userId) async {
+    final url = Uri.parse(
+        '$baseUrl/reject-pending-events-for-admin/$eventId/$userId');
+    try {
+      final response = await http.post(url);
+      if (response.statusCode == 200) {
+        return response.body;
+      } else {
+        throw Exception('Failed to reject user: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      throw Exception('Error rejecting user request: $e');
     }
   }
 }

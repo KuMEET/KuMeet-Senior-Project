@@ -1,66 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:kumeet/groupEventsPage.dart';
-import 'dart:convert';
+import 'package:kumeet/groupEventPage2.dart';
 import 'group.dart';
-import 'package:kumeet/login_page.dart';
 
-class GroupDetailsPage extends StatefulWidget {
+class GroupDetailsPage2 extends StatefulWidget {
   final Group group;
 
-  const GroupDetailsPage({super.key, required this.group});
+  const GroupDetailsPage2({super.key, required this.group});
 
   @override
-  _GroupDetailsPageState createState() => _GroupDetailsPageState();
+  _GroupDetailsPage2State createState() => _GroupDetailsPage2State();
 }
 
-class _GroupDetailsPageState extends State<GroupDetailsPage> {
-  bool _isJoining = false;
-  String? userName = GlobalState().userName;
-
-  Future<void> _joinGroup() async {
-    setState(() {
-      _isJoining = true;
-    });
-
-    final url = Uri.parse('http://localhost:8080/api/add-to-group/$userName/${widget.group.id}');
-    try {
-      final response = await http.post(url, headers: {'Content-Type': 'application/json'});
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Successfully joined ${widget.group.name}!'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      } else {
-        final error = jsonDecode(response.body)['message'] ?? 'Unknown error';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to join: $error'),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    } finally {
-      setState(() {
-        _isJoining = false;
-      });
-    }
-  }
-
+class _GroupDetailsPage2State extends State<GroupDetailsPage2> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text(widget.group.name),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -73,18 +30,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               category: widget.group.categories,
             ),
             const SizedBox(height: 24),
-            JoinButton(
-              title: widget.group.name,
-              isJoining: _isJoining,
-              onJoin: _joinGroup,
-            ),
-            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => GroupEventsPage(group: widget.group),
+                    builder: (context) => GroupEventsPage2(group: widget.group),
                   ),
                 );
               },
@@ -151,32 +102,6 @@ class GroupInfo extends StatelessWidget {
           style: const TextStyle(fontSize: 18),
         ),
       ],
-    );
-  }
-}
-
-class JoinButton extends StatelessWidget {
-  final String title;
-  final bool isJoining;
-  final VoidCallback onJoin;
-
-  const JoinButton({
-    super.key,
-    required this.title,
-    required this.isJoining,
-    required this.onJoin,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: isJoining ? null : onJoin,
-      child: isJoining
-          ? const CircularProgressIndicator()
-          : const Text(
-              'Join',
-              style: TextStyle(fontSize: 18),
-            ),
     );
   }
 }

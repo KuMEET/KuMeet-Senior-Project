@@ -17,7 +17,7 @@ class GroupCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        width: 150,
+        width: double.infinity,
         height: 120,
         child: Card(
           clipBehavior: Clip.antiAlias,
@@ -29,23 +29,29 @@ class GroupCard extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               Image.asset(
-                imagePath,
+                imagePath.isEmpty ? 'images/group_image.png' : imagePath,
                 width: double.infinity,
                 height: double.infinity,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Image.asset('images/group_image.png', fit: BoxFit.cover);
+                },
               ),
               Container(
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.5), // Semi-transparent black overlay
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white, // Ensuring text is white for better visibility
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white, // Ensuring text is white for better visibility
+                    ),
                   ),
                 ),
               ),

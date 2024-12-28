@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:kumeet/event.dart';
-import 'package:kumeet/eventDetail_page.dart';
+import 'package:kumeet/eventDetail_page2.dart';  // Assuming this page exists and is similar to EventDetailPage
 import 'package:kumeet/group_service.dart';
 import 'package:kumeet/group.dart';
-import 'eventcard.dart'; // Make sure this import points to your EventCard definition file
+import 'eventcard.dart'; // Ensure this import points to your EventCard definition file
 
-class GroupEventsPage extends StatefulWidget {
+class GroupEventsPage2 extends StatefulWidget {
   final Group group;
 
-  const GroupEventsPage({Key? key, required this.group}) : super(key: key);
+  const GroupEventsPage2({Key? key, required this.group}) : super(key: key);
 
   @override
-  _GroupEventsPageState createState() => _GroupEventsPageState();
+  _GroupEventsPage2State createState() => _GroupEventsPage2State();
 }
 
-class _GroupEventsPageState extends State<GroupEventsPage> {
+class _GroupEventsPage2State extends State<GroupEventsPage2> {
   Future<List<Event>> _getEventsForGroup() async {
     GroupService groupService = GroupService();
     try {
@@ -52,15 +52,11 @@ class _GroupEventsPageState extends State<GroupEventsPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => EventDetailPage(
-                          event: event,
-                          onAddToCalendar: () {}, // Placeholder callback
-                          isAdded: false, // This would ideally check if the event is already added
-                        ),
+                        builder: (context) => EventDetailPage2(event: event, onEventUpdated: () {  }, onEventDeleted: () {  },),
                       ),
                     );
                   },
-                  cardWidth: MediaQuery.of(context).size.width - 32, // Adjust the width to fit the screen
+                  cardWidth: MediaQuery.of(context).size.width - 32, // Adapt card width to screen
                 );
               },
             );

@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:device_calendar/device_calendar.dart';
+import 'package:kumeet/event_service.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import 'event.dart' as my_app;
@@ -26,22 +27,41 @@ class EventDetailPage extends StatefulWidget {
 
 class _EventDetailPageState extends State<EventDetailPage> {
   bool _isAdding = false;
+  bool _isAlreadyJoined = false;
   String? userName = GlobalState().userName;
   final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
 
+  @override
+  void initState() {
+    super.initState();
+    _checkIfAlreadyJoined();
+  }
+
+  Future<void> _checkIfAlreadyJoined() async {
+    try {
+      EventService eventService = EventService();
+      var events = await eventService.getEventsByUser(userName!);
+      setState(() {
+        _isAlreadyJoined = events.any((e) => e.id == widget.event.id);
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to check event status: $e')));
+    }
+  }
+
   Future<void> _joinEvent() async {
+    if (_isAlreadyJoined) return;
+
     setState(() {
       _isAdding = true;
     });
 
-    final url = Uri.parse('http://localhost:8080/add-to-event/$userName/${widget.event.id}');
+    final url = Uri.parse('http://localhost:8080/api/add-to-event/$userName/${widget.event.id}');
     try {
       final response = await http.post(url, headers: {'Content-Type': 'application/json'});
 
       if (response.statusCode == 200) {
-        setState(() {
-          widget.onAddToCalendar();
-        });
+        widget.onAddToCalendar();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Successfully joined ${widget.event.title}!'),
@@ -73,18 +93,12 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
   Future<bool> _requestPermissions() async {
     final permissionResult = await _deviceCalendarPlugin.requestPermissions();
-    if (permissionResult.isSuccess && permissionResult.data == true) {
-      return true;
-    }
-    return false;
+    return permissionResult.isSuccess && permissionResult.data == true;
   }
 
   Future<List<Calendar>> _retrieveCalendars() async {
     final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
-    if (calendarsResult.isSuccess && calendarsResult.data != null) {
-      return calendarsResult.data!;
-    }
-    return [];
+    return calendarsResult.isSuccess && calendarsResult.data != null ? calendarsResult.data! : [];
   }
 
   Future<void> _addEventToDeviceCalendar(my_app.Event eventDetails) async {
@@ -107,7 +121,6 @@ class _EventDetailPageState extends State<EventDetailPage> {
     final selectedCalendar = calendars.first;
     final startDate = eventDetails.date ?? DateTime.now();
     final endDate = startDate.add(const Duration(hours: 1));
-
     final startTime = tz.TZDateTime.from(startDate, tz.local);
     final endTime = tz.TZDateTime.from(endDate, tz.local);
 
@@ -204,18 +217,16 @@ class _EventDetailPageState extends State<EventDetailPage> {
               ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: widget.isAdded || _isAdding
-                  ? null
-                  : _joinEvent,
+              onPressed: (_isAlreadyJoined || _isAdding) ? null : _joinEvent,
               child: _isAdding
                   ? const CircularProgressIndicator()
                   : Text(
-                      widget.isAdded ? 'Already Joined' : 'Join Event',
+                      _isAlreadyJoined ? 'Already Joined' : 'Join Event',
                       style: const TextStyle(fontSize: 18),
                     ),
             ),
             const SizedBox(height: 16),
-            if (widget.isAdded)
+            if (_isAlreadyJoined)
               ElevatedButton(
                 onPressed: () {
                   _addEventToDeviceCalendar(widget.event);

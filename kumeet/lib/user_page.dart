@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:kumeet/login_page.dart';
-import 'package:kumeet/event.dart';
-import 'package:kumeet/event_service.dart';
-import 'package:kumeet/eventcard.dart';
 import 'package:kumeet/group.dart';
 import 'package:kumeet/group_service.dart';
+import 'package:kumeet/user.dart';
+import 'package:kumeet/user_service.dart';
 import 'package:kumeet/group_card.dart';
-import 'package:kumeet/user_event_detail_page.dart';
-import 'package:kumeet/user_group_detail_page.dart';
+import 'package:kumeet/group_details_page2.dart';  // Make sure this is the correct import for GroupDetailsPage2
+import 'login_page.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({Key? key}) : super(key: key);
@@ -17,151 +15,96 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
+  late UserService _userService;
+  late TextEditingController _nameController;
+  late TextEditingController _emailController;
+  late TextEditingController _surnameController;
+  late User _currentUser;
+  List<Group> _ownedGroups = [];
+  bool _isLoading = true;
   String? userName = GlobalState().userName;
-  bool isLoading = true;
-
-  List<Event> ownedEvents = [];
-  List<Group> ownedGroups = [];
-
-  final EventService eventService = EventService();
-  final GroupService groupService = GroupService();
 
   @override
   void initState() {
     super.initState();
+    _userService = UserService();
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _surnameController = TextEditingController();
     _fetchUserData();
+    _fetchOwnedGroups();
   }
 
   Future<void> _fetchUserData() async {
     try {
-      final events = await eventService.getEventsByAdmin(userName!);
-      final groups = await groupService.getOwnedGroups(userName!);
-
+      String userName = this.userName!;
+      _currentUser = await _userService.find(userName);
       setState(() {
-        ownedEvents = events;
-        ownedGroups = groups;
-        isLoading = false;
+        _isLoading = false;
+        _nameController.text = _currentUser.name;
+        _emailController.text = _currentUser.email;
+        _surnameController.text = _currentUser.surname;
       });
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load user data: $e')),
-      );
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load user data: $e')));
     }
   }
 
-  void _navigateToUserEventDetail(Event event) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UserEventDetailPage(eventName: event.title),
-      ),
-    );
+  Future<void> _fetchOwnedGroups() async {
+    try {
+      GroupService groupService = GroupService();
+      _ownedGroups = await groupService.getOwnedGroups(userName!);
+      setState(() {});
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load owned groups: $e')));
+    }
   }
 
-  void _navigateToUserGroupDetail(Group group) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UserGroupDetailPage(groupName: group.name),
-      ),
-    );
+  void _updateUser() async {
+    setState(() => _isLoading = true);
+    try {
+      _currentUser.name = _nameController.text;
+      _currentUser.email = _emailController.text;
+      _currentUser.surname = _surnameController.text;
+      await _userService.updateUser(_currentUser.userName, _currentUser);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User updated successfully!')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update user: $e')));
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final displayUserName = userName ?? "Unknown User";
-
     return Scaffold(
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+      appBar: AppBar(title: Text('User Profile')),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // User Info Section
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        displayUserName,
-                        style: theme.textTheme.headlineSmall,
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Edit button (Currently not functional)
+                  TextField(controller: _nameController, decoration: InputDecoration(labelText: 'Name')),
+                  TextField(controller: _surnameController, decoration: InputDecoration(labelText: 'Surname')),
+                  TextField(controller: _emailController, decoration: InputDecoration(labelText: 'Email')),
+                  ElevatedButton(onPressed: _updateUser, child: Text('Update Profile')),
+                  const SizedBox(height: 20),
+                  if (_ownedGroups.isNotEmpty) ...[
+                    Text("Owned Groups", style: Theme.of(context).textTheme.titleLarge),
+                    Wrap(
+                      spacing: 10, // Horizontal space between cards
+                      runSpacing: 10, // Vertical space between cards
+                      children: _ownedGroups.map((group) => GroupCard(
+                        title: group.name,
+                        imagePath: group.imagePath ?? 'images/group_image.png', // Ensure imagePath is never null
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => GroupDetailsPage2(group: group)));
                         },
-                        child: Text(
-                          "Edit",
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Username: $displayUserName",
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 24),
-
-                  // My Events Section
-                  Text(
-                    "My Events",
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  ownedEvents.isEmpty
-                      ? Text(
-                          'You have no owned events.',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.6),
-                          ),
-                        )
-                      : Column(
-                          children: ownedEvents.map((event) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: EventCard(
-                                event: event,
-                                onTap: () => _navigateToUserEventDetail(event),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                  const SizedBox(height: 24),
-
-                  // My Groups Section
-                  Text(
-                    "My Groups",
-                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  ownedGroups.isEmpty
-                      ? Text(
-                          'You have no owned groups.',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurface.withOpacity(0.6),
-                          ),
-                        )
-                      : Column(
-                          children: ownedGroups.map((group) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: GroupCard(
-                                title: group.name,
-                                imagePath: 'images/group_image.png',
-                                onTap: () => _navigateToUserGroupDetail(group),
-                              ),
-                            );
-                          }).toList(),
-                        ),
+                      )).toList(),
+                    ),
+                  ],
                 ],
               ),
             ),

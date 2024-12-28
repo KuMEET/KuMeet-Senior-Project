@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart'; // Use this LatLng
+import 'package:kumeet/map_picker_page.dart';
 import 'event.dart';
 
 class EditEventPage extends StatefulWidget {
   final Event event;
   final Function(Event updatedEvent) onEventUpdated;
-  
+
   const EditEventPage({
     Key? key,
     required this.event,
@@ -34,18 +35,32 @@ class _EditEventPageState extends State<EditEventPage> {
     _capacityController = TextEditingController(
       text: widget.event.seatsAvailable.toString(),
     );
+    _eventLocation = LatLng(widget.event.latitude, widget.event.longitude);
+    _selectedDate = widget.event.date;
   }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
+      initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
-    if (picked != null && picked != _selectedDate) {
+    if (picked != null) {
       setState(() {
         _selectedDate = picked;
+      });
+    }
+  }
+
+  Future<void> _pickLocation() async {
+    final pickedLocation = await Navigator.push<LatLng>(
+      context,
+      MaterialPageRoute(builder: (context) => const MapPickerPage()),
+    );
+    if (pickedLocation != null) {
+      setState(() {
+        _eventLocation = pickedLocation;
       });
     }
   }
@@ -67,7 +82,7 @@ class _EditEventPageState extends State<EditEventPage> {
         longitude: _eventLocation!.longitude,
         visibility: widget.event.visibility,
         categories: widget.event.categories,
-        groupID: widget.event.groupID
+        groupID: widget.event.groupID,
       );
 
       widget.onEventUpdated(updatedEvent);
@@ -77,16 +92,6 @@ class _EditEventPageState extends State<EditEventPage> {
 
       Navigator.pop(context); // Go back to the previous page
     }
-  }
-
-  Future<void> _pickLocation() async {
-    // Normally you’d present a map picker here:
-    // final LatLng? pickedLocation = await Navigator.push(...);
-    // if (pickedLocation != null) { setState(() => _eventLocation = pickedLocation); }
-    // For now, we’re just hardcoding a location:
-    setState(() {
-      _eventLocation = const LatLng(40.9810, 29.0870);
-    });
   }
 
   @override
@@ -102,137 +107,61 @@ class _EditEventPageState extends State<EditEventPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Title
-              const Text(
-                'Edit Event Details',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Event Title Field
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(
-                  labelText: 'Event Title',
-                  filled: true, 
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                style: const TextStyle(fontSize: 18),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the event title';
-                  }
-                  return null;
-                },
+                decoration: const InputDecoration(labelText: 'Event Title'),
+                validator: (value) => value!.isEmpty ? 'Please enter the event title' : null,
               ),
-              const SizedBox(height: 16),
-
-              // Event Description Field
               TextFormField(
                 controller: _descriptionController,
-                decoration: InputDecoration(
-                  labelText: 'Description',
-                  filled: true, 
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                style: const TextStyle(fontSize: 18),
                 maxLines: 3,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the event description';
-                  }
-                  return null;
-                },
+                decoration: const InputDecoration(labelText: 'Description'),
+                validator: (value) => value!.isEmpty ? 'Please enter a description' : null,
               ),
-              const SizedBox(height: 16),
-
-              // Capacity Field
               TextFormField(
                 controller: _capacityController,
-                decoration: InputDecoration(
-                  labelText: 'Capacity',
-                  filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                style: const TextStyle(fontSize: 18),
                 keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: 'Seats Available'),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the capacity';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
+                  if (value!.isEmpty) return 'Please enter the capacity';
+                  if (int.tryParse(value) == null) return 'Please enter a valid number';
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-
-              // Pick Location Button & Display
               Row(
                 children: [
                   ElevatedButton(
                     onPressed: _pickLocation,
                     child: const Text('Pick Location'),
                   ),
-                  const SizedBox(width: 16),
-                  if (_eventLocation != null)
-                    Expanded(
-                      child: Text(
-                        'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
-                      ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _eventLocation == null
+                          ? 'No location selected'
+                          : 'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
                     ),
+                  ),
                 ],
               ),
-              const SizedBox(height: 16),
-
-              // Date Row
               Row(
                 children: [
-                  const Icon(Icons.calendar_today),
-                  const SizedBox(width: 8),
-                  Text(
-                    _selectedDate == null
-                        ? 'Select Event Date'
-                        : DateFormat.yMMMd().format(_selectedDate!),
-                  ),
-                  const Spacer(),
                   TextButton(
                     onPressed: () => _selectDate(context),
-                    child: const Text('Pick Date'),
+                    child: const Text('Select Date'),
+                  ),
+                  Text(
+                    _selectedDate == null
+                        ? 'No date chosen'
+                        : DateFormat.yMd().format(_selectedDate!),
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-
-              // Update Button
               ElevatedButton(
                 onPressed: _isLoading ? null : _updateEvent,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
                 child: _isLoading
                     ? const CircularProgressIndicator()
-                    : const Text(
-                        'Update Group',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                    : const Text('Update Event'),
               ),
             ],
           ),

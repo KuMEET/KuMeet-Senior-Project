@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:kumeet/groupEventsPage.dart';
 import 'dart:convert';
 import 'group.dart';
+import 'group_service.dart';
+import 'groupEventsPage.dart';
 import 'package:kumeet/login_page.dart';
 
 class GroupDetailsPage extends StatefulWidget {
@@ -16,9 +17,32 @@ class GroupDetailsPage extends StatefulWidget {
 
 class _GroupDetailsPageState extends State<GroupDetailsPage> {
   bool _isJoining = false;
+  bool _isAlreadyMember = false;
   String? userName = GlobalState().userName;
+  final GroupService _groupService = GroupService();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkMembership();
+  }
+
+  Future<void> _checkMembership() async {
+    try {
+      List<Group> userGroups = await _groupService.getGroupsByUser(userName!);
+      if (userGroups.any((group) => group.id == widget.group.id)) {
+        setState(() {
+          _isAlreadyMember = true;
+        });
+      }
+    } catch (e) {
+      print("Error checking membership: $e");
+    }
+  }
 
   Future<void> _joinGroup() async {
+    if (_isAlreadyMember) return;  // Check if user is already a member
+
     setState(() {
       _isJoining = true;
     });
@@ -34,6 +58,9 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             duration: const Duration(seconds: 2),
           ),
         );
+        setState(() {
+          _isAlreadyMember = true;
+        });
       } else {
         final error = jsonDecode(response.body)['message'] ?? 'Unknown error';
         ScaffoldMessenger.of(context).showSnackBar(
@@ -76,6 +103,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             JoinButton(
               title: widget.group.name,
               isJoining: _isJoining,
+              isAlreadyMember: _isAlreadyMember,
               onJoin: _joinGroup,
             ),
             const SizedBox(height: 24),
@@ -158,24 +186,26 @@ class GroupInfo extends StatelessWidget {
 class JoinButton extends StatelessWidget {
   final String title;
   final bool isJoining;
+  final bool isAlreadyMember;
   final VoidCallback onJoin;
 
   const JoinButton({
     super.key,
     required this.title,
     required this.isJoining,
+    required this.isAlreadyMember,
     required this.onJoin,
   });
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: isJoining ? null : onJoin,
+      onPressed: isAlreadyMember ? null : isJoining ? null : onJoin,
       child: isJoining
           ? const CircularProgressIndicator()
-          : const Text(
-              'Join',
-              style: TextStyle(fontSize: 18),
+          : Text(
+              isAlreadyMember ? 'Already a Member' : 'Join $title',
+              style: const TextStyle(fontSize: 18),
             ),
     );
   }

@@ -4,7 +4,6 @@ import 'group_card.dart';
 import 'group_details_page.dart';
 import 'group_service.dart';
 import 'group.dart';
-import 'owned_groups_page.dart';
 
 class GroupPage extends StatefulWidget {
   const GroupPage({super.key});
@@ -44,20 +43,14 @@ class _GroupPageState extends State<GroupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('All Groups'),
+      ),
       body: Column(
         children: [
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: SearchBar(),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const OwnedGroupsPage()),
-              );
-            },
-            child: const Text('Go to Owned Groups'),
           ),
           const SizedBox(height: 16),
           Expanded(

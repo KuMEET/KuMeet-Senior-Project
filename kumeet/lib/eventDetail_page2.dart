@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kumeet/edit_eventPage.dart';
-import 'package:kumeet/login_page.dart';
+import 'package:kumeet/pendingUsersPage.dart';
 import 'event.dart';
 import 'event_service.dart';
 
@@ -24,7 +24,6 @@ class EventDetailPage2 extends StatefulWidget {
 class _EventDetailPage2State extends State<EventDetailPage2> {
   bool _isProcessing = false;
   final EventService eventService = EventService();
-  String? userName = GlobalState().userName;
 
   Future<void> _deleteEvent() async {
     final confirm = await showDialog<bool>(
@@ -63,18 +62,12 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
           Navigator.of(context).pop();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Failed to delete the event.'),
-              duration: Duration(seconds: 2),
-            ),
+            const SnackBar(content: Text('Failed to delete the event.')),
           );
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error deleting event: $e'),
-            duration: const Duration(seconds: 2),
-          ),
+          SnackBar(content: Text('Error deleting event: $e')),
         );
       } finally {
         setState(() {
@@ -112,17 +105,26 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Group "${updatedEvent.title}" updated successfully!'),
+            content: Text('Event "${updatedEvent.title}" updated successfully!'),
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update group.')),
+          const SnackBar(content: Text('Failed to update event.')),
         );
       }
 
       widget.onEventUpdated();
     }
+  }
+
+  void _navigateToPendingUsers() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PendingUsersPage(eventId: widget.event.id!),
+      ),
+    );
   }
 
   @override
@@ -148,72 +150,63 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
             const SizedBox(height: 16),
             Text(
               widget.event.title,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
+            Text(widget.event.description, style: const TextStyle(fontSize: 16)),
+            const SizedBox(height: 16),
             Text(
-              widget.event.description,
+              'Location: ${widget.event.location}',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                const Icon(Icons.location_on),
-                const SizedBox(width: 8),
-                Text(
-                  widget.event.location,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                const Icon(Icons.event_seat),
-                const SizedBox(width: 8),
-                Text(
-                  '${widget.event.seatsAvailable} seats available',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
+            Text('${widget.event.seatsAvailable} seats available',
+                style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 16),
             if (widget.event.date != null)
-              Row(
-                children: [
-                  const Icon(Icons.calendar_today),
-                  const SizedBox(width: 8),
-                  Text(
-                    DateFormat.yMMMMd().format(widget.event.date!),
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                ],
+              Text(
+                'Date: ${DateFormat.yMMMMd().format(widget.event.date!)}',
+                style: const TextStyle(fontSize: 16),
               ),
             const SizedBox(height: 24),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton(
-                  onPressed: _isProcessing ? null : _editEvent,
-                  child: _isProcessing
-                      ? const CircularProgressIndicator()
-                      : const Text(
-                          'Edit Event',
-                          style: TextStyle(fontSize: 18),
-                        ),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isProcessing ? null : _editEvent,
+                    child: _isProcessing
+                        ? const CircularProgressIndicator()
+                        : const Text(
+                            'Edit Event',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                  ),
                 ),
-                ElevatedButton(
-                  onPressed: _isProcessing ? null : _deleteEvent,
-                  child: _isProcessing
-                      ? const CircularProgressIndicator()
-                      : const Text(
-                          'Delete Event',
-                          style: TextStyle(fontSize: 18),
-                        ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isProcessing ? null : _deleteEvent,
+                    child: _isProcessing
+                        ? const CircularProgressIndicator()
+                        : const Text(
+                            'Delete Event',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                  ),
                 ),
+                if (!widget.event.visibility) ...[
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _isProcessing ? null : _navigateToPendingUsers,
+                      child: const Text(
+                        'Pending Users',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ],
