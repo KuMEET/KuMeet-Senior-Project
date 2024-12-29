@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin(origins = "*")
-@RequestMapping("/api/auth")
+@RequestMapping("/api")
 public class LoginController {
     @Autowired
     private LoginAuthenticationService loginAuthenticationService;

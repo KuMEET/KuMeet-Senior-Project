@@ -23,6 +23,8 @@ public class Users {
     private String EMail;
     private String passWord;
     private Date createdAt;
+    private boolean enabled;
+    private String verificationToken;
 
     private List<GroupReference> groupReferenceList = new ArrayList<>();
     private List<EventReference> eventReferenceList = new ArrayList<>();
