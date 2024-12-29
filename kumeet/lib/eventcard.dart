@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'event.dart'; // Ensure you have this file with the Event class correctly defined.
+import 'package:share_plus/share_plus.dart';
+import 'event.dart';
 
 class EventCard extends StatelessWidget {
   final Event event;
@@ -11,8 +12,16 @@ class EventCard extends StatelessWidget {
     Key? key,
     required this.event,
     required this.onTap,
-    this.cardWidth = 280, // Default width, can be adjusted or set via constructor
+    this.cardWidth = 350, // Default width
   }) : super(key: key);
+
+  // Share functionality using share_plus
+  void _shareEvent(BuildContext context) {
+    Share.share(
+      'Check out this event: ${event.title}\n\nDescription: ${event.description}\nLocation: ${event.location}',
+      subject: 'Event: ${event.title}',
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,71 +33,117 @@ class EventCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         elevation: 5,
-        child: Container(
+        child: SizedBox(
           width: cardWidth,
-          child: Stack(
-            alignment: Alignment.bottomLeft,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image.asset(
-                event.imagePath ?? 'assets/placeholder.jpg', // Default placeholder if imagePath is null
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: 200,
-              ),
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+              // Top image with attendee number and share button
+              Stack(
+                children: [
+                  // Cropped image with fixed dimensions
+                  Container(
+                    width: cardWidth,
+                    height: 150,
+                    child: Image.asset(
+                      event.imagePath ?? 'assets/placeholder.jpg',
+                      fit: BoxFit.cover,
+                    ),
                   ),
-                ),
+                  // Overlay for attendee number
+                  Positioned(
+                    bottom: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(4),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 4,
+                            offset: const Offset(2, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        '${event.seatsAvailable} going',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Share button in a white rounded box with shadow
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 6,
+                            offset: const Offset(2, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        iconSize: 18,
+                        icon: const Icon(
+                          Icons.share,
+                          color: Colors.black, // Black icon color
+                        ),
+                        onPressed: () => _shareEvent(context), // Share event logic
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              // Event details below the image
+              Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Event title
                     Text(
                       event.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 16,
-                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    if (event.date != null) // Checking if date is not null before displaying
+                    const SizedBox(height: 4),
+                    // Event date
+                    if (event.date != null)
                       Text(
                         DateFormat('MMM dd, yyyy').format(event.date!),
                         style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
+                          fontSize: 12, 
                         ),
                       ),
-                    // Display seats if available
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        '${event.seatsAvailable} seats left',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    const SizedBox(height: 8),
+                    // Event description
+                    Text(
+                      event.description,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
                       ),
                     ),
-                    if (event.badge != null) // Display badge if available
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4),
-                        child: Text(
-                          event.badge!,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.yellowAccent, // Adjust color as needed
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
                   ],
                 ),
               ),
