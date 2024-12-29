@@ -27,6 +27,7 @@ class _OwnedGroupsPageState extends State<OwnedGroupsPage> {
   Future<void> fetchOwnedGroups() async {
     try {
       final groups = await groupService.getOwnedGroups(userName!);
+      print('Fetched ${groups.length} owned groups for user: $userName');
       setState(() {
         ownedGroups = groups;
         isLoading = false;

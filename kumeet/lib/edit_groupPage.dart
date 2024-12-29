@@ -21,6 +21,23 @@ class _EditGroupPageState extends State<EditGroupPage> {
   late TextEditingController _capacityController;
   bool _isLoading = false;
 
+  // Predefined categories (display strings)
+  final List<String> _categories = [
+    "Art & Culture",
+    "Career & Business",
+    "Dancing",
+    "Games",
+    "Music",
+    "Science & Education",
+    "Identity & Language",
+    "Social Activities",
+    "Sports & Fitness",
+    "Travel & Outdoor",
+  ];
+
+  // Currently selected category
+  String? _selectedCategory;
+
   @override
   void initState() {
     super.initState();
@@ -28,10 +45,28 @@ class _EditGroupPageState extends State<EditGroupPage> {
     _capacityController = TextEditingController(
       text: widget.group.capacity.toString(),
     );
+
+    // Initialize the dropdown with the group's current category (if it matches)
+    // If the group's categories field exactly matches a display string in _categories,
+    // we set it. Otherwise, we might set it to null or handle it differently.
+    if (_categories.contains(widget.group.categories)) {
+      _selectedCategory = widget.group.categories;
+    } else {
+      // If we don't find a match, set it to null or handle as needed
+      _selectedCategory = null;
+    }
   }
 
   Future<void> _updateGroup() async {
     if (_formKey.currentState!.validate()) {
+      // Check if category is selected
+      if (_selectedCategory == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a category')),
+        );
+        return;
+      }
+
       setState(() {
         _isLoading = true;
       });
@@ -40,8 +75,9 @@ class _EditGroupPageState extends State<EditGroupPage> {
         id: widget.group.id,
         name: _nameController.text,
         capacity: int.parse(_capacityController.text),
+        memberCount: widget.group.memberCount,
         visibility: widget.group.visibility,
-        categories: widget.group.categories,
+        categories: _selectedCategory!,
       );
 
       widget.onGroupUpdated(updatedGroup);
@@ -50,7 +86,7 @@ class _EditGroupPageState extends State<EditGroupPage> {
         const SnackBar(content: Text('Group updated successfully!')),
       );
 
-      Navigator.pop(context);
+      Navigator.pop(context); // Close the edit page
     }
   }
 
@@ -112,6 +148,30 @@ class _EditGroupPageState extends State<EditGroupPage> {
                   }
                   return null;
                 },
+              ),
+              const SizedBox(height: 16),
+              // Category Dropdown
+              DropdownButtonFormField<String>(
+                decoration: InputDecoration(
+                  labelText: 'Group Category',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                value: _selectedCategory,
+                items: _categories.map((cat) {
+                  return DropdownMenuItem<String>(
+                    value: cat,
+                    child: Text(cat),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCategory = value;
+                  });
+                },
+                validator: (value) =>
+                    value == null ? 'Please select a category' : null,
               ),
               const SizedBox(height: 24),
               ElevatedButton(

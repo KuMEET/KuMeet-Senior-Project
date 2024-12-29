@@ -7,8 +7,9 @@ import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:timezone/timezone.dart' as tz;
-
 import 'event.dart' as app_event;
+import 'event_service.dart';
+import "login_page.dart";
 
 class EventDetailPage extends StatefulWidget {
   final app_event.Event event;
@@ -28,17 +29,68 @@ class EventDetailPage extends StatefulWidget {
 
 class _EventDetailPageState extends State<EventDetailPage> {
   final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
+
+  /// Replace with how you fetch username from your app’s global/auth state.
+  final String? userName = GlobalState().userName; 
+  
+  final EventService _eventService = EventService();
+  
   String? formattedAddress;
+  bool _isJoined = false;    // Tracks if the user has joined the event
+  bool _isLoadingJoin = false;  // Tracks if a join request is in progress
 
   @override
   void initState() {
     super.initState();
     _fetchAddress();
+    _checkIfAlreadyJoined();
+  }
+
+  /// Checks if the current user has already joined this event
+  Future<void> _checkIfAlreadyJoined() async {
+    if (userName == null || widget.event.id == null) {
+      return;
+    }
+    try {
+      final joinedEvents = await _eventService.getEventsByUser(userName!);
+      print(joinedEvents);
+      if (joinedEvents.any((e) => e.id == widget.event.id)) {
+        setState(() {
+          _isJoined = true;
+        });
+      }
+    } catch (e) {
+      print('Error checking joined events: $e');
+    }
+  }
+
+  /// Joins the event if not already joined
+  Future<void> _joinEvent() async {
+    if (userName == null || widget.event.id == null) return;
+    setState(() {
+      _isLoadingJoin = true;
+    });
+    final success = await _eventService.joinEvent(userName!, widget.event.id!);
+    setState(() {
+      _isLoadingJoin = false;
+    });
+    if (success) {
+      setState(() {
+        _isJoined = true;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Successfully joined ${widget.event.title}!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to join event.')),
+      );
+    }
   }
 
   Future<void> _fetchAddress() async {
-    const String mapApiKey = 'AIzaSyAvvTbatpuGGLbXK0BFESM8IiMVXmlzIws';
-    final String host = 'https://maps.google.com/maps/api/geocode/json';
+    const String mapApiKey = 'YOUR_GOOGLE_MAPS_API_KEY_HERE';
+    final String host = 'https://maps.googleapis.com/maps/api/geocode/json';
     final String url =
         '$host?key=$mapApiKey&language=en&latlng=${widget.event.latitude},${widget.event.longitude}';
 
@@ -82,7 +134,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
     final selectedCalendar = calendarsResult.data!.first;
     final startDate = widget.event.date ?? DateTime.now();
-    final endDate = startDate.add(const Duration(hours: 2)); // Example duration: 2 hours
+    final endDate = startDate.add(const Duration(hours: 2)); 
     final tzStart = tz.TZDateTime.from(startDate, tz.local);
     final tzEnd = tz.TZDateTime.from(endDate, tz.local);
 
@@ -142,6 +194,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Decide the text for the bottom button
+    final buttonText = _isJoined ? 'Already Joined' : 'Join';
+    // If user is already joined, disable the button
+    final isButtonEnabled = !_isJoined && !_isLoadingJoin;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -220,14 +277,14 @@ class _EventDetailPageState extends State<EventDetailPage> {
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Group Name', // Replace with actual group name
+                      children: const [
+                        Text(
+                          'Group Name', // Replace with actual group name if available
                           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Capacity: 50', // Replace with group capacity
+                        SizedBox(height: 8),
+                        Text(
+                          'Capacity: 50', // Replace with group capacity if available
                           style: TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                       ],
@@ -274,7 +331,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                       ),
                       markers: {
                         Marker(
-                          markerId: MarkerId('event_location'),
+                          markerId: const MarkerId('event_location'),
                           position: LatLng(widget.event.latitude, widget.event.longitude),
                         ),
                       },
@@ -298,19 +355,21 @@ class _EventDetailPageState extends State<EventDetailPage> {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16.0),
         child: ElevatedButton(
-          onPressed: () {
-            // Join event functionality here
-          },
+          onPressed: isButtonEnabled ? _joinEvent : null,
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: const Text(
-            'Join',
-            style: TextStyle(fontSize: 18),
-          ),
+          child: _isLoadingJoin
+              ? const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+              : Text(
+                  buttonText,
+                  style: const TextStyle(fontSize: 18),
+                ),
         ),
       ),
     );

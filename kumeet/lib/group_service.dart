@@ -116,7 +116,7 @@ class GroupService {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(group.toJson2()),
+        body: jsonEncode(group.toJson()),
       );
       if (response.statusCode == 201 || response.statusCode == 200) {
         return true;

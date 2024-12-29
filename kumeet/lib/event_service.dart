@@ -30,6 +30,28 @@ class EventService {
       return false;
     }
   }
+  Future<bool> joinEvent(String userName, String eventId) async {
+    final url = Uri.parse('$baseUrl/add-to-event/$userName/$eventId');
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        print('Successfully joined event.');
+        return true;
+      } else {
+        print('Failed to join event. Status: ${response.statusCode}');
+        print('Body: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error joining event: $e');
+      return false;
+    }
+  }
 
   // Method to fetch all events
   Future<List<Event>> getEvents() async {

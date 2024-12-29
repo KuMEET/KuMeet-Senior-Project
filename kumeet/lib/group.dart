@@ -2,7 +2,6 @@ class Group {
   final String? id;
   final String? imagePath;
   String name;
-  //final String description;
   int capacity;
   final int? memberCount;
   bool visibility;
@@ -33,9 +32,9 @@ class Group {
     return {
       'id':id,
       'groupName': name,
-      'memberCount': memberCount,
       //'description': description,
       'capacity': capacity,
+      'memberCount': memberCount,
       'visibility': visibility,
       'categories':categories
     };
