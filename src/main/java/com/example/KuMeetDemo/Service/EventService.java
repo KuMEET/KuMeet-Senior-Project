@@ -71,7 +71,7 @@ public class EventService {
         try {
             Events savedEvent = eventRepository.save(event);
 
-            List<EventReference> eventReferenceList = new ArrayList<>();
+            List<EventReference> eventReferenceList = existingUser.getEventReferenceList();
             EventReference eventReference = new EventReference();
             eventReference.setEventId(event.getId());
             eventReference.setJoinAt(event.getEventTime());

@@ -68,7 +68,7 @@ public class GroupService {
         group.setMembers(groupMembers);
         try {
             Groups savedGroup = groupRepository.save(group);
-            List<GroupReference> groupReferenceList = new ArrayList<>();
+            List<GroupReference> groupReferenceList = existingUser.getGroupReferenceList();
             GroupReference groupReference = new GroupReference();
             groupReference.setRole("Admin");
             groupReference.setGroupId(group.getId());
