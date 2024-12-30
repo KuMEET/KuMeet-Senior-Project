@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -53,4 +54,9 @@ public class EventController {
     public ResponseEntity<Users> ShowAdmin(@PathVariable String eventId) {
         return eventService.ShowAdmin(eventId);
     }
+    @PostMapping("/events/{eventId}/{imageId}")
+    public ResponseEntity<String> uploadEventPhoto(@PathVariable String eventId, @PathVariable String imageId) {
+        return eventService.uploadEventPhoto(eventId, imageId);
+    }
+
 }

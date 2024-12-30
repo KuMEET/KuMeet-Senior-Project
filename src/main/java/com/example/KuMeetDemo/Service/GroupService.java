@@ -1,22 +1,18 @@
 package com.example.KuMeetDemo.Service;
 
-import com.example.KuMeetDemo.Dto.EventDto;
 import com.example.KuMeetDemo.Dto.GroupDto;
 import com.example.KuMeetDemo.Dto.GroupReference;
 import com.example.KuMeetDemo.Dto.UserReference;
-import com.example.KuMeetDemo.Model.Categories;
-import com.example.KuMeetDemo.Model.Events;
-import com.example.KuMeetDemo.Model.Groups;
-import com.example.KuMeetDemo.Model.Users;
+import com.example.KuMeetDemo.Model.*;
 import com.example.KuMeetDemo.Repository.EventRepository;
 import com.example.KuMeetDemo.Repository.GroupRepository;
+import com.example.KuMeetDemo.Repository.PhotoRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.util.*;
 
@@ -29,6 +25,8 @@ public class GroupService {
     private UserRepository userRepository;
     @Autowired
     private EventRepository eventRepository;
+    @Autowired
+    private PhotoRepository photoRepository;
 
     public ResponseEntity<Groups> createGroup(GroupDto groupDto, String username) {
         // Validate input
@@ -184,4 +182,20 @@ public class GroupService {
         );
         return ResponseEntity.ok(members);
     }
+
+    public ResponseEntity<String> uploadGroupPhoto(String groupId, String imageId) {
+        Photo photo = photoRepository.findById(imageId).orElse(null);
+        if (photo == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Photo not found");
+        }
+        UUID groupID = UUID.fromString(groupId);
+        Groups groups = groupRepository.findById(groupID).orElse(null);
+        if (groups == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
+        }
+        groups.setPhoto(photo);
+        groupRepository.save(groups);
+        return ResponseEntity.ok("Photo uploaded successfully for Event ID: " + groupId);
+    }
+
 }

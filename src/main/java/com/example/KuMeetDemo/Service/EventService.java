@@ -3,18 +3,19 @@ package com.example.KuMeetDemo.Service;
 import com.example.KuMeetDemo.Dto.EventDto;
 import com.example.KuMeetDemo.Dto.EventReference;
 import com.example.KuMeetDemo.Dto.UserReference;
-import com.example.KuMeetDemo.Model.Categories;
-import com.example.KuMeetDemo.Model.Events;
-import com.example.KuMeetDemo.Model.Groups;
-import com.example.KuMeetDemo.Model.Users;
+import com.example.KuMeetDemo.Model.*;
 import com.example.KuMeetDemo.Repository.EventRepository;
 import com.example.KuMeetDemo.Repository.GroupRepository;
+import com.example.KuMeetDemo.Repository.PhotoRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -27,6 +28,8 @@ public class EventService {
     private UserRepository userRepository;
     @Autowired
     private GroupRepository groupRepository;
+    @Autowired
+    private PhotoRepository photoRepository;
 
 
     // create method
@@ -220,6 +223,24 @@ public class EventService {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
+
+    public ResponseEntity<String> uploadEventPhoto(String eventId,String imageId) {
+        Photo photo = photoRepository.findById(imageId).orElse(null);
+        if (photo == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Photo not found");
+        }
+        UUID eventID = UUID.fromString(eventId);
+        Events event = eventRepository.findById(eventID).orElse(null);
+        if (event == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
+        }
+
+        event.setPhoto(photo);
+        eventRepository.save(event);
+        return ResponseEntity.ok("Photo uploaded successfully for Event ID: " + eventId);
+    }
+
+
 
 
 }

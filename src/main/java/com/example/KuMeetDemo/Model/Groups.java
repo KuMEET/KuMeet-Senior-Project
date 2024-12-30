@@ -25,8 +25,10 @@ public class Groups {
     private Date createdAt;
     private boolean visibility;
     private Categories categories;
+    private Photo photo;
     private List<UUID> eventsList = new ArrayList<>();
     private List<UserReference> members = new ArrayList<>();
+
 
 
 }
