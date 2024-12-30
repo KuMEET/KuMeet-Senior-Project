@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'event.dart';
 import 'eventDetail_page.dart';
+import 'map_event_card.dart';
 
 class MapView extends StatefulWidget {
   final List<Event> events;
@@ -129,11 +130,8 @@ class _MapViewState extends State<MapView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      appBar: AppBar(
-      ),
+      appBar: AppBar(),
       body: Stack(
         children: [
           initialLocation == null
@@ -154,7 +152,7 @@ class _MapViewState extends State<MapView> {
             left: 0,
             right: 0,
             child: SizedBox(
-              height: 180,
+              height: 150,
               child: PageView.builder(
                 controller: pageController,
                 itemCount: sortedEvents.length,
@@ -170,7 +168,9 @@ class _MapViewState extends State<MapView> {
                           1000)
                       .toStringAsFixed(2);
 
-                  return GestureDetector(
+                  return MapEventCard(
+                    event: event,
+                    distanceKm: distanceKm,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -183,41 +183,6 @@ class _MapViewState extends State<MapView> {
                         ),
                       );
                     },
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image.asset(
-                                event.imagePath!,
-                                width: 100,
-                                height: 100,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    event.title,
-                                    style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text('$distanceKm km away', style: theme.textTheme.bodyMedium),
-                                ],
-                              ),
-                            ),
-                            Icon(Icons.arrow_forward_ios, color: theme.iconTheme.color),
-                          ],
-                        ),
-                      ),
-                    ),
                   );
                 },
               ),

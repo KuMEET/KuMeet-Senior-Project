@@ -3,7 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'event_service.dart';
 import 'createEvent_page.dart';
-import 'eventcard.dart';
+import 'event_card.dart';
 import 'eventDetail_page.dart';
 import 'event.dart';
 import 'map_view.dart';

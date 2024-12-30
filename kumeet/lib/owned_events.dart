@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kumeet/eventDetail_page2.dart';
 import 'event.dart';
 import 'event_service.dart';
-import 'eventcard.dart';
+import 'event_card.dart';
 import 'login_page.dart';
 
 class OwnedEventsPage extends StatefulWidget {

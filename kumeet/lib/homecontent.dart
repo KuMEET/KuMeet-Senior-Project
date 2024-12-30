@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:kumeet/login_page.dart';
 import 'group_card.dart';
 import 'event.dart';
-import 'eventcard.dart';
+import 'event_card.dart';
 import 'eventDetail_page.dart';
 import 'group_details_page.dart';
 import 'group_service.dart';

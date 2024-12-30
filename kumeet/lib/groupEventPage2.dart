@@ -3,7 +3,7 @@ import 'package:kumeet/event.dart';
 import 'package:kumeet/eventDetail_page2.dart';  // Assuming this page exists and is similar to EventDetailPage
 import 'package:kumeet/group_service.dart';
 import 'package:kumeet/group.dart';
-import 'eventcard.dart'; // Ensure this import points to your EventCard definition file
+import 'event_card.dart'; // Ensure this import points to your EventCard definition file
 
 class GroupEventsPage2 extends StatefulWidget {
   final Group group;
