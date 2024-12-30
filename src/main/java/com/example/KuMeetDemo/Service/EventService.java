@@ -30,10 +30,12 @@ public class EventService {
     private GroupRepository groupRepository;
     @Autowired
     private PhotoRepository photoRepository;
+    @Autowired
+    private PhotoService photoService;
 
 
     // create method
-    public ResponseEntity<Events> createEvent(EventDto eventDto, String username) {
+    public ResponseEntity<Events> createEvent(EventDto eventDto,MultipartFile photo, String username) {
         // Check for null or missing fields in EventDto
         if (eventDto.getTitle() == null || eventDto.getTitle().isEmpty() ||
                 eventDto.getDescription() == null || eventDto.getDescription().isEmpty() ||
@@ -61,6 +63,24 @@ public class EventService {
                 .filter(x -> x.name.equals(eventDto.getCategories()))
                 .findFirst()
                 .ifPresent(event::setCategories);
+
+        if (photo != null && !photo.isEmpty()) {
+            ResponseEntity<String> photoIdResponse = photoService.addPhoto(eventDto.getTitle() + " Photo", photo);
+            if (photoIdResponse.getStatusCode().equals(HttpStatus.OK)) {
+                String photoId = photoIdResponse.getBody();
+                Photo photoInsert = photoRepository.findById(photoId).orElse(null);
+                if (photoInsert == null) {
+                    return ResponseEntity.badRequest().body(null);
+                }
+                event.setPhoto(photoInsert);
+            }
+            else{
+                return ResponseEntity.badRequest().body(null);
+            }
+        }
+        else{
+            return ResponseEntity.badRequest().body(null);
+        }
 
         List<UserReference> eventMembers = new ArrayList<>();
         UserReference userInfo = new UserReference();

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -27,8 +28,10 @@ public class GroupService {
     private EventRepository eventRepository;
     @Autowired
     private PhotoRepository photoRepository;
+    @Autowired
+    private PhotoService photoService;
 
-    public ResponseEntity<Groups> createGroup(GroupDto groupDto, String username) {
+    public ResponseEntity<Groups> createGroup(GroupDto groupDto, MultipartFile photo,  String username) {
         // Validate input
         if (groupDto.getName() == null || groupDto.getName().isEmpty() || groupDto.getVisibility() == null || groupDto.getCategories().isEmpty()) {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
@@ -38,6 +41,10 @@ public class GroupService {
         }
         // tüm grupları getircem isimleri aynı olabilir
         //
+
+
+
+
 
         Users existingUser = userRepository.findByUserName(username);
         if (existingUser == null) {
@@ -55,6 +62,24 @@ public class GroupService {
                 .filter(x -> x.name.equals(groupDto.getCategories()))
                 .findFirst()
                 .ifPresent(group::setCategories);
+
+        if (photo != null && !photo.isEmpty()) {
+                ResponseEntity<String> photoIdResponse = photoService.addPhoto(groupDto.getName() + " Photo", photo);
+                if (photoIdResponse.getStatusCode().equals(HttpStatus.OK)) {
+                    String photoId = photoIdResponse.getBody();
+                    Photo photoInsert = photoRepository.findById(photoId).orElse(null);
+                    if (photoInsert == null) {
+                        return ResponseEntity.badRequest().body(null);
+                    }
+                    group.setPhoto(photoInsert);
+                }
+                else{
+                    return ResponseEntity.badRequest().body(null);
+                }
+        }
+        else{
+            return ResponseEntity.badRequest().body(null);
+        }
 
         List<UserReference> groupMembers = new ArrayList<>();
         UserReference userInfo = new UserReference();

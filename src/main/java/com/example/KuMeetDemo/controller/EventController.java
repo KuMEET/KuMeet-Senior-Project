@@ -26,8 +26,8 @@ public class EventController {
         return eventService.getAllEvents();
     }
     @PostMapping("/create-event/{username}")
-    public ResponseEntity<Events> createEvent(@RequestBody EventDto event, @PathVariable String username) {
-        return eventService.createEvent(event, username);
+    public ResponseEntity<Events> createEvent(@RequestBody EventDto event, @RequestParam("photo") MultipartFile photo, @PathVariable String username) {
+        return eventService.createEvent(event,photo, username);
     }
     @DeleteMapping("/delete-event")
     public void deleteEvent(@RequestBody Events event) {
