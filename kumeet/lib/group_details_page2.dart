@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kumeet/groupEventPage2.dart';
+import 'package:kumeet/groupMembers_page.dart'; // Ensure this page exists
 import 'group.dart';
 import 'group_service.dart';
 import 'edit_groupPage.dart';
@@ -107,6 +108,18 @@ class _GroupDetailsPage2State extends State<GroupDetailsPage2> {
     );
   }
 
+  void _navigateToGroupMembers() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => GroupMembersPage(
+          groupId: widget.group.id!,
+          groupName: widget.group.name,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -148,6 +161,21 @@ class _GroupDetailsPage2State extends State<GroupDetailsPage2> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
+                        ElevatedButton(
+                          onPressed: _navigateToGroupMembers,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.green,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Group Members',
+                            style: TextStyle(fontSize: 18),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: _seeEvents,
                           style: ElevatedButton.styleFrom(

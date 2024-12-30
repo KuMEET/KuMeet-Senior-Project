@@ -64,7 +64,7 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
 
   Future<void> _fetchGroups() async {
     try {
-      final groups = await _groupService.getGroupsByUser(userName!);
+      final groups = await _groupService.getGroupsByMember(userName!);
       setState(() {
         _groups = groups;
         _isLoading = false;

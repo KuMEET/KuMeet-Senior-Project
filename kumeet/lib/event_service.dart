@@ -81,7 +81,30 @@ class EventService {
 
   Future<List<Event>> getEventsByUser(String username) async {
     final url =
-        Uri.parse('http://localhost:8080/api/get-events-by-username/$username');
+        Uri.parse('$baseUrl/get-events-by-username/$username');
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+
+        return data.map((json) => Event.fromJson(json)).toList();
+      } else {
+        print('Failed to fetch events: ${response.body}');
+        return [];
+      }
+    } catch (e) {
+      print('Error fetching events: $e');
+      return [];
+    }
+  }
+  Future<List<Event>> getEventsByUserMembers(String username) async {
+    final url =
+        Uri.parse('$baseUrl/get-events-by-username-only-members/$username');
     try {
       final response = await http.get(
         url,
@@ -128,7 +151,7 @@ class EventService {
 
   Future<List<Event>> getEventsByAdmin(String username) async {
     final url =
-        Uri.parse('http://localhost:8080/api/get-events-for-admin/$username');
+        Uri.parse('$baseUrl/get-events-for-admin/$username');
     try {
       final response = await http.get(
         url,
@@ -151,7 +174,7 @@ class EventService {
   }
 
   Future<bool> deleteEvent(Event event) async {
-    final url = Uri.parse('http://localhost:8080/api/delete-event');
+    final url = Uri.parse('$baseUrl/delete-event');
     try {
       final response = await http.delete(
         url,
@@ -174,7 +197,7 @@ class EventService {
   }
 
   Future<bool> updateEvent(Event event, String? eventID) async {
-    final url = Uri.parse('http://localhost:8080/api/update-event/${eventID}');
+    final url = Uri.parse('$baseUrl/update-event/${eventID}');
     try {
       final response = await http.put(
         url,
@@ -230,8 +253,7 @@ class EventService {
 
   // Approve a user request for an event
   Future<String> approveUserRequest(String eventId, String userId) async {
-    final url = Uri.parse(
-        '$baseUrl/approve-pending-events-for-admin/$eventId/$userId');
+    final url = Uri.parse('$baseUrl/approve-pending-events-for-admin/$eventId/$userId');
     try {
       final response = await http.post(url);
       if (response.statusCode == 200) {
@@ -246,8 +268,7 @@ class EventService {
 
   // Reject a user request for an event
   Future<String> rejectUserRequest(String eventId, String userId) async {
-    final url = Uri.parse(
-        '$baseUrl/reject-pending-events-for-admin/$eventId/$userId');
+    final url = Uri.parse('$baseUrl/reject-pending-events-for-admin/$eventId/$userId');
     try {
       final response = await http.post(url);
       if (response.statusCode == 200) {
@@ -273,7 +294,7 @@ class EventService {
     }
   }
 Future<List<User>> showAdmins(String eventId) async {
-  final url = Uri.parse('$baseUrl/get-admin-for-events/$eventId');
+  final url = Uri.parse('$baseUrl/get-admins-for-event/$eventId');
   try {
     final response = await http.get(url);
     if (response.statusCode == 200) {

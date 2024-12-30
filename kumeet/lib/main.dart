@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kumeet/user_service.dart';
+import 'package:kumeet/event_service.dart';
 import 'explore_page.dart';
 import 'signup_page.dart';
 import 'login_page.dart';
@@ -138,9 +138,9 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _initializeCalendarEvents() async {
     try {
-      String userName = GlobalState().userName ?? "default";
-      UserService userService = UserService();
-      final events = await userService.getUserEvents(userName);
+      String? userName = GlobalState().userName;
+      EventService eventService = EventService();
+      final events = await eventService.getEventsByUserMembers(userName!);
       setState(() {
         calendarEvents = events;
         _isLoading = false;

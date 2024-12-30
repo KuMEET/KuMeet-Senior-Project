@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kumeet/event_service.dart';
+import 'package:kumeet/login_page.dart';
 import 'user.dart'; // Ensure you have this User model defined
 
 class EventMembersPage extends StatefulWidget {
@@ -16,12 +17,13 @@ class _EventMembersPageState extends State<EventMembersPage> {
   final EventService eventService = EventService();
   late Future<List<User>> _membersFuture;
   late Future<List<User>> _adminsFuture;
+  String? loggedInUserName = GlobalState().userName; // Retrieve the logged-in user's username
 
   @override
   void initState() {
     super.initState();
     _membersFuture = _fetchMembersWithDefaultRole();
-    _adminsFuture = eventService.showAdmins(widget.eventId);
+    _adminsFuture = _fetchAdminsWithExclusion();
   }
 
   Future<List<User>> _fetchMembersWithDefaultRole() async {
@@ -34,12 +36,23 @@ class _EventMembersPageState extends State<EventMembersPage> {
     return members;
   }
 
-  Future<void> _deleteMember(String userName) async {
+  Future<List<User>> _fetchAdminsWithExclusion() async {
+    final admins = await eventService.showAdmins(widget.eventId);
+    return admins
+        .where((admin) => admin.userName != loggedInUserName) // Exclude the logged-in user
+        .map((admin) {
+          admin.role = 'Admin'; // Ensure admin role is assigned
+          return admin;
+        })
+        .toList();
+  }
+
+  Future<void> _deleteUser(String userName) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirm Deletion'),
-        content: const Text('Are you sure you want to remove this member from the event?'),
+        content: const Text('Are you sure you want to remove this user from the event?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -60,12 +73,12 @@ class _EventMembersPageState extends State<EventMembersPage> {
           SnackBar(content: Text('$userName removed successfully!')),
         );
         setState(() {
-          _membersFuture = _fetchMembersWithDefaultRole(); // Refresh the member list
-          _adminsFuture = eventService.showAdmins(widget.eventId); // Refresh admins list
+          _membersFuture = _fetchMembersWithDefaultRole(); // Refresh members
+          _adminsFuture = _fetchAdminsWithExclusion(); // Refresh admins
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to remove the member.')),
+          const SnackBar(content: Text('Failed to remove the user.')),
         );
       }
     }
@@ -97,8 +110,8 @@ class _EventMembersPageState extends State<EventMembersPage> {
           SnackBar(content: Text('$userName role updated to $newRole!')),
         );
         setState(() {
-          _membersFuture = _fetchMembersWithDefaultRole(); // Refresh the member list
-          _adminsFuture = eventService.showAdmins(widget.eventId); // Refresh admins list
+          _membersFuture = _fetchMembersWithDefaultRole();
+          _adminsFuture = _fetchAdminsWithExclusion();
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -108,7 +121,7 @@ class _EventMembersPageState extends State<EventMembersPage> {
     }
   }
 
-  Widget _buildUserList(List<User> users, bool isAdminList) {
+  Widget _buildUserList(List<User> users, String roleType) {
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
       shrinkWrap: true,
@@ -126,7 +139,7 @@ class _EventMembersPageState extends State<EventMembersPage> {
             leading: CircleAvatar(
               radius: 24,
               child: Text(
-                user.name[0], // Display the first letter of the name
+                user.name[0],
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
@@ -134,7 +147,7 @@ class _EventMembersPageState extends State<EventMembersPage> {
               '${user.name} ${user.surname}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            subtitle: isAdminList
+            subtitle: roleType == 'Admin'
                 ? const Text('Role: Admin')
                 : Row(
                     children: [
@@ -157,8 +170,8 @@ class _EventMembersPageState extends State<EventMembersPage> {
                   ),
             trailing: IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              tooltip: 'Remove Member',
-              onPressed: () => _deleteMember(user.userName),
+              tooltip: 'Remove User',
+              onPressed: () => _deleteUser(user.userName),
             ),
           ),
         );
@@ -195,11 +208,11 @@ class _EventMembersPageState extends State<EventMembersPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        '${widget.eventName}\'s Members',
+                        '${widget.eventName} Members',
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    _buildUserList(members, false),
+                    _buildUserList(members, 'Member'),
                   ],
                 );
               },
@@ -224,11 +237,11 @@ class _EventMembersPageState extends State<EventMembersPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        '${widget.eventName}\'s Admins',
+                        '${widget.eventName} Admins',
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    _buildUserList(admins, true),
+                    _buildUserList(admins, 'Admin'),
                   ],
                 );
               },
