@@ -238,6 +238,31 @@ public class UserGroupService {
         return ResponseEntity.ok(groups);
     }
 
+    public ResponseEntity<List<Users>> getAdminsForGroup(String groupId) {
+        UUID groupID = UUID.fromString(groupId);
+        Groups groups = groupRepository.findById(groupID).orElse(null);
+        if (groups == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        List<UserReference> userReferenceList = groups.getMembers();
+        List<Users> users = new ArrayList<>();
+        if (userReferenceList != null) {
+            for (UserReference userReference : userReferenceList) {
+                String role = userReference.getRole();
+                if (role.equals("Admin")) {
+                    Users user = userRepository.findById(userReference.getUserId()).orElse(null);
+                    if (user != null) {
+                        users.add(user);
+                    }
+                }
+            }
+        }
+        if (users.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(users);
+    }
+
     public ResponseEntity<List<UserReference>> viewPendingUsersForGroup(UUID groupId) {
         Groups group = groupRepository.findById(groupId).orElse(null);
         if (group == null) {

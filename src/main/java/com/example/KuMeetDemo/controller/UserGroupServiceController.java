@@ -2,6 +2,7 @@ package com.example.KuMeetDemo.controller;
 
 import com.example.KuMeetDemo.Dto.UserReference;
 import com.example.KuMeetDemo.Model.Groups;
+import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Service.UserGroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,10 @@ public class UserGroupServiceController {
     @PostMapping("/reject-pending-groups-for-admin/{groupId}/{userId}")
     public ResponseEntity<String> rejectUserRequestForGroup(@PathVariable UUID groupId, @PathVariable UUID userId){
         return userGroupService.rejectUserRequestForGroup(groupId, userId);
+    }
+    @GetMapping("/get-admins-for-group/{groupId}")
+    public ResponseEntity<List<Users>> getAdminsForGroup(@PathVariable String groupId){
+        return userGroupService.getAdminsForGroup(groupId);
     }
 
 
