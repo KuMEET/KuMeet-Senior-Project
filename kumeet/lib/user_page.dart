@@ -94,16 +94,20 @@ class _UserPageState extends State<UserPage> {
                   if (_ownedGroups.isNotEmpty) ...[
                     Text("Owned Groups", style: Theme.of(context).textTheme.titleLarge),
                     Wrap(
-                      spacing: 10, // Horizontal space between cards
-                      runSpacing: 10, // Vertical space between cards
-                      children: _ownedGroups.map((group) => GroupCard(
-                        title: group.name,
-                        imagePath: group.imagePath ?? 'images/group_image.png', // Ensure imagePath is never null
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => GroupDetailsPage2(group: group)));
-                        },
-                      )).toList(),
-                    ),
+  spacing: 10, // Horizontal space between cards
+  runSpacing: 10, // Vertical space between cards
+  children: _ownedGroups.map((group) => GroupCard(
+    group: group, // Pass the entire Group object
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GroupDetailsPage2(group: group),
+        ),
+      );
+    },
+  )).toList(),
+),
                   ],
                 ],
               ),

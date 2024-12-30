@@ -99,31 +99,30 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
                     child: Text('No groups available'),
                   )
                 : GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 1.2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
-                    itemCount: _groups.length,
-                    itemBuilder: (context, index) {
-                      final group = _groups[index];
-                      return GroupCard(
-                        title: group.name,
-                        imagePath: 'images/group_image.png',
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => GroupDetailsPage(group: group),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
+  shrinkWrap: true,
+  physics: const NeverScrollableScrollPhysics(),
+  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 1,
+    childAspectRatio: 1.2,
+    crossAxisSpacing: 16,
+    mainAxisSpacing: 16,
+  ),
+  itemCount: _groups.length,
+  itemBuilder: (context, index) {
+    final group = _groups[index];
+    return GroupCard(
+      group: group, // Pass the entire Group object
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GroupDetailsPage(group: group),
+          ),
+        );
+      },
+    );
+  },
+),
       ],
     );
   }

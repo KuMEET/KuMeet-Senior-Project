@@ -192,186 +192,215 @@ class _EventDetailPageState extends State<EventDetailPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // Decide the text for the bottom button
-    final buttonText = _isJoined ? 'Already Joined' : 'Join';
-    // If user is already joined, disable the button
-    final isButtonEnabled = !_isJoined && !_isLoadingJoin;
+@override
+Widget build(BuildContext context) {
+  // Decide the text for the bottom button
+  final buttonText = _isJoined ? 'Already Joined' : 'Join';
+  // If user is already joined, disable the button
+  final isButtonEnabled = !_isJoined && !_isLoadingJoin;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Event',
-          style: TextStyle(fontSize: 18),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: _shareEvent,
-          ),
-        ],
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text(
+        'Event Details',
+        style: TextStyle(fontSize: 18),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Event Image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                widget.event.imagePath ?? 'assets/placeholder.jpg',
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.share),
+          onPressed: _shareEvent,
+        ),
+      ],
+    ),
+    body: SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Event Image
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Image.asset(
+              widget.event.imagePath ?? 'assets/placeholder.jpg',
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Event Title Box
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  widget.event.title,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
-            // Event Title
-            Text(
-              widget.event.title,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
+          ),
+
+          const SizedBox(height: 16),
+
+          // Calendar Box
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: ListTile(
+                leading: const Icon(Icons.calendar_today),
+                title: Text(
+                  DateFormat('EEEE, MMMM d, yyyy').format(widget.event.date ?? DateTime.now()),
+                  style: const TextStyle(fontSize: 16),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _addEventToDeviceCalendar,
               ),
             ),
-            const SizedBox(height: 16),
-            // Calendar Section
-            ListTile(
-              leading: const Icon(Icons.calendar_today, color: Colors.grey),
-              title: Text(
-                DateFormat('EEEE, MMMM d, yyyy').format(widget.event.date ?? DateTime.now()),
-                style: const TextStyle(fontSize: 16),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Location Box
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: ListTile(
+                leading: const Icon(Icons.location_on),
+                title: Text(
+                  formattedAddress ?? 'Fetching address...',
+                  style: const TextStyle(fontSize: 16),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _openMap(widget.event.latitude, widget.event.longitude),
               ),
-              trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-              onTap: _addEventToDeviceCalendar,
             ),
-            // Location Section
-            ListTile(
-              leading: const Icon(Icons.location_on, color: Colors.grey),
-              title: Text(
-                formattedAddress ?? 'Fetching address...',
-                style: const TextStyle(fontSize: 16),
+          ),
+
+          const SizedBox(height: 16),
+
+          // About Section Box
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'About',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.event.description,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
               ),
-              trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-              onTap: () => _openMap(widget.event.latitude, widget.event.longitude),
             ),
-            const SizedBox(height: 16),
-            // Group Info Section
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Row(
+          ),
+
+          const SizedBox(height: 16),
+
+          // Attendees Section Box
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  'Occupancy: ${widget.event.seatsAvailable}/50',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Location Map Preview Box
+          SizedBox(
+            width: double.infinity,
+            child: Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      'images/group_image.png',
-                      width: 90,
-                      height: 90,
-                      fit: BoxFit.cover,
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      height: 150,
+                      width: double.infinity,
+                      child: GoogleMap(
+                        initialCameraPosition: CameraPosition(
+                          target: LatLng(widget.event.latitude, widget.event.longitude),
+                          zoom: 15,
+                        ),
+                        markers: {
+                          Marker(
+                            markerId: const MarkerId('event_location'),
+                            position: LatLng(widget.event.latitude, widget.event.longitude),
+                          ),
+                        },
+                        zoomGesturesEnabled: false,
+                        scrollGesturesEnabled: false,
+                        myLocationButtonEnabled: false,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'Group Name', // Replace with actual group name if available
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Capacity: 50', // Replace with group capacity if available
-                          style: TextStyle(fontSize: 14, color: Colors.grey),
-                        ),
-                      ],
+                  Positioned.fill(
+                    child: GestureDetector(
+                      onTap: () => _openMap(widget.event.latitude, widget.event.longitude),
                     ),
                   ),
                 ],
               ),
             ),
-            const Divider(color: Color.fromARGB(255, 214, 214, 214), thickness: 4),
-            // About Section
-            const Text(
-              'About',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              widget.event.description,
-              style: const TextStyle(fontSize: 16),
-            ),
-            const Divider(color: Color.fromARGB(255, 214, 214, 214), thickness: 4),
-            // Attendees
-            Text(
-              'Occupancy: ${widget.event.seatsAvailable}/50', // Adjust as needed
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const Divider(color: Color.fromARGB(255, 214, 214, 214), thickness: 4),
-            // Location Map Preview
-            const Text(
-              'Location',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: SizedBox(
-                    height: 150,
-                    width: double.infinity,
-                    child: GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: LatLng(widget.event.latitude, widget.event.longitude),
-                        zoom: 15,
-                      ),
-                      markers: {
-                        Marker(
-                          markerId: const MarkerId('event_location'),
-                          position: LatLng(widget.event.latitude, widget.event.longitude),
-                        ),
-                      },
-                      zoomGesturesEnabled: false,
-                      scrollGesturesEnabled: false,
-                      myLocationButtonEnabled: false,
-                    ),
-                  ),
-                ),
-                Positioned.fill(
-                  child: GestureDetector(
-                    onTap: () => _openMap(widget.event.latitude, widget.event.longitude),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      // Sticky Bottom Bar
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(16.0),
-        child: ElevatedButton(
-          onPressed: isButtonEnabled ? _joinEvent : null,
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
           ),
-          child: _isLoadingJoin
-              ? const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                )
-              : Text(
-                  buttonText,
-                  style: const TextStyle(fontSize: 18),
-                ),
-        ),
+        ],
       ),
-    );
-  }
+    ),
+    // Sticky Bottom Bar
+    bottomNavigationBar: Container(
+      padding: const EdgeInsets.all(16.0),
+      child: ElevatedButton(
+        onPressed: isButtonEnabled ? _joinEvent : null,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
+        child: _isLoadingJoin
+            ? const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              )
+            : Text(
+                buttonText,
+                style: const TextStyle(fontSize: 18),
+              ),
+      ),
+    ),
+  );
+}
+
 }

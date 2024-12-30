@@ -138,7 +138,7 @@ class EventCard extends StatelessWidget {
                     // Event description
                     Text(
                       event.description,
-                      maxLines: 3,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 14,
