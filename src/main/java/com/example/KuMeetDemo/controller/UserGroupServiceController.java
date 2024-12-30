@@ -1,6 +1,7 @@
 package com.example.KuMeetDemo.controller;
 
 import com.example.KuMeetDemo.Dto.UserReference;
+import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Service.UserGroupService;
@@ -56,6 +57,12 @@ public class UserGroupServiceController {
     public ResponseEntity<List<Users>> getAdminsForGroup(@PathVariable String groupId){
         return userGroupService.getAdminsForGroup(groupId);
     }
+    @GetMapping("/get-groups-by-username-only-members/{userName}")
+    public ResponseEntity<List<Groups>> getGroupsByUsernameOnlyMembers(@PathVariable String userName){
+        return userGroupService.getGroupsByUsernameOnlyMembers(userName);
+    }
+
+
 
 
 }

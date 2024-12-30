@@ -3,6 +3,7 @@ package com.example.KuMeetDemo.Service;
 import com.example.KuMeetDemo.Dto.EventReference;
 import com.example.KuMeetDemo.Dto.GroupReference;
 import com.example.KuMeetDemo.Dto.UserReference;
+import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Repository.GroupRepository;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -200,14 +202,14 @@ public class UserGroupService {
         List<Groups> groups = new ArrayList<>();
         if (groupReferenceList != null) {
             for (GroupReference groupReference : groupReferenceList) {
-                Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
-                if (groupReference.getStatus().equals("Pending")){
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+                if (groupReference.getStatus().equals("Approved")) {
+                    Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
+                    if (group == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                    }
+                    groups.add(group);
+
                 }
-                if (group == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-                }
-                groups.add(group);
             }
         }
         return ResponseEntity.ok(groups);
@@ -262,6 +264,30 @@ public class UserGroupService {
         }
         return ResponseEntity.ok(users);
     }
+
+
+    public ResponseEntity<List<Groups>> getGroupsByUsernameOnlyMembers(String userName){
+        Users user = userRepository.findByUserName(userName);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        List<GroupReference> groupReferenceList = user.getGroupReferenceList();
+        List<Groups> groups = new ArrayList<>();
+        if (groupReferenceList != null) {
+            for (GroupReference groupReference : groupReferenceList) {
+                if (groupReference.getStatus().equals("Approved") && groupReference.getRole().equals("Member")) {
+                    Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
+                    if (group == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                    }
+                    groups.add(group);
+
+                }
+            }
+        }
+        return ResponseEntity.ok(groups);
+    }
+
 
     public ResponseEntity<List<UserReference>> viewPendingUsersForGroup(UUID groupId) {
         Groups group = groupRepository.findById(groupId).orElse(null);

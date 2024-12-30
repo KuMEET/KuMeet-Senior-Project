@@ -194,18 +194,40 @@ public class UserEventService {
         List<Events> events = new ArrayList<>();
         if (eventReferenceList != null) {
             for (EventReference eventReference : eventReferenceList) {
-                if (eventReference.getStatus().equals("Pending")) {
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+                if(eventReference.getStatus().equals("Approved")) {
+                    Events event = eventRepository.findById(eventReference.getEventId()).orElse(null);
+                    if (event == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                    }
+                    events.add(event);
                 }
-                Events event = eventRepository.findById(eventReference.getEventId()).orElse(null);
-                if (event == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-                }
-                events.add(event);
             }
         }
         return ResponseEntity.ok(events);
     }
+
+    public ResponseEntity<List<Events>> getEventsByUsernameOnlyMembers(String userName) {
+        Users user = userRepository.findByUserName(userName);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        List<EventReference> eventReferenceList = user.getEventReferenceList();
+        List<Events> events = new ArrayList<>();
+        if (eventReferenceList != null) {
+            for (EventReference eventReference : eventReferenceList) {
+                if(eventReference.getStatus().equals("Approved") && eventReference.getRole().equals("Members")) {
+                    Events event = eventRepository.findById(eventReference.getEventId()).orElse(null);
+                    if (event == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                    }
+                    events.add(event);
+                }
+            }
+        }
+        return ResponseEntity.ok(events);
+    }
+
+
 
     public ResponseEntity<List<Events>> getEventsForAdmin(String userName) {
         Users user = userRepository.findByUserName(userName);
