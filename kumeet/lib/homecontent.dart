@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kumeet/login_page.dart';
 import 'group_card.dart';
 import 'event.dart';
 import 'eventcard.dart';
@@ -18,22 +19,26 @@ class HomeContent extends StatelessWidget {
     final upcomingEvents = calendarEvents
         .where((event) => event.date != null && event.date!.isAfter(now))
         .toList();
+    final passedEvents = calendarEvents
+        .where((event) => event.date != null && event.date!.isBefore(now))
+        .toList();
 
-    return Column(
-      children: [
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const YourGroupsSection(),
-                const Divider(thickness: 0.5),
-                UpcomingEventsSection(upcomingEvents: upcomingEvents),
-              ],
-            ),
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const YourGroupsSection(),
+              const Divider(thickness: 1.5),
+              UpcomingEventsSection(upcomingEvents: upcomingEvents),
+              const Divider(thickness: 1.5),
+              PassedEventsSection(passedEvents: passedEvents),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
@@ -49,6 +54,7 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
   final GroupService _groupService = GroupService();
   List<Group> _groups = [];
   bool _isLoading = true;
+  String? userName = GlobalState().userName;
 
   @override
   void initState() {
@@ -58,7 +64,7 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
 
   Future<void> _fetchGroups() async {
     try {
-      final groups = await _groupService.getGroups();
+      final groups = await _groupService.getGroupsByUser(userName!);
       setState(() {
         _groups = groups;
         _isLoading = false;
@@ -79,13 +85,10 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.symmetric(vertical: 16.0),
           child: Text(
-            'Recent Groups',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            'Joined Groups',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
         ),
         _isLoading
@@ -95,27 +98,31 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
                     padding: EdgeInsets.all(16.0),
                     child: Text('No groups available'),
                   )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: _groups.map((group) {
-                      return Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: GroupCard(
-                            title: group.name,
-                            imagePath: 'images/group_image.png',
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => GroupDetailsPage(group: group),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                : GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1.2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: _groups.length,
+                    itemBuilder: (context, index) {
+                      final group = _groups[index];
+                      return GroupCard(
+                        title: group.name,
+                        imagePath: 'images/group_image.png',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => GroupDetailsPage(group: group),
+                            ),
+                          );
+                        },
                       );
-                    }).toList(),
+                    },
                   ),
       ],
     );
@@ -133,13 +140,10 @@ class UpcomingEventsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.symmetric(vertical: 16.0),
           child: Text(
             'Upcoming Events',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
         ),
         if (upcomingEvents.isEmpty)
@@ -148,10 +152,14 @@ class UpcomingEventsSection extends StatelessWidget {
             child: Text('No upcoming events'),
           )
         else
-          for (var event in upcomingEvents)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-              child: EventCard(
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: upcomingEvents.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            itemBuilder: (context, index) {
+              final event = upcomingEvents[index];
+              return EventCard(
                 event: event,
                 onTap: () {
                   Navigator.push(
@@ -165,8 +173,61 @@ class UpcomingEventsSection extends StatelessWidget {
                     ),
                   );
                 },
-              ),
-            ),
+              );
+            },
+          ),
+      ],
+    );
+  }
+}
+
+class PassedEventsSection extends StatelessWidget {
+  final List<Event> passedEvents;
+
+  const PassedEventsSection({super.key, required this.passedEvents});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 16.0),
+          child: Text(
+            'Passed Events',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+        ),
+        if (passedEvents.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text('No passed events'),
+          )
+        else
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: passedEvents.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            itemBuilder: (context, index) {
+              final event = passedEvents[index];
+              return EventCard(
+                event: event,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EventDetailPage(
+                        event: event,
+                        onAddToCalendar: () {},
+                        isAdded: true,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
       ],
     );
   }

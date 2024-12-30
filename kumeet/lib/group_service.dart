@@ -64,6 +64,7 @@ class GroupService {
       return [];
     }
   }
+  
 
   Future<List<Group>> getGroupsByUser(String username) async {
     final url = Uri.parse('$baseUrl/get-groups-by-username/$username');

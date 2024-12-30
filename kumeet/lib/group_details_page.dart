@@ -41,7 +41,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   Future<void> _joinGroup() async {
-    if (_isAlreadyMember) return;  // Check if user is already a member
+    if (_isAlreadyMember) return;
 
     setState(() {
       _isJoining = true;
@@ -87,38 +87,68 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            GroupImage(imagePath: 'images/group_image1.png'),
-            const SizedBox(height: 16),
-            GroupInfo(
-              title: widget.group.name,
-              capacity: widget.group.capacity,
-              category: widget.group.categories,
-            ),
-            const SizedBox(height: 24),
-            JoinButton(
-              title: widget.group.name,
-              isJoining: _isJoining,
-              isAlreadyMember: _isAlreadyMember,
-              onJoin: _joinGroup,
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => GroupEventsPage(group: widget.group),
+      appBar: AppBar(
+        title: const Text('Group Details'),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GroupImage(imagePath: 'images/group_image1.png'),
+              const SizedBox(height: 24),
+              Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: GroupInfo(
+                    title: widget.group.name,
+                    capacity: widget.group.capacity,
+                    category: widget.group.categories,
                   ),
-                );
-              },
-              child: const Text('See Events'),
-            ),
-          ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: JoinButton(
+                    title: widget.group.name,
+                    isJoining: _isJoining,
+                    isAlreadyMember: _isAlreadyMember,
+                    onJoin: _joinGroup,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GroupEventsPage(group: widget.group),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'See Events',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -133,11 +163,11 @@ class GroupImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: Image.asset(
         imagePath,
         fit: BoxFit.cover,
-        height: 200,
+        height: 250,
         width: double.infinity,
       ),
     );
@@ -164,19 +194,31 @@ class GroupInfo extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            fontSize: 24,
+            fontSize: 26,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          'Capacity: $capacity',
-          style: const TextStyle(fontSize: 18),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            const Icon(Icons.people, color: Colors.grey),
+            const SizedBox(width: 8),
+            Text(
+              'Capacity: $capacity',
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
-        Text(
-          'Category: $category',
-          style: const TextStyle(fontSize: 18),
+        Row(
+          children: [
+            const Icon(Icons.category, color: Colors.grey),
+            const SizedBox(width: 8),
+            Text(
+              'Category: $category',
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
         ),
       ],
     );
@@ -200,9 +242,17 @@ class JoinButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
       onPressed: isAlreadyMember ? null : isJoining ? null : onJoin,
       child: isJoining
-          ? const CircularProgressIndicator()
+          ? const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            )
           : Text(
               isAlreadyMember ? 'Already a Member' : 'Join $title',
               style: const TextStyle(fontSize: 18),

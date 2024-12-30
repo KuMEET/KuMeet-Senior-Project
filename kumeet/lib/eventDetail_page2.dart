@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:kumeet/edit_eventPage.dart';
 import 'package:kumeet/pendingUsersPage.dart';
+import 'package:kumeet/eventMembers_page.dart'; // Ensure this page is created
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'event.dart';
 import 'event_service.dart';
 
@@ -24,6 +27,39 @@ class EventDetailPage2 extends StatefulWidget {
 class _EventDetailPage2State extends State<EventDetailPage2> {
   bool _isProcessing = false;
   final EventService eventService = EventService();
+  String? formattedAddress; // Holds the formatted address of the location
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAddress();
+  }
+
+  Future<void> _fetchAddress() async {
+    const String mapApiKey = 'YOUR_GOOGLE_MAPS_API_KEY_HERE';
+    final String host = 'https://maps.googleapis.com/maps/api/geocode/json';
+    final String url =
+        '$host?key=$mapApiKey&language=en&latlng=${widget.event.latitude},${widget.event.longitude}';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final Map data = jsonDecode(response.body);
+        setState(() {
+          formattedAddress = data["results"][0]["formatted_address"];
+        });
+      } else {
+        setState(() {
+          formattedAddress = 'Unknown location';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        formattedAddress = 'Error fetching location';
+      });
+      print('Error fetching address: $e');
+    }
+  }
 
   Future<void> _deleteEvent() async {
     final confirm = await showDialog<bool>(
@@ -127,78 +163,128 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
     );
   }
 
+  void _navigateToEventMembers() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EventMembersPage(eventId: widget.event.id!, eventName: widget.event.title),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text(widget.event.title),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage(widget.event.imagePath ?? ''),
-                  fit: BoxFit.cover,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                widget.event.imagePath ?? 'assets/placeholder.jpg',
+                height: 200,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Card(
+              elevation: 8,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.event.title,
+                      style: theme.textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.event.description,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Location: ${formattedAddress ?? 'Fetching address...'}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Seats Available: ${widget.event.seatsAvailable}',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    if (widget.event.date != null)
+                      const SizedBox(height: 16),
+                      Text(
+                        'Date: ${DateFormat.yMMMMd().format(widget.event.date!)}',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                  ],
                 ),
-                borderRadius: BorderRadius.circular(12),
               ),
             ),
-            const SizedBox(height: 16),
-            Text(
-              widget.event.title,
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Text(widget.event.description, style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 16),
-            Text(
-              'Location: ${widget.event.location}',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 16),
-            Text('${widget.event.seatsAvailable} seats available',
-                style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 16),
-            if (widget.event.date != null)
-              Text(
-                'Date: ${DateFormat.yMMMMd().format(widget.event.date!)}',
-                style: const TextStyle(fontSize: 16),
-              ),
             const SizedBox(height: 24),
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 ElevatedButton(
+                  onPressed: _isProcessing ? null : _navigateToEventMembers,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Event Members'),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
                   onPressed: _isProcessing ? null : _editEvent,
-                  child: _isProcessing
-                      ? const CircularProgressIndicator()
-                      : const Text(
-                          'Edit Event',
-                          style: TextStyle(fontSize: 18),
-                        ),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.blueAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Edit Event'),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _isProcessing ? null : _deleteEvent,
-                  child: _isProcessing
-                      ? const CircularProgressIndicator()
-                      : const Text(
-                          'Delete Event',
-                          style: TextStyle(fontSize: 18),
-                        ),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.redAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text('Delete Event'),
                 ),
                 const SizedBox(height: 16),
                 if (!widget.event.visibility)
                   ElevatedButton(
                     onPressed: _isProcessing ? null : _navigateToPendingUsers,
-                    child: const Text(
-                      'Pending Users',
-                      style: TextStyle(fontSize: 18),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.orangeAccent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
+                    child: const Text('Pending Users'),
                   ),
               ],
             ),

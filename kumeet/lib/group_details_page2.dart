@@ -25,11 +25,11 @@ class _GroupDetailsPage2State extends State<GroupDetailsPage2> {
         content: const Text('Are you sure you want to delete this group?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(false), // Cancel
+            onPressed: () => Navigator.of(context).pop(false),
             child: const Text('No'),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).pop(true), // Confirm
+            onPressed: () => Navigator.of(context).pop(true),
             child: const Text('Yes'),
           ),
         ],
@@ -50,7 +50,7 @@ class _GroupDetailsPage2State extends State<GroupDetailsPage2> {
             content: Text('Group "${widget.group.name}" deleted successfully.'),
           ),
         );
-        Navigator.pop(context); // Navigate back after deletion
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to delete group.')),
@@ -63,14 +63,12 @@ class _GroupDetailsPage2State extends State<GroupDetailsPage2> {
     setState(() {
       _isProcessing = true;
     });
-    // Call the update service
     final success =
         await _groupService.updateGroup(updatedGroup, widget.group.id);
     setState(() {
       _isProcessing = false;
     });
     if (success) {
-      // Update local group info
       setState(() {
         widget.group.name = updatedGroup.name;
         widget.group.capacity = updatedGroup.capacity;
@@ -111,73 +109,92 @@ class _GroupDetailsPage2State extends State<GroupDetailsPage2> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.group.name),
+        centerTitle: true,
       ),
       body: _isProcessing
           ? Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  theme.colorScheme.primary,
+                  Theme.of(context).colorScheme.primary,
                 ),
               ),
             )
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  GroupImage(imagePath: 'images/group_image1.png'),
-                  const SizedBox(height: 16),
-                  GroupInfo(
-                    title: widget.group.name,
-                    capacity: widget.group.capacity,
-                    category: widget.group.categories,
-                  ),
-                  const SizedBox(height: 24),
-                  // Buttons Column
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ElevatedButton(
-                        onPressed: _seeEvents,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GroupImage(imagePath: 'images/group_image1.png'),
+                    const SizedBox(height: 24),
+                    Card(
+                      elevation: 8,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: GroupInfo(
+                          title: widget.group.name,
+                          capacity: widget.group.capacity,
+                          category: widget.group.categories,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ElevatedButton(
+                          onPressed: _seeEvents,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'See Events',
+                            style: TextStyle(fontSize: 18),
                           ),
                         ),
-                        child: const Text('See Events'),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _navigateToEditPage,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.blueAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _navigateToEditPage,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.blueAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Update Group',
+                            style: TextStyle(fontSize: 18),
                           ),
                         ),
-                        child: const Text('Update Group'),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _confirmDelete,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.redAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _confirmDelete,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.redAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text(
+                            'Delete Group',
+                            style: TextStyle(fontSize: 18),
                           ),
                         ),
-                        child: const Text('Delete Group'),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
     );
@@ -192,11 +209,11 @@ class GroupImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(16),
       child: Image.asset(
         imagePath,
         fit: BoxFit.cover,
-        height: 200,
+        height: 250,
         width: double.infinity,
       ),
     );
@@ -223,19 +240,31 @@ class GroupInfo extends StatelessWidget {
         Text(
           title,
           style: const TextStyle(
-            fontSize: 24,
+            fontSize: 26,
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 8),
-        Text(
-          'Capacity: $capacity',
-          style: const TextStyle(fontSize: 18),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            const Icon(Icons.people, color: Colors.grey),
+            const SizedBox(width: 8),
+            Text(
+              'Capacity: $capacity',
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
-        Text(
-          'Category: $category',
-          style: const TextStyle(fontSize: 18),
+        Row(
+          children: [
+            const Icon(Icons.category, color: Colors.grey),
+            const SizedBox(width: 8),
+            Text(
+              'Category: $category',
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
         ),
       ],
     );

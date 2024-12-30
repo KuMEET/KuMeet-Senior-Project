@@ -8,6 +8,7 @@ class User {
   String email;
   List<GroupReference> groupReferenceList;
   List<EventReference> eventReferenceList;
+  String? role;
 
   User({
     required this.id,
@@ -18,6 +19,7 @@ class User {
     required this.email,
     required this.groupReferenceList,
     required this.eventReferenceList,
+    this.role
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
