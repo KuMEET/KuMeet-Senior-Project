@@ -215,7 +215,7 @@ public class UserEventService {
         List<Events> events = new ArrayList<>();
         if (eventReferenceList != null) {
             for (EventReference eventReference : eventReferenceList) {
-                if(eventReference.getStatus().equals("Approved") && eventReference.getRole().equals("Members")) {
+                if(eventReference.getStatus().equals("Approved") && eventReference.getRole().equals("Member")) {
                     Events event = eventRepository.findById(eventReference.getEventId()).orElse(null);
                     if (event == null) {
                         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
