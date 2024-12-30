@@ -4,6 +4,7 @@ package com.example.KuMeetDemo.controller;
 import com.example.KuMeetDemo.Dto.GroupDto;
 import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Model.Groups;
+import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Service.GroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,11 @@ public class GroupController {
     @GetMapping("/get-all-groups-category/{category}")
     public ResponseEntity<List<Groups>> FilterGroupsBasedOnCategories(@PathVariable String category) {
         return groupService.FilterGroupsBasedOnCategories(category);
+    }
+
+    @GetMapping("get-members-for-groups/{groupId}")
+    public ResponseEntity<List<Users>> ShowMembers(@PathVariable String groupId) {
+        return groupService.ShowMembers(groupId);
     }
 
 

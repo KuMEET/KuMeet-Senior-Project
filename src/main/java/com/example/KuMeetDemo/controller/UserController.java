@@ -7,6 +7,7 @@ import com.example.KuMeetDemo.event.OnRegistrationCompleteEvent;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -27,10 +28,10 @@ public class UserController {
     @PostMapping("/register")
     public String addUser(@RequestBody UserDto user) {
         ResponseEntity<Users> registeredUser = userService.registerUser(user);
-        if (registeredUser.getStatusCode().is2xxSuccessful()) {
-            eventPublisher.publishEvent(new OnRegistrationCompleteEvent(registeredUser.getBody()));
-            return "redirect:/api/verify-email";
-        }
+            if (registeredUser.getStatusCode().is2xxSuccessful()) {
+                eventPublisher.publishEvent(new OnRegistrationCompleteEvent(registeredUser.getBody()));
+                return "redirect:/api/verify-email";
+            }
         return "/api/register";
     }
 

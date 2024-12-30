@@ -7,6 +7,7 @@ import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Repository.EventRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -325,4 +326,33 @@ public class UserEventService {
         eventRepository.save(event);
         return ResponseEntity.ok(String.format("User with id %s rejected for event %s.", userId, eventId));
     }
+
+    public ResponseEntity<List<Users>> getAdminsForEvent(String eventId) {
+        UUID eventID = UUID.fromString(eventId);
+        Events event = eventRepository.findById(eventID).orElse(null);
+        if (event == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        List<UserReference> userReferenceList = event.getParticipants();
+        List<Users> users = new ArrayList<>();
+        if (userReferenceList != null) {
+            for (UserReference userReference : userReferenceList) {
+                String role = userReference.getRole();
+                String status = userReference.getStatus();
+                if (role.equals("Admin") && status.equals("Approved")) {
+                    Users user = userRepository.findById(userReference.getUserId()).orElse(null);
+                    if (user != null) {
+                        users.add(user);
+                    }
+                }
+            }
+        }
+        if (users.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(users);
+    }
+
+
+
 }

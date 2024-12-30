@@ -160,4 +160,30 @@ public class GroupService {
 
 
     }
+
+
+    public ResponseEntity<List<Users>> ShowMembers(String groupId) {
+        UUID groupID = UUID.fromString(groupId);
+        Groups groups = groupRepository.findById(groupID).orElse(null);
+        if (groups == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        List<UserReference> participants = groups.getMembers();
+        if (participants.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        List<Users> members = new ArrayList<>();
+        participants.forEach(
+                member -> {
+                    if (member.getStatus().equals("Approved") && member.getRole().equals("Member")) {
+                        Users user = userRepository.findById(member.getUserId()).orElse(null);
+                        if (user != null) {
+                            members.add(user);
+                        }
+                    }
+                }
+        );
+        return ResponseEntity.ok(members);
+    }
+
 }
