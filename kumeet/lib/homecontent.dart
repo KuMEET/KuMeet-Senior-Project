@@ -26,7 +26,7 @@ class HomeContent extends StatelessWidget {
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0), // Consistent horizontal padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -98,31 +98,31 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
                     padding: EdgeInsets.all(16.0),
                     child: Text('No groups available'),
                   )
-                : GridView.builder(
-  shrinkWrap: true,
-  physics: const NeverScrollableScrollPhysics(),
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 1,
-    childAspectRatio: 1.2,
-    crossAxisSpacing: 16,
-    mainAxisSpacing: 16,
-  ),
-  itemCount: _groups.length,
-  itemBuilder: (context, index) {
-    final group = _groups[index];
-    return GroupCard(
-      group: group, // Pass the entire Group object
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => GroupDetailsPage(group: group),
-          ),
-        );
-      },
-    );
-  },
-),
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _groups.length,
+                    itemBuilder: (context, index) {
+                      final group = _groups[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0), // Spacing between cards
+                        child: Align(
+                          alignment: Alignment.centerLeft, // Align GroupCards to the left
+                          child: GroupCard(
+                            group: group,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GroupDetailsPage(group: group),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
       ],
     );
   }
@@ -151,27 +151,32 @@ class UpcomingEventsSection extends StatelessWidget {
             child: Text('No upcoming events'),
           )
         else
-          ListView.separated(
+          ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: upcomingEvents.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               final event = upcomingEvents[index];
-              return EventCard(
-                event: event,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EventDetailPage(
-                        event: event,
-                        onAddToCalendar: () {},
-                        isAdded: true,
-                      ),
-                    ),
-                  );
-                },
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0), // Spacing between cards
+                child: Align(
+                  alignment: Alignment.centerLeft, // Ensures cards align to the left
+                  child: EventCard(
+                    event: event,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EventDetailPage(
+                            event: event,
+                            onAddToCalendar: () {},
+                            isAdded: true,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               );
             },
           ),
@@ -203,27 +208,32 @@ class PassedEventsSection extends StatelessWidget {
             child: Text('No passed events'),
           )
         else
-          ListView.separated(
+          ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: passedEvents.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               final event = passedEvents[index];
-              return EventCard(
-                event: event,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => EventDetailPage(
-                        event: event,
-                        onAddToCalendar: () {},
-                        isAdded: true,
-                      ),
-                    ),
-                  );
-                },
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16.0), // Spacing between cards
+                child: Align(
+                  alignment: Alignment.centerLeft, // Ensures cards align to the left
+                  child: EventCard(
+                    event: event,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EventDetailPage(
+                            event: event,
+                            onAddToCalendar: () {},
+                            isAdded: true,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
               );
             },
           ),

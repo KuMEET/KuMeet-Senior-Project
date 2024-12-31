@@ -89,7 +89,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
   }
 
   Future<void> _fetchAddress() async {
-    const String mapApiKey = 'YOUR_GOOGLE_MAPS_API_KEY_HERE';
+    const String mapApiKey = 'AIzaSyAvvTbatpuGGLbXK0BFESM8IiMVXmlzIws';
     final String host = 'https://maps.googleapis.com/maps/api/geocode/json';
     final String url =
         '$host?key=$mapApiKey&language=en&latlng=${widget.event.latitude},${widget.event.longitude}';

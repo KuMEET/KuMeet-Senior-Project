@@ -148,7 +148,7 @@ class _MapViewState extends State<MapView> {
                   zoomGesturesEnabled: true,
                 ),
           Positioned(
-            bottom: 20,
+            bottom: 60,
             left: 0,
             right: 0,
             child: SizedBox(

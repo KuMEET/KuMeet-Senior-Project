@@ -21,7 +21,7 @@ class GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double cardWidth = 350; // Consistent with EventCard
+    const double cardWidth = 350;
 
     return GestureDetector(
       onTap: onTap,
@@ -31,10 +31,10 @@ class GroupCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         elevation: 5,
-        child: SizedBox(
-          width: cardWidth,
+        child: IntrinsicHeight( // Ensures the card fits its content without extra space
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min, // Prevents extra vertical space
             children: [
               // Top image with member count and share button
               Stack(
@@ -112,6 +112,7 @@ class GroupCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min, // Prevents extra vertical space
                   children: [
                     // Group name
                     Text(
@@ -123,7 +124,7 @@ class GroupCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 1),
+                    const SizedBox(height: 4), // Reduced spacing
                     // Group category
                     Text(
                       group.categories,
