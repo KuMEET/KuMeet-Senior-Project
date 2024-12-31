@@ -41,7 +41,7 @@ class GroupService {
     final url = Uri.parse('$baseUrl/get-groups');
     try {
       final response = await http.get(url);
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body) as List<dynamic>;
         return data.map((json) => Group.fromJson(json)).toList();
       }
@@ -94,8 +94,8 @@ class GroupService {
     }
   }
 
-  Future<List<Group>> getOwnedGroups(String username) async {
-    final url = Uri.parse('$baseUrl/get-groups-for-admin/$username');
+  Future<List<Group>> getOwnedGroups(String userName) async {
+    final url = Uri.parse('$baseUrl/get-groups-for-admin/$userName');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {

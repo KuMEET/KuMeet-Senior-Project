@@ -37,8 +37,8 @@ class _UserPageState extends State<UserPage> {
 
   Future<void> _fetchUserData() async {
     try {
-      String userName = this.userName!;
-      _currentUser = await _userService.find(userName);
+      String Username = this.userName!;
+      _currentUser = await _userService.find(Username);
       setState(() {
         _isLoading = false;
         _nameController.text = _currentUser.name;
