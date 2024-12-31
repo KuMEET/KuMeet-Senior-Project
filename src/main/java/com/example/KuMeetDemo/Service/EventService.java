@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Data
@@ -48,13 +50,30 @@ public class EventService {
         if (existingUser == null) {
             return ResponseEntity.badRequest().body(null);
         }
+
+
+        SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd");
+        Date eventTime;
+
+        try {
+            if (eventDto.getTime().contains("T")) {
+                eventTime = dateFormat1.parse(eventDto.getTime());
+            } else {
+                eventTime = dateFormat2.parse(eventDto.getTime());
+            }
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+
         // Create the event object
         Events event = new Events();
         event.setId(UUID.randomUUID());
         event.setEventTitle(eventDto.getTitle());
         event.setEventDescription(eventDto.getDescription());
         event.setMaxCapacity(eventDto.getCapacity());
-        event.setEventTime(eventDto.getTime());
+        event.setEventTime(eventTime);
         event.setCreatedAt(new Date(System.currentTimeMillis()));
         event.setLatitude(eventDto.getLatitude());
         event.setLongitude(eventDto.getLongitude());
@@ -167,12 +186,28 @@ public class EventService {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
         }
 
+        SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd");
+        Date eventTime;
+
+        try {
+            if (eventDto.getTime().contains("T")) {
+                eventTime = dateFormat1.parse(eventDto.getTime());
+            } else {
+                eventTime = dateFormat2.parse(eventDto.getTime());
+            }
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+
+
         Events event = eventRepository.findById(newId).orElse(null);
         if (event != null) {
             event.setEventTitle(eventDto.getTitle());
             event.setEventDescription(eventDto.getDescription());
             event.setMaxCapacity(eventDto.getCapacity());
-            event.setEventTime(eventDto.getTime());
+            event.setEventTime(eventTime);
             event.setLatitude(eventDto.getLatitude());
             event.setLongitude(eventDto.getLongitude());
             event.setVisibility(eventDto.getVisibility());

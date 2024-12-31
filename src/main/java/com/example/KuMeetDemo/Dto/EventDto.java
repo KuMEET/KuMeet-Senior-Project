@@ -1,6 +1,7 @@
 package com.example.KuMeetDemo.Dto;
 
 import com.example.KuMeetDemo.Model.Categories;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -14,7 +15,7 @@ public class EventDto {
     Double latitude;
     Double longitude;
     int capacity;
-    Date time;
+    String time;
     Boolean visibility;
     String categories;
 

@@ -1,6 +1,7 @@
 package com.example.KuMeetDemo.controller;
 
 
+import com.example.KuMeetDemo.Dto.EventDto;
 import com.example.KuMeetDemo.Dto.GroupDto;
 import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Model.Groups;
@@ -24,7 +25,7 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/creategroup/{username}")
-    public ResponseEntity<Groups> GroupCreate(@RequestBody GroupDto group, @RequestParam("photo") MultipartFile photo, @PathVariable String username) {
+    public ResponseEntity<Groups> GroupCreate(@ModelAttribute GroupDto group, @RequestParam("photo") MultipartFile photo, @PathVariable String username) {
         return groupService.createGroup(group,photo,username);
     }
 
