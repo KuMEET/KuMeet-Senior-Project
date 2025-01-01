@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:kumeet/group.dart';
 import 'package:kumeet/login_page.dart';
 import 'group_service.dart';
@@ -14,11 +17,11 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   final _formKey = GlobalKey<FormState>();
   final _groupNameController = TextEditingController();
   final _capacityController = TextEditingController();
-  String? UserName = GlobalState().userName;
+  String? userName = GlobalState().userName;
   final GroupService _groupService = GroupService();
   String? _selectedCategory;
+  File? _pickedImageFile;
 
-  // List of categories
   final List<String> _categories = [
     "Art & Culture",
     "Career & Business",
@@ -29,24 +32,41 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     "Identity & Language",
     "Social Activities",
     "Sports & Fitness",
-    "Travel & Outdoor"
+    "Travel & Outdoor",
   ];
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _pickedImageFile = File(pickedFile.path);
+      });
+    }
+  }
 
   Future<void> _createGroup() async {
     if (_formKey.currentState!.validate()) {
-      // Handle group creation
+      if (_pickedImageFile == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please pick an image')),
+        );
+        return;
+      }
 
       final newGroup = Group(
         name: _groupNameController.text,
         capacity: int.parse(_capacityController.text),
-        categories: _selectedCategory!, visibility: true,
+        categories: _selectedCategory!,
+        visibility: true,
       );
-      final success = await _groupService.createGroup(newGroup, UserName!);
+
+      final success = await _groupService.createGroup(newGroup, userName!, _pickedImageFile);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Group created successfully!')),
         );
-        Navigator.pop(context); // Navigate back after successful creation
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to create group.')),
@@ -73,66 +93,53 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                 decoration: InputDecoration(
                   labelText: 'Group Name',
                   filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
                 ),
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter a group name'
-                    : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Please enter a group name' : null,
               ),
               const SizedBox(height: 16),
+
               TextFormField(
                 controller: _capacityController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Capacity',
                   filled: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
                 ),
-                validator: (value) => value == null || int.tryParse(value) == null
-                    ? 'Please enter a valid capacity'
-                    : null,
+                validator: (value) =>
+                    value == null || int.tryParse(value) == null ? 'Please enter a valid capacity' : null,
               ),
               const SizedBox(height: 16),
+
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
                 items: _categories.map((category) {
-                  return DropdownMenuItem<String>(
-                    value: category,
-                    child: Text(category),
-                  );
+                  return DropdownMenuItem(value: category, child: Text(category));
                 }).toList(),
-                decoration: InputDecoration(
-                  labelText: 'Select Category',
-                  filled: true,
-                  border: OutlineInputBorder(
+                decoration: const InputDecoration(labelText: 'Category'),
+                onChanged: (value) => setState(() => _selectedCategory = value),
+                validator: (value) =>
+                    value == null ? 'Please select a category' : null,
+              ),
+              const SizedBox(height: 16),
+
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
                   ),
+                  child: _pickedImageFile != null
+                      ? Image.file(_pickedImageFile!, fit: BoxFit.cover)
+                      : const Center(child: Text('Tap to select an image')),
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCategory = value;
-                  });
-                },
-                validator: (value) => value == null
-                    ? 'Please select a category'
-                    : null,
               ),
               const SizedBox(height: 24),
+
               ElevatedButton(
                 onPressed: _createGroup,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
                 child: const Text('Create Group'),
               ),
             ],

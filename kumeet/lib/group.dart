@@ -1,6 +1,7 @@
 class Group {
   final String? id;
   final String? imagePath;
+  String? base64Image; // For storing base64-encoded image data from the server
   String name;
   int capacity;
   final int? memberCount;
@@ -10,46 +11,51 @@ class Group {
   Group({
     this.id,
     this.imagePath,
+    this.base64Image,
     required this.name,
-    //required this.description,
     required this.capacity,
     this.memberCount,
     required this.visibility,
-    required this.categories
-
+    required this.categories,
   });
 
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      //'description': description,
       'capacity': capacity,
-      'visibility':visibility,
-      'categories':categories
+      'visibility': visibility,
+      'categories': categories,
     };
   }
-    Map<String, dynamic> toJson2() {
+
+  Map<String, dynamic> toJson2() {
     return {
-      'id':id,
+      'id': id,
       'groupName': name,
-      //'description': description,
       'capacity': capacity,
       'memberCount': memberCount,
       'visibility': visibility,
-      'categories':categories
+      'categories': categories,
     };
   }
+
   factory Group.fromJson(Map<String, dynamic> json) {
+    String? base64Image;
+    if (json['photo'] != null &&
+        json['photo']['image'] != null &&
+        json['photo']['image']['data'] != null) {
+      base64Image = json['photo']['image']['data'];
+    }
+
     return Group(
       id: json['id'],
-      imagePath: 'images/group_image1.png',
+      imagePath: 'images/group_image.png', // Default fallback
+      base64Image: base64Image,
       name: json['groupName'],
-      //description: json['eventDescription'],
       capacity: json['capacity'] ?? 0,
       memberCount: json['memberCount'] ?? 0,
       visibility: json['visibility'],
-      categories: json['categories']
+      categories: json['categories'],
     );
   }
-  
 }

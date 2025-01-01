@@ -1,3 +1,4 @@
+import 'dart:convert'; // For base64Decode
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'group.dart';
@@ -22,6 +23,36 @@ class GroupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double cardWidth = 350;
+    Widget imageWidget;
+
+    // Check if base64Image is available
+    if (group.base64Image != null) {
+      try {
+        final decodedBytes = base64Decode(group.base64Image!);
+        imageWidget = Image.memory(
+          decodedBytes,
+          fit: BoxFit.cover,
+          width: cardWidth,
+          height: 150,
+        );
+      } catch (e) {
+        // If decoding fails, fallback to asset image
+        imageWidget = Image.asset(
+          group.imagePath ?? 'images/group_image1.png',
+          fit: BoxFit.cover,
+          width: cardWidth,
+          height: 150,
+        );
+      }
+    } else {
+      // Fallback to asset image if no base64Image
+      imageWidget = Image.asset(
+        group.imagePath ?? 'images/group_image1.png',
+        fit: BoxFit.cover,
+        width: cardWidth,
+        height: 150,
+      );
+    }
 
     return GestureDetector(
       onTap: onTap,
@@ -31,22 +62,18 @@ class GroupCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         elevation: 5,
-        child: IntrinsicHeight( // Ensures the card fits its content without extra space
+        child: IntrinsicHeight(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min, // Prevents extra vertical space
+            mainAxisSize: MainAxisSize.min,
             children: [
               // Top image with member count and share button
               Stack(
                 children: [
-                  // Group image
-                  Container(
-                    height: 150,
+                  SizedBox(
                     width: cardWidth,
-                    child: Image.asset(
-                      group.imagePath ?? 'images/group_image1.png',
-                      fit: BoxFit.cover,
-                    ),
+                    height: 150,
+                    child: imageWidget,
                   ),
                   // Member count
                   Positioned(
@@ -112,7 +139,7 @@ class GroupCard extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min, // Prevents extra vertical space
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Group name
                     Text(
@@ -124,7 +151,7 @@ class GroupCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 4), // Reduced spacing
+                    const SizedBox(height: 4),
                     // Group category
                     Text(
                       group.categories,

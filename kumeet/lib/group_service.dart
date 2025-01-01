@@ -1,28 +1,53 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:kumeet/event.dart';
 import 'package:kumeet/user.dart';
 import 'group.dart';
+import 'package:path/path.dart' as p;  // For filename utilities
 
 class GroupService {
   final String baseUrl = 'http://localhost:8080/api';
 
-  Future<bool> createGroup(Group group, String username) async {
-    final url = Uri.parse('$baseUrl/creategroup/$username');
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(group.toJson()),
+  Future<bool> createGroup(Group group, String username, File? imageFile) async {
+  final url = Uri.parse('$baseUrl/creategroup/$username');
+
+  try {
+    final request = http.MultipartRequest('POST', url);
+
+    // Add fields for group creation
+    request.fields['name'] = group.name;
+    request.fields['capacity'] = group.capacity.toString();
+    request.fields['visibility'] = group.visibility.toString();
+    request.fields['categories'] = group.categories;
+
+    // Add image file if provided
+    if (imageFile != null) {
+      final fileName = p.basename(imageFile.path);
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'photo', // Match the backend parameter name
+          imageFile.path,
+          filename: fileName,
+        ),
       );
-      if (response.statusCode == 201) {
-        return true;
-      }
-      return false;
-    } catch (e) {
+    }
+
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      print('Group created successfully with image!');
+      return true;
+    } else {
+      print('Failed to create group: ${response.body}');
       return false;
     }
+  } catch (e) {
+    print('Error creating group: $e');
+    return false;
   }
+}
 
   Future<bool> addEventToGroup(String groupId, String eventId) async {
     final url = Uri.parse('$baseUrl/add-event-to-group/$eventId/$groupId');
