@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:kumeet/event_service.dart';
 import 'explore_page.dart';
-import 'signup_page.dart';
+import'signup_page.dart';
 import 'login_page.dart';
 import 'event.dart';
 import 'homecontent.dart';
 import 'group_page.dart';
 import 'user_page.dart';
+import 'settings_page.dart'; // Add the settings page
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +50,6 @@ class KuMeetApp extends StatelessWidget {
           ),
         ),
 
-        /// IMPORTANT: Force the AppBar background to white (instead of orange).
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           elevation: 4,         // Adds a shadow
@@ -57,7 +57,6 @@ class KuMeetApp extends StatelessWidget {
           iconTheme: IconThemeData(color: Colors.black),
         ),
 
-        /// Give the BottomNavigationBar some elevation too, if you want the shadow
         bottomNavigationBarTheme: const BottomNavigationBarThemeData(
           elevation: 4,
           backgroundColor: Color(0xFFFFFFFF),
@@ -92,7 +91,6 @@ class KuMeetApp extends StatelessWidget {
           ),
         ),
 
-        /// Dark mode: no shadow or minimal shadow
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF1E1E1E),
           elevation: 0,
@@ -113,6 +111,7 @@ class KuMeetApp extends StatelessWidget {
         '/': (context) => const LoginPage(),
         '/signup': (context) => const SignupPage(),
         '/home': (context) => const HomePage(),
+        '/settings': (context) => const SettingsPage(), // Add settings page route
       },
     );
   }
@@ -167,9 +166,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+     setState(() {
+    _selectedIndex = index;
+
+    // Reinitialize calendar events when the Home page is selected
+    if (_selectedIndex == 0) {
+      _isLoading = true; // Set loading state to true
+      _initializeCalendarEvents();
+    }
+  });
   }
 
   @override
@@ -187,7 +192,6 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        // The AppBar background color is now determined by appBarTheme above
         centerTitle: true,
         title: Image.asset(
           'images/kumeet_logo.png',
@@ -201,9 +205,11 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications),
+            icon: const Icon(Icons.settings), // Use settings icon
             color: theme.colorScheme.onSurface,
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, '/settings'); // Navigate to settings
+            },
           ),
         ],
       ),
@@ -231,7 +237,7 @@ class _HomePageState extends State<HomePage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
-            label: 'User',
+            label: 'Admin',
           ),
         ],
         type: BottomNavigationBarType.fixed,

@@ -2,7 +2,6 @@ class Event {
   final String? id;
   final String? imagePath; // still can keep this for fallback/placeholder
   String? base64Image;     // <-- new field to hold the base64 data from server
-
   String title;
   String description;
   String location;

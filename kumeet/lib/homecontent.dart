@@ -98,16 +98,15 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
                     padding: EdgeInsets.all(16.0),
                     child: Text('No groups available'),
                   )
-                : ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _groups.length,
-                    itemBuilder: (context, index) {
-                      final group = _groups[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16.0), // Spacing between cards
-                        child: Align(
-                          alignment: Alignment.centerLeft, // Align GroupCards to the left
+                : SizedBox(
+                    height: 225,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _groups.length,
+                      itemBuilder: (context, index) {
+                        final group = _groups[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 16.0),
                           child: GroupCard(
                             group: group,
                             onTap: () {
@@ -119,9 +118,9 @@ class _YourGroupsSectionState extends State<YourGroupsSection> {
                               );
                             },
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
       ],
     );
@@ -151,16 +150,15 @@ class UpcomingEventsSection extends StatelessWidget {
             child: Text('No upcoming events'),
           )
         else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: upcomingEvents.length,
-            itemBuilder: (context, index) {
-              final event = upcomingEvents[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16.0), // Spacing between cards
-                child: Align(
-                  alignment: Alignment.centerLeft, // Ensures cards align to the left
+          SizedBox(
+            height: 250,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: upcomingEvents.length,
+              itemBuilder: (context, index) {
+                final event = upcomingEvents[index];
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
                   child: EventCard(
                     event: event,
                     onTap: () {
@@ -176,9 +174,9 @@ class UpcomingEventsSection extends StatelessWidget {
                       );
                     },
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
       ],
     );
@@ -208,16 +206,15 @@ class PassedEventsSection extends StatelessWidget {
             child: Text('No passed events'),
           )
         else
-          ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: passedEvents.length,
-            itemBuilder: (context, index) {
-              final event = passedEvents[index];
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16.0), // Spacing between cards
-                child: Align(
-                  alignment: Alignment.centerLeft, // Ensures cards align to the left
+          SizedBox(
+            height: 250,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: passedEvents.length,
+              itemBuilder: (context, index) {
+                final event = passedEvents[index];
+                return Padding(
+                  padding: const EdgeInsets.only(right: 16.0),
                   child: EventCard(
                     event: event,
                     onTap: () {
@@ -233,9 +230,9 @@ class PassedEventsSection extends StatelessWidget {
                       );
                     },
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
       ],
     );

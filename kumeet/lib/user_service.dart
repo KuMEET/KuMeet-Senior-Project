@@ -71,21 +71,29 @@ class UserService {
       throw Exception('Error: $e');
     }
   }
-  Future<User> updateUser(String userName, User user) async {
-      try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/update/$userName'),
+Future<User> updateUser(String userName, User user) async {
+    final url = Uri.parse('$baseUrl/update/$userName');
+    try {
+      final response = await http.put(
+        url,
         headers: {'Content-Type': 'application/json'},
-        body: json.encode(user.toJson()),
+        body: jsonEncode({
+          'userName': user.userName,
+          'name': user.name,
+          'surname': user.surname,
+          'email': user.email,
+          'password': user.password,
+        }),
       );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
-        return json.decode(response.body); // Return user data on success
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final updatedUserJson = jsonDecode(response.body);
+        return User.fromJson(updatedUserJson); // Parse the updated user data
       } else {
-        throw Exception('Failed to update user: ${response.statusCode}');
+        throw Exception('Failed to update user: ${response.body}');
       }
     } catch (e) {
-      throw Exception('Error: $e');
+      throw Exception('Error updating user: $e');
     }
   }
 }

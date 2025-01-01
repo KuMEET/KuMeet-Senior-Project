@@ -41,12 +41,22 @@ class User {
       'userName': userName,
       'name': name,
       'surname': surname,
-      'password': password,
+      'passWord': password,
       'email': email,
       'groupReferenceList': List<dynamic>.from(groupReferenceList.map((x) => x.toJson())),
       'eventReferenceList': List<dynamic>.from(eventReferenceList.map((x) => x.toJson())),
     };
   }
+  Map<String, dynamic> toJson2() {
+    return {
+      'userName': userName,
+      'name': name,
+      'surname': surname,
+      'EMail': email,
+      'passWord': password,
+    };
+  }
+
 }
 
 class GroupReference {
