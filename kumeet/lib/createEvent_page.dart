@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:kumeet/event.dart';
@@ -20,16 +22,14 @@ class CreateEventPage extends StatefulWidget {
 
 class _CreateEventPageState extends State<CreateEventPage> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
+  final _titleController       = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _seatsController = TextEditingController();
-  LatLng? _eventLocation;
+  final _seatsController       = TextEditingController();
+
+  LatLng?  _eventLocation;
   DateTime? _selectedDate;
-  String? _selectedCategory;
-  String? userName = GlobalState().userName; // Ensure this is correctly initialized
-  final EventService eventService = EventService();
-  final GroupService groupService = GroupService();
-  bool _isVisible = true;
+  String?  _selectedCategory;
+  bool     _isVisible = true;
 
   final List<String> _categories = [
     "Art & Culture",
@@ -44,6 +44,28 @@ class _CreateEventPageState extends State<CreateEventPage> {
     "Travel & Outdoor",
   ];
 
+  String? userName = GlobalState().userName;
+  final EventService eventService = EventService();
+  final GroupService groupService = GroupService();
+
+  // This will store the file (picked image) locally
+  File? _pickedImageFile;
+
+  // 1) Method to pick an image from gallery
+  Future<void> _pickImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() {
+          _pickedImageFile = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      print("Error picking image: $e");
+    }
+  }
+
   Future<void> _pickLocation() async {
     final LatLng? pickedLocation = await Navigator.push(
       context,
@@ -53,60 +75,6 @@ class _CreateEventPageState extends State<CreateEventPage> {
       setState(() {
         _eventLocation = pickedLocation;
       });
-    }
-  }
-
-  void _createEvent() async {
-    if (_formKey.currentState!.validate()) {
-      if (_eventLocation == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a location')),
-        );
-        return;
-      }
-
-      if (_selectedCategory == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a category')),
-        );
-        return;
-      }
-
-      final newEvent = Event(
-        title: _titleController.text,
-        description: _descriptionController.text,
-        location: 'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
-        latitude: _eventLocation!.latitude,
-        longitude: _eventLocation!.longitude,
-        seatsAvailable: int.parse(_seatsController.text),
-        date: _selectedDate!,
-        imagePath: 'images/event_image.png',
-        visibility: _isVisible,
-        categories: _selectedCategory!,
-        groupID: widget.selectedGroup.id!,
-      );
-      final success = await eventService.createEvent(newEvent, userName!);
-      if (success) {
-        final createdEvents = await eventService.getEvents();
-        for(var event in createdEvents){
-          if(event.title == newEvent.title && event.description == newEvent.description){
-            final binding = await groupService.addEventToGroup(widget.selectedGroup.id!, event.id!);
-            if(binding){
-            }
-          }
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Event created successfully!')),
-        );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to create event.')),
-        );
-      }
     }
   }
 
@@ -124,6 +92,75 @@ class _CreateEventPageState extends State<CreateEventPage> {
     }
   }
 
+  // 2) Updated create method which now includes image
+  void _createEvent() async {
+    if (_formKey.currentState!.validate()) {
+      if (_eventLocation == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a location')),
+        );
+        return;
+      }
+
+      if (_selectedCategory == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a category')),
+        );
+        return;
+      }
+
+      // If picking an image is mandatory, check that:
+      if (_pickedImageFile == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please pick an image')),
+        );
+        return;
+      }
+
+      final newEvent = Event(
+        title:         _titleController.text,
+        description:   _descriptionController.text,
+        location:      'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
+        latitude:      _eventLocation!.latitude,
+        longitude:     _eventLocation!.longitude,
+        seatsAvailable: int.parse(_seatsController.text),
+        date:          _selectedDate!,
+        imagePath:     'images/event_image.png', // not super relevant if we’re passing the file
+        visibility:    _isVisible,
+        categories:    _selectedCategory!,
+        groupID:       widget.selectedGroup.id!,
+      );
+
+      // 3) Call createEvent with the new image parameter
+      final success = await eventService.createEvent(newEvent, userName!, _pickedImageFile);
+
+      if (success) {
+        // Then optionally add the event to the group if needed
+        final createdEvents = await eventService.getEvents();
+        for (var event in createdEvents) {
+          if (event.title == newEvent.title && event.description == newEvent.description) {
+            final binding = await groupService.addEventToGroup(widget.selectedGroup.id!, event.id!);
+            if (binding) {
+              print("Event bound to the group successfully.");
+            }
+          }
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Event created successfully!')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to create event.')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,6 +174,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Event Title
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(
@@ -149,11 +187,15 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   ),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Please enter a title';
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a title';
+                  }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
+
+              // Event Description
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 3,
@@ -167,11 +209,15 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   ),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Please enter a description';
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a description';
+                  }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
+
+              // Seats
               TextFormField(
                 controller: _seatsController,
                 keyboardType: TextInputType.number,
@@ -185,11 +231,15 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   ),
                 ),
                 validator: (value) {
-                  if (value == null || int.tryParse(value) == null) return 'Please enter a valid number';
+                  if (value == null || int.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
+
+              // Category Dropdown
               DropdownButtonFormField<String>(
                 value: _selectedCategory,
                 decoration: InputDecoration(
@@ -210,9 +260,12 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     _selectedCategory = value;
                   });
                 },
-                validator: (value) => value == null ? 'Please select a category' : null,
+                validator: (value) =>
+                  value == null ? 'Please select a category' : null,
               ),
               const SizedBox(height: 16),
+
+              // Pick location
               Row(
                 children: [
                   ElevatedButton(
@@ -222,17 +275,23 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
-                      _eventLocation == null ? 'No location selected' : 'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
+                      _eventLocation == null
+                        ? 'No location selected'
+                        : 'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
+
+              // Pick date
               Row(
                 children: [
                   const SizedBox(width: 8),
                   Text(
-                    _selectedDate == null ? 'Select Event Date' : DateFormat.yMMMd().format(_selectedDate!),
+                    _selectedDate == null
+                        ? 'Select Event Date'
+                        : DateFormat.yMMMd().format(_selectedDate!),
                   ),
                   const Spacer(),
                   TextButton(
@@ -242,6 +301,8 @@ class _CreateEventPageState extends State<CreateEventPage> {
                 ],
               ),
               const SizedBox(height: 16),
+
+              // Visibility Switch
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -256,7 +317,32 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   ),
                 ],
               ),
+              const SizedBox(height: 16),
+
+              // Pick image button
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: _pickImage,
+                    child: const Text('Pick Event Image'),
+                  ),
+                  const SizedBox(width: 16),
+                  // Show basic preview if an image was picked
+                  _pickedImageFile != null
+                    ? SizedBox(
+                        width: 80,
+                        height: 80,
+                        child: Image.file(
+                          _pickedImageFile!,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : const Text('No image selected'),
+                ],
+              ),
               const SizedBox(height: 24),
+
+              // Create Event button
               ElevatedButton(
                 onPressed: _createEvent,
                 style: ElevatedButton.styleFrom(

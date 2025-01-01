@@ -1,26 +1,61 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:kumeet/event.dart';
 import 'package:kumeet/user.dart';
 import 'package:kumeet/userReference.dart';
-import 'event.dart';
+import 'package:path/path.dart' as p;  // For filename utilities
 
 class EventService {
   final String baseUrl = 'http://localhost:8080/api';
 
   // Method to create an event
-  Future<bool> createEvent(Event event, String username) async {
-    final url = Uri.parse('$baseUrl/create-event/$username');
+  Future<bool> createEvent(Event event, String username, File? imageFile) async {
+    // If no image is provided, you can decide what to do.
+    if (imageFile == null) {
+      print("No image selected for this event.");
+      // Depending on your backend logic, it might fail or you might skip
+      // the photo param. For now, we’ll fail:
+      return false;
+    }
     try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(event.toJson()), // Convert Event to JSON
+      final uri = Uri.parse('$baseUrl/create-event/$username');
+      // Create multipart request
+      final request = http.MultipartRequest('POST', uri);
+
+      // Add all fields that match @ModelAttribute EventDto
+      // (they must have the same names as in your EventDto)
+      request.fields['title']       = event.title;
+      request.fields['description'] = event.description;
+      request.fields['latitude']    = event.latitude.toString();
+      request.fields['longitude']   = event.longitude.toString();
+      request.fields['capacity']    = event.seatsAvailable.toString();
+      // Make sure to format the date the same way your backend expects
+      request.fields['time']        = event.date?.toIso8601String() ?? '';
+      request.fields['visibility']  = event.visibility.toString();
+      request.fields['categories']  = event.categories;
+
+      // If you want to send groupID as well, make sure your backend's DTO can handle it
+      if (event.groupID != null) {
+        request.fields['groupID'] = event.groupID!;
+      }
+
+      // Add file (photo) -> must match @RequestParam("photo")
+      final fileName = p.basename(imageFile.path);
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'photo',            // <-- the 'name' must match @RequestParam("photo")
+          imageFile.path,
+          filename: fileName, // or you can do "event_${DateTime.now().millisecondsSinceEpoch}.jpg"
+        ),
       );
 
+      // Send request
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
       if (response.statusCode == 201) {
-        print('Event created successfully!');
+        print('Event created successfully with image!');
         return true;
       } else {
         print('Failed to create event: ${response.body}');
