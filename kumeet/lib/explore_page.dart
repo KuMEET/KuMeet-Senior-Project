@@ -53,7 +53,8 @@ class _ExplorePageState extends State<ExplorePage> {
       final Map<String, List<Event>> categorized = {};
 
       for (var category in categories) {
-        categorized[category] = events.where((event) => event.categories == category).toList();
+        categorized[category] =
+            events.where((event) => event.categories == category).toList();
       }
 
       setState(() {
@@ -110,6 +111,13 @@ class ExploreBody extends StatefulWidget {
 class _ExploreBodyState extends State<ExploreBody> {
   LatLng? userLocation;
 
+  // --- ADDED: State for search and filter ---
+  String _searchQuery = '';
+  String? _selectedCategory;
+  bool? _selectedVisibility;
+  DateTime? _selectedDate;
+  // -----------------------------------------
+
   @override
   void initState() {
     super.initState();
@@ -132,6 +140,124 @@ class _ExploreBodyState extends State<ExploreBody> {
     }
   }
 
+  // --- ADDED: Search and filter handling ---
+  void _onSearchChanged(String value) {
+    setState(() {
+      _searchQuery = value;
+    });
+  }
+
+  void _showFilterDialog() {
+    // Temporary holders to avoid directly modifying state until "Apply"
+    String? tempCategory = _selectedCategory;
+    bool? tempVisibility = _selectedVisibility;
+    DateTime? tempDate = _selectedDate;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setTempState) {
+            return AlertDialog(
+              title: const Text('Filter Events'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Category dropdown
+                    DropdownButtonFormField<String>(
+                      value: tempCategory,
+                      decoration: const InputDecoration(labelText: 'Category'),
+                      items: [
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text('All'),
+                        ),
+                        ...widget.categorizedEvents.keys.map(
+                          (cat) => DropdownMenuItem(
+                            value: cat,
+                            child: Text(cat),
+                          ),
+                        ),
+                      ],
+                      onChanged: (String? val) {
+                        setTempState(() {
+                          tempCategory = val;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    // Date picker
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            tempDate == null
+                                ? 'No date selected'
+                                : 'Selected: ${tempDate?.toLocal()}'.split(' ')[0],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.date_range),
+                          onPressed: () async {
+                            final picked = await showDatePicker(
+                              context: context,
+                              initialDate: tempDate ?? DateTime.now(),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime(2100),
+                            );
+                            if (picked != null) {
+                              setTempState(() {
+                                tempDate = picked;
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    // Visibility switch
+                    SwitchListTile(
+                      title: const Text('Only show visible events'),
+                      value: tempVisibility ?? false,
+                      onChanged: (bool val) {
+                        setTempState(() {
+                          tempVisibility = val;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedCategory = tempCategory;
+                      _selectedVisibility = tempVisibility;
+                      _selectedDate = tempDate;
+                    });
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Apply'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  bool _isSameDate(DateTime d1, DateTime d2) {
+    return d1.year == d2.year && d1.month == d2.month && d1.day == d2.day;
+  }
+  // -----------------------------------------
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -139,7 +265,12 @@ class _ExploreBodyState extends State<ExploreBody> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SearchAndFilterBar(),
+          // -- UPDATED: Pass callbacks to search and filter --
+          SearchAndFilterBar(
+            onSearchChanged: _onSearchChanged,
+            onFilterPressed: _showFilterDialog,
+          ),
+          // --------------------------------------------------
           const SizedBox(height: 16),
           buildMapView(),
           const SizedBox(height: 16),
@@ -186,7 +317,9 @@ class _ExploreBodyState extends State<ExploreBody> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => MapView(
-                      events: widget.categorizedEvents.values.expand((e) => e).toList(),
+                      events: widget.categorizedEvents.values
+                          .expand((e) => e)
+                          .toList(),
                     ),
                   ),
                 );
@@ -203,9 +336,32 @@ class _ExploreBodyState extends State<ExploreBody> {
     return Column(
       children: widget.categorizedEvents.entries.map((entry) {
         final category = entry.key;
-        final events = entry.value;
 
-        if (events.isEmpty) return const SizedBox.shrink();
+        // --- ADDED: Filter logic ---
+        final filteredEvents = entry.value.where((event) {
+          // Search match
+          final query = _searchQuery.toLowerCase();
+          final titleMatches = event.title.toLowerCase().contains(query);
+          final descMatches = event.description.toLowerCase().contains(query);
+          final searchMatch = query.isEmpty ? true : (titleMatches || descMatches);
+
+          // Category match
+          final categoryMatch =
+              _selectedCategory == null || event.categories == _selectedCategory;
+
+          // Visibility match
+          final visibilityMatch =
+              _selectedVisibility == null || event.visibility == _selectedVisibility;
+
+          // Date match (if user selected a date, we compare by exact day)
+          final dateMatch = _selectedDate == null ||
+              (event.date != null && _isSameDate(event.date!, _selectedDate!));
+
+          return searchMatch && categoryMatch && visibilityMatch && dateMatch;
+        }).toList();
+        // --------------------------------
+
+        if (filteredEvents.isEmpty) return const SizedBox.shrink();
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -222,9 +378,9 @@ class _ExploreBodyState extends State<ExploreBody> {
               height: 250,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: events.length,
+                itemCount: filteredEvents.length,
                 itemBuilder: (context, index) {
-                  final event = events[index];
+                  final event = filteredEvents[index];
                   return Padding(
                     padding: const EdgeInsets.only(right: 8.0),
                     child: EventCard(
@@ -258,7 +414,16 @@ class _ExploreBodyState extends State<ExploreBody> {
 }
 
 class SearchAndFilterBar extends StatelessWidget {
-  const SearchAndFilterBar({Key? key}) : super(key: key);
+  // --- ADDED: We take callbacks for search and filter ---
+  final ValueChanged<String> onSearchChanged;
+  final VoidCallback onFilterPressed;
+
+  const SearchAndFilterBar({
+    Key? key,
+    required this.onSearchChanged,
+    required this.onFilterPressed,
+  }) : super(key: key);
+  // -----------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -266,6 +431,8 @@ class SearchAndFilterBar extends StatelessWidget {
       children: [
         Expanded(
           child: TextField(
+            // ADDED: handle onChanged
+            onChanged: onSearchChanged,
             decoration: InputDecoration(
               hintText: 'Search Events • Koç University',
               prefixIcon: const Icon(Icons.search),
@@ -279,9 +446,7 @@ class SearchAndFilterBar extends StatelessWidget {
         const SizedBox(width: 8),
         IconButton(
           icon: const Icon(Icons.filter_list),
-          onPressed: () {
-            // Add filter functionality
-          },
+          onPressed: onFilterPressed,
         ),
       ],
     );
@@ -291,7 +456,8 @@ class SearchAndFilterBar extends StatelessWidget {
 class ExploreFloatingActionButton extends StatelessWidget {
   final Function(Event) onAddEvent;
 
-  const ExploreFloatingActionButton({Key? key, required this.onAddEvent}) : super(key: key);
+  const ExploreFloatingActionButton({Key? key, required this.onAddEvent})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
