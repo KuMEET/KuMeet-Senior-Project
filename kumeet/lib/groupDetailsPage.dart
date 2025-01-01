@@ -2,9 +2,9 @@ import 'dart:convert'; // For base64Decode
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'group.dart';
-import 'group_service.dart';
+import 'groupService.dart';
 import 'groupEventsPage.dart';
-import 'package:kumeet/login_page.dart';
+import 'package:kumeet/loginPage.dart';
 
 class GroupDetailsPage extends StatefulWidget {
   final Group group;

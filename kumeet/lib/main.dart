@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:kumeet/event_service.dart';
-import 'explore_page.dart';
-import'signup_page.dart';
-import 'login_page.dart';
+import 'package:kumeet/eventService.dart';
+import 'explorePage.dart';
+import'signupPage.dart';
+import 'loginPage.dart';
 import 'event.dart';
 import 'homecontent.dart';
-import 'group_page.dart';
-import 'user_page.dart';
-import 'settings_page.dart'; // Add the settings page
+import 'groupPage.dart';
+import 'userPage.dart';
+import 'settingsPage.dart'; // Add the settings page
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

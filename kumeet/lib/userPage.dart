@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kumeet/group.dart';
-import 'package:kumeet/group_service.dart';
-import 'package:kumeet/group_card.dart';
-import 'package:kumeet/group_details_page2.dart';
-import 'package:kumeet/login_page.dart';
+import 'package:kumeet/groupService.dart';
+import 'package:kumeet/groupCard.dart';
+import 'package:kumeet/groupDetailsPage2.dart';
+import 'package:kumeet/loginPage.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({Key? key}) : super(key: key);

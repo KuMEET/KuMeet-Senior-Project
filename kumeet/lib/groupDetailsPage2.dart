@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kumeet/groupEventPage2.dart';
-import 'package:kumeet/groupMembers_page.dart'; // Ensure this page exists
+import 'package:kumeet/groupMembersPage.dart'; // Ensure this page exists
 import 'group.dart';
-import 'group_service.dart';
-import 'edit_groupPage.dart';
+import 'groupService.dart';
+import 'editGroupPage.dart';
 
 class GroupDetailsPage2 extends StatefulWidget {
   final Group group;

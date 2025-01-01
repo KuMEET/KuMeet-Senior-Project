@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:kumeet/group.dart';
-import 'package:kumeet/login_page.dart';
-import 'group_service.dart';
+import 'package:kumeet/loginPage.dart';
+import 'groupService.dart';
 
 class CreateGroupPage extends StatefulWidget {
   const CreateGroupPage({super.key});

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'event_service.dart';
-import 'createEvent_page.dart';
-import 'event_card.dart';
-import 'eventDetail_page.dart';
+import 'eventService.dart';
+import 'createEventPage.dart';
+import 'eventCard.dart';
+import 'eventDetailPage.dart';
 import 'event.dart';
-import 'map_view.dart';
-import 'owned_groups_page.dart';
+import 'mapView.dart';
+import 'ownedGroupsPage.dart';
 
 class ExplorePage extends StatefulWidget {
   final Function(Event) onAddEventToCalendar;

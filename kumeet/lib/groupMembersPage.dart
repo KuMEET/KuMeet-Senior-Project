@@ -1,58 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:kumeet/event_service.dart';
-import 'package:kumeet/login_page.dart';
+import 'package:kumeet/groupService.dart';
+import 'package:kumeet/loginPage.dart';
 import 'user.dart'; // Ensure you have this User model defined
 
-class EventMembersPage extends StatefulWidget {
-  final String eventId;
-  final String eventName;
+class GroupMembersPage extends StatefulWidget {
+  final String groupId;
+  final String groupName;
 
-  const EventMembersPage({Key? key, required this.eventId, required this.eventName}) : super(key: key);
+  const GroupMembersPage({Key? key, required this.groupId, required this.groupName}) : super(key: key);
 
   @override
-  _EventMembersPageState createState() => _EventMembersPageState();
+  _GroupMembersPageState createState() => _GroupMembersPageState();
 }
 
-class _EventMembersPageState extends State<EventMembersPage> {
-  final EventService eventService = EventService();
+class _GroupMembersPageState extends State<GroupMembersPage> {
+  final GroupService groupService = GroupService();
   late Future<List<User>> _membersFuture;
   late Future<List<User>> _adminsFuture;
-  String? loggedInUserName = GlobalState().userName; // Retrieve the logged-in user's username
+
+  String? loggedInUsername = GlobalState().userName; // Get the current user's username
 
   @override
   void initState() {
     super.initState();
-    _membersFuture = _fetchMembersWithDefaultRole();
-    _adminsFuture = _fetchAdminsWithExclusion();
+    _membersFuture = groupService.showMembersOfGroup(widget.groupId);
+    _adminsFuture = groupService.showAdminsOfGroup(widget.groupId);
   }
 
-  Future<List<User>> _fetchMembersWithDefaultRole() async {
-    final members = await eventService.showMembers(widget.eventId);
-    for (var member in members) {
-      if (member.role == null || member.role!.isEmpty) {
-        member.role = 'Member'; // Assign default role
-      }
-    }
-    return members;
-  }
-
-  Future<List<User>> _fetchAdminsWithExclusion() async {
-    final admins = await eventService.showAdmins(widget.eventId);
-    return admins
-        .where((admin) => admin.userName != loggedInUserName) // Exclude the logged-in user
-        .map((admin) {
-          admin.role = 'Admin'; // Ensure admin role is assigned
-          return admin;
-        })
-        .toList();
-  }
-
-  Future<void> _deleteUser(String userName) async {
+  Future<void> _deleteMember(String userName) async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Confirm Deletion'),
-        content: const Text('Are you sure you want to remove this user from the event?'),
+        content: const Text('Are you sure you want to remove this member from the group?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -67,18 +47,18 @@ class _EventMembersPageState extends State<EventMembersPage> {
     );
 
     if (confirm == true) {
-      final success = await eventService.deleteMemberFromEvent(userName, widget.eventId);
+      final success = await groupService.deleteMemberFromGroup(userName, widget.groupId);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$userName removed successfully!')),
         );
         setState(() {
-          _membersFuture = _fetchMembersWithDefaultRole(); // Refresh members
-          _adminsFuture = _fetchAdminsWithExclusion(); // Refresh admins
+          _membersFuture = groupService.showMembersOfGroup(widget.groupId); // Refresh the member list
+          _adminsFuture = groupService.showAdminsOfGroup(widget.groupId); // Refresh admins list
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to remove the user.')),
+          const SnackBar(content: Text('Failed to remove the member.')),
         );
       }
     }
@@ -104,14 +84,14 @@ class _EventMembersPageState extends State<EventMembersPage> {
     );
 
     if (confirm == true) {
-      final success = await eventService.updateMemberRoleInEvent(userName, widget.eventId, newRole);
+      final success = await groupService.updateMemberRoleInGroup(userName, widget.groupId, newRole);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('$userName role updated to $newRole!')),
         );
         setState(() {
-          _membersFuture = _fetchMembersWithDefaultRole();
-          _adminsFuture = _fetchAdminsWithExclusion();
+          _membersFuture = groupService.showMembersOfGroup(widget.groupId); // Refresh the member list
+          _adminsFuture = groupService.showAdminsOfGroup(widget.groupId); // Refresh admins list
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -121,14 +101,21 @@ class _EventMembersPageState extends State<EventMembersPage> {
     }
   }
 
-  Widget _buildUserList(List<User> users, String roleType) {
+  Widget _buildUserList(List<User> users, bool isAdminList) {
+    // Filter out the logged-in user from the admins list
+    final filteredUsers = isAdminList && loggedInUsername != null
+        ? users.where((user) => user.userName != loggedInUsername).toList()
+        : users;
+
     return ListView.builder(
       padding: const EdgeInsets.all(16.0),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: users.length,
+      itemCount: filteredUsers.length,
       itemBuilder: (context, index) {
-        final user = users[index];
+        final user = filteredUsers[index];
+        final userRole = user.role?.isNotEmpty == true ? user.role : 'Member';
+
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8.0),
           shape: RoundedRectangleBorder(
@@ -139,7 +126,7 @@ class _EventMembersPageState extends State<EventMembersPage> {
             leading: CircleAvatar(
               radius: 24,
               child: Text(
-                user.name[0],
+                user.name[0], // Display the first letter of the name
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
             ),
@@ -147,13 +134,13 @@ class _EventMembersPageState extends State<EventMembersPage> {
               '${user.name} ${user.surname}',
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            subtitle: roleType == 'Admin'
+            subtitle: isAdminList
                 ? const Text('Role: Admin')
                 : Row(
                     children: [
                       const Text('Role: '),
                       DropdownButton<String>(
-                        value: user.role,
+                        value: userRole,
                         onChanged: (newRole) {
                           if (newRole != null) {
                             _updateRole(user.userName, newRole);
@@ -170,8 +157,8 @@ class _EventMembersPageState extends State<EventMembersPage> {
                   ),
             trailing: IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              tooltip: 'Remove User',
-              onPressed: () => _deleteUser(user.userName),
+              tooltip: 'Remove Member',
+              onPressed: () => _deleteMember(user.userName),
             ),
           ),
         );
@@ -183,7 +170,7 @@ class _EventMembersPageState extends State<EventMembersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.eventName} Members & Admins'),
+        title: Text('${widget.groupName} Members & Admins'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -198,7 +185,7 @@ class _EventMembersPageState extends State<EventMembersPage> {
                     child: Text('Error fetching members: ${snapshot.error}'),
                   );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No members found for this event.'));
+                  return const Center(child: Text('No members found for this group.'));
                 }
 
                 final members = snapshot.data!;
@@ -208,11 +195,11 @@ class _EventMembersPageState extends State<EventMembersPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        '${widget.eventName} Members',
+                        '${widget.groupName}\'s Members',
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    _buildUserList(members, 'Member'),
+                    _buildUserList(members, false),
                   ],
                 );
               },
@@ -227,7 +214,7 @@ class _EventMembersPageState extends State<EventMembersPage> {
                     child: Text('Error fetching admins: ${snapshot.error}'),
                   );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('No admins found for this event.'));
+                  return const Center(child: Text('No admins found for this group.'));
                 }
 
                 final admins = snapshot.data!;
@@ -237,11 +224,11 @@ class _EventMembersPageState extends State<EventMembersPage> {
                     Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Text(
-                        '${widget.eventName} Admins',
+                        '${widget.groupName}\'s Admins',
                         style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    _buildUserList(admins, 'Admin'),
+                    _buildUserList(admins, true),
                   ],
                 );
               },

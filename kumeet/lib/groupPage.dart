@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:kumeet/create_group_page.dart';
-import 'group_card.dart';
-import 'group_details_page.dart';
-import 'group_service.dart';
+import 'package:kumeet/createGroupPage.dart';
+import 'groupCard.dart';
+import 'groupDetailsPage.dart';
+import 'groupService.dart';
 import 'group.dart';
 
 class GroupPage extends StatefulWidget {

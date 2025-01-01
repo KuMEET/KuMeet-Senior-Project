@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'event_service.dart';
+import 'eventService.dart';
 import 'userReference.dart';
 
 class PendingUsersPage extends StatefulWidget {

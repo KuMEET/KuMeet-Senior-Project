@@ -9,10 +9,10 @@ import 'package:http/http.dart' as http;
 import 'package:kumeet/event.dart';
 import 'package:kumeet/eventService.dart';
 import 'package:kumeet/group.dart';
-import 'package:kumeet/group_service.dart';
-import 'package:kumeet/login_page.dart';
+import 'package:kumeet/groupService.dart';
+import 'package:kumeet/loginPage.dart';
 import 'package:kumeet/main.dart';
-import 'map_picker_page.dart';
+import 'mapPickerPage.dart';
 
 class CreateEventPage extends StatefulWidget {
   final Group selectedGroup;

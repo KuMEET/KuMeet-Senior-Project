@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:kumeet/login_page.dart';
-import 'group_card.dart';
+import 'package:kumeet/loginPage.dart';
+import 'groupCard.dart';
 import 'event.dart';
-import 'event_card.dart';
-import 'eventDetail_page.dart';
-import 'group_details_page.dart';
-import 'group_service.dart';
+import 'eventCard.dart';
+import 'eventDetailPage.dart';
+import 'groupDetailsPage.dart';
+import 'groupService.dart';
 import 'group.dart';
 
 class HomeContent extends StatelessWidget {

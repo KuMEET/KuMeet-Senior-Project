@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kumeet/edit_eventPage.dart';
+import 'package:kumeet/editEventPage.dart';
 import 'package:kumeet/pendingUsersPage.dart';
-import 'package:kumeet/eventMembers_page.dart'; // Ensure this page is created
+import 'package:kumeet/eventMembersPage.dart'; // Ensure this page is created
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'event.dart';
-import 'event_service.dart';
+import 'eventService.dart';
 
 class EventDetailPage2 extends StatefulWidget {
   final Event event;

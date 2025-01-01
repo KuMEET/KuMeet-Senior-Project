@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kumeet/login_page.dart';
+import 'package:kumeet/loginPage.dart';
 import 'group.dart';
-import 'group_service.dart';
-import 'group_card.dart';
-import 'createEvent_page.dart';
+import 'groupService.dart';
+import 'groupCard.dart';
+import 'createEventPage.dart';
 
 class OwnedGroupsPage extends StatefulWidget {
   const OwnedGroupsPage({super.key});

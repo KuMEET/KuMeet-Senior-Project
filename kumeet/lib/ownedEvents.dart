@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:kumeet/eventDetail_page2.dart';
+import 'package:kumeet/eventDetailPage2.dart';
 import 'event.dart';
-import 'event_service.dart';
-import 'event_card.dart';
-import 'login_page.dart';
+import 'eventService.dart';
+import 'eventCard.dart';
+import 'loginPage.dart';
 
 class OwnedEventsPage extends StatefulWidget {
   const OwnedEventsPage({super.key});

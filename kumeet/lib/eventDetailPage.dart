@@ -9,8 +9,8 @@ import 'package:device_calendar/device_calendar.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 import 'event.dart' as app_event;
-import 'event_service.dart';
-import 'login_page.dart';
+import 'eventService.dart';
+import 'loginPage.dart';
 
 class EventDetailPage extends StatefulWidget {
   final app_event.Event event;

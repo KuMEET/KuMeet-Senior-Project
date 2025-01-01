@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'event.dart';
-import 'eventDetail_page.dart';
-import 'map_event_card.dart';
+import 'eventDetailPage.dart';
+import 'mapEventCard.dart';
 
 class MapView extends StatefulWidget {
   final List<Event> events;

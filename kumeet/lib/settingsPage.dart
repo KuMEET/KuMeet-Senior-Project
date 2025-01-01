@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kumeet/user.dart';
-import 'package:kumeet/user_service.dart';
-import 'package:kumeet/login_page.dart';
+import 'package:kumeet/userService.dart';
+import 'package:kumeet/loginPage.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kumeet/event.dart';
-import 'package:kumeet/eventDetail_page.dart';
-import 'package:kumeet/group_service.dart';
+import 'package:kumeet/eventDetailPage.dart';
+import 'package:kumeet/groupService.dart';
 import 'package:kumeet/group.dart';
-import 'event_card.dart'; // Make sure this import points to your EventCard definition file
+import 'eventCard.dart'; // Make sure this import points to your EventCard definition file
 
 class GroupEventsPage extends StatefulWidget {
   final Group group;
