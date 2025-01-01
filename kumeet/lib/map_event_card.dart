@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'event.dart';
+import 'dart:convert';
 
 class MapEventCard extends StatelessWidget {
   final Event event;
@@ -17,6 +18,34 @@ class MapEventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    // Decide which image to show
+    Widget imageWidget;
+    if (event.base64Image != null) {
+      try {
+        final decodedBytes = base64Decode(event.base64Image!);
+        imageWidget = Image.memory(
+          decodedBytes,
+          width: 120,
+          height: 80,
+          fit: BoxFit.cover,
+        );
+      } catch (e) {
+        imageWidget = Image.asset(
+          event.imagePath ?? 'images/event_image.png',
+          width: 120,
+          height: 80,
+          fit: BoxFit.cover,
+        );
+      }
+    } else {
+      imageWidget = Image.asset(
+        event.imagePath ?? 'images/event_image.png',
+        width: 120,
+        height: 80,
+        fit: BoxFit.cover,
+      );
+    }
 
     return GestureDetector(
       onTap: onTap,

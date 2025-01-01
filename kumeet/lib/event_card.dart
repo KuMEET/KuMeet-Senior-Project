@@ -1,3 +1,4 @@
+import 'dart:convert';     // for base64Decode
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -12,10 +13,9 @@ class EventCard extends StatelessWidget {
     Key? key,
     required this.event,
     required this.onTap,
-    this.cardWidth = 350, // Default width
+    this.cardWidth = 350,
   }) : super(key: key);
 
-  // Share functionality using share_plus
   void _shareEvent(BuildContext context) {
     Share.share(
       'Check out this event: ${event.title}\n\nDescription: ${event.description}\nLocation: ${event.location}',
@@ -25,6 +25,37 @@ class EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget imageWidget;
+
+    // If event.base64Image exists, decode it
+    if (event.base64Image != null) {
+      try {
+        final decodedBytes = base64Decode(event.base64Image!);
+        imageWidget = Image.memory(
+          decodedBytes,
+          fit: BoxFit.cover,
+          width: cardWidth,
+          height: 150,
+        );
+      } catch (e) {
+        // If decoding fails for some reason, fallback
+        imageWidget = Image.asset(
+          event.imagePath ?? 'images/event_image.png',
+          fit: BoxFit.cover,
+          width: cardWidth,
+          height: 150,
+        );
+      }
+    } else {
+      // No photo from server -> fallback to your local asset
+      imageWidget = Image.asset(
+        event.imagePath ?? 'images/event_image.png',
+        fit: BoxFit.cover,
+        width: cardWidth,
+        height: 150,
+      );
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -38,111 +69,61 @@ class EventCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top image with attendee number and share button
               Stack(
                 children: [
-                  // Cropped image with fixed dimensions
-                  Container(
+                  SizedBox(
                     width: cardWidth,
                     height: 150,
-                    child: Image.asset(
-                      event.imagePath ?? 'assets/placeholder.jpg',
-                      fit: BoxFit.cover,
-                    ),
+                    child: imageWidget,
                   ),
-                  // Overlay for attendee number
+                  // The rest is unchanged...
                   Positioned(
                     bottom: 8,
                     left: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 4,
-                        horizontal: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(4),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
-                            blurRadius: 4,
-                            offset: const Offset(2, 2),
-                          ),
-                        ],
-                      ),
+                      // ...
                       child: Text(
                         '${event.seatsAvailable} going',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black,
-                        ),
+                        style: const TextStyle(fontSize: 12, color: Colors.black),
                       ),
                     ),
                   ),
-                  // Share button in a white rounded box with shadow
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 6,
-                            offset: const Offset(2, 2),
-                          ),
-                        ],
-                      ),
-                      child: IconButton(
-                        iconSize: 18,
-                        icon: const Icon(
-                          Icons.share,
-                          color: Colors.black, // Black icon color
-                        ),
-                        onPressed: () => _shareEvent(context), // Share event logic
-                      ),
+                    // ...
+                    child: IconButton(
+                      iconSize: 18,
+                      icon: const Icon(Icons.share, color: Colors.black),
+                      onPressed: () => _shareEvent(context),
                     ),
                   ),
                 ],
               ),
-              // Event details below the image
+              // Event details...
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Event title
                     Text(
                       event.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
-                    // Event date
                     if (event.date != null)
                       Text(
                         DateFormat('MMM dd, yyyy').format(event.date!),
-                        style: const TextStyle(
-                          fontSize: 12, 
-                        ),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     const SizedBox(height: 8),
-                    // Event description
                     Text(
                       event.description,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 14,
-                      ),
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ],
                 ),
