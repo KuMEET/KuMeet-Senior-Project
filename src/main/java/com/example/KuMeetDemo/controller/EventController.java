@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,8 +26,8 @@ public class EventController {
         return eventService.getAllEvents();
     }
     @PostMapping("/create-event/{username}")
-    public ResponseEntity<Events> createEvent(@RequestBody EventDto event, @PathVariable String username) {
-        return eventService.createEvent(event, username);
+    public ResponseEntity<Events> createEvent(@ModelAttribute EventDto event, @RequestParam("photo") MultipartFile photo, @PathVariable String username) {
+        return eventService.createEvent(event, photo, username);
     }
     @DeleteMapping("/delete-event")
     public void deleteEvent(@RequestBody Events event) {

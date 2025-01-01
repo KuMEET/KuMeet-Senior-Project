@@ -10,6 +10,8 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -50,7 +52,8 @@ public class UserService {
         user.setName(userDto.getName());
         user.setSurname(userDto.getSurname());
         user.setEMail(userDto.getEmail());
-        user.setPassWord(userDto.getPassword());
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassWord(passwordEncoder.encode(userDto.getPassword()));
         user.setCreatedAt(new Date(System.currentTimeMillis()));
         user.setId(UUID.randomUUID());
 
@@ -88,7 +91,8 @@ public class UserService {
             user.setName(userDto.getName());
             user.setSurname(userDto.getSurname());
             user.setEMail(userDto.getEmail());
-            user.setPassWord(userDto.getPassword());
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            user.setPassWord(passwordEncoder.encode(userDto.getPassword()));
             user.setCreatedAt(new Date(System.currentTimeMillis()));
             user = userRepository.save(user);
             return user;

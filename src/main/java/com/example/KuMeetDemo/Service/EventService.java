@@ -3,19 +3,20 @@ package com.example.KuMeetDemo.Service;
 import com.example.KuMeetDemo.Dto.EventDto;
 import com.example.KuMeetDemo.Dto.EventReference;
 import com.example.KuMeetDemo.Dto.UserReference;
-import com.example.KuMeetDemo.Model.Categories;
-import com.example.KuMeetDemo.Model.Events;
-import com.example.KuMeetDemo.Model.Groups;
-import com.example.KuMeetDemo.Model.Users;
+import com.example.KuMeetDemo.Model.*;
 import com.example.KuMeetDemo.Repository.EventRepository;
 import com.example.KuMeetDemo.Repository.GroupRepository;
+import com.example.KuMeetDemo.Repository.PhotoRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Data
@@ -27,10 +28,14 @@ public class EventService {
     private UserRepository userRepository;
     @Autowired
     private GroupRepository groupRepository;
+    @Autowired
+    private PhotoRepository photoRepository;
+    @Autowired
+    private PhotoService photoService;
 
 
     // create method
-    public ResponseEntity<Events> createEvent(EventDto eventDto, String username) {
+    public ResponseEntity<Events> createEvent(EventDto eventDto, MultipartFile photo, String username) {
         // Check for null or missing fields in EventDto
         if (eventDto.getTitle() == null || eventDto.getTitle().isEmpty() ||
                 eventDto.getDescription() == null || eventDto.getDescription().isEmpty() ||
@@ -43,13 +48,30 @@ public class EventService {
         if (existingUser == null) {
             return ResponseEntity.badRequest().body(null);
         }
+
+
+        SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd");
+        Date eventTime;
+
+        try {
+            if (eventDto.getTime().contains("T")) {
+                eventTime = dateFormat1.parse(eventDto.getTime());
+            } else {
+                eventTime = dateFormat2.parse(eventDto.getTime());
+            }
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+
         // Create the event object
         Events event = new Events();
         event.setId(UUID.randomUUID());
         event.setEventTitle(eventDto.getTitle());
         event.setEventDescription(eventDto.getDescription());
         event.setMaxCapacity(eventDto.getCapacity());
-        event.setEventTime(eventDto.getTime());
+        event.setEventTime(eventTime);
         event.setCreatedAt(new Date(System.currentTimeMillis()));
         event.setLatitude(eventDto.getLatitude());
         event.setLongitude(eventDto.getLongitude());
@@ -58,6 +80,24 @@ public class EventService {
                 .filter(x -> x.name.equals(eventDto.getCategories()))
                 .findFirst()
                 .ifPresent(event::setCategories);
+
+        if (photo != null && !photo.isEmpty()) {
+            ResponseEntity<String> photoIdResponse = photoService.addPhoto(eventDto.getTitle() + " Photo", photo);
+            if (photoIdResponse.getStatusCode().equals(HttpStatus.OK)) {
+                String photoId = photoIdResponse.getBody();
+                Photo photoInsert = photoRepository.findById(photoId).orElse(null);
+                if (photoInsert == null) {
+                    return ResponseEntity.badRequest().body(null);
+                }
+                event.setPhoto(photoInsert);
+            }
+            else{
+                return ResponseEntity.badRequest().body(null);
+            }
+        }
+        else{
+            return ResponseEntity.badRequest().body(null);
+        }
 
         List<UserReference> eventMembers = new ArrayList<>();
         UserReference userInfo = new UserReference();
@@ -144,12 +184,28 @@ public class EventService {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
         }
 
+        SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+        SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd");
+        Date eventTime;
+
+        try {
+            if (eventDto.getTime().contains("T")) {
+                eventTime = dateFormat1.parse(eventDto.getTime());
+            } else {
+                eventTime = dateFormat2.parse(eventDto.getTime());
+            }
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+
+
         Events event = eventRepository.findById(newId).orElse(null);
         if (event != null) {
             event.setEventTitle(eventDto.getTitle());
             event.setEventDescription(eventDto.getDescription());
             event.setMaxCapacity(eventDto.getCapacity());
-            event.setEventTime(eventDto.getTime());
+            event.setEventTime(eventTime);
             event.setLatitude(eventDto.getLatitude());
             event.setLongitude(eventDto.getLongitude());
             event.setVisibility(eventDto.getVisibility());

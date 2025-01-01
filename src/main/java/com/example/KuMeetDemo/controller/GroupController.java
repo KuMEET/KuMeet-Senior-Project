@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,8 +24,8 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/creategroup/{username}")
-    public ResponseEntity<Groups> GroupCreate(@RequestBody GroupDto group, @PathVariable String username) {
-        return groupService.createGroup(group, username);
+    public ResponseEntity<Groups> GroupCreate(@ModelAttribute GroupDto group, @RequestParam("photo") MultipartFile photo, @PathVariable String username) {
+        return groupService.createGroup(group,photo,username);
     }
 
     @GetMapping("/get-groups")
