@@ -1,6 +1,6 @@
+import 'dart:convert'; // For base64Decode
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'group.dart';
 import 'group_service.dart';
 import 'groupEventsPage.dart';
@@ -97,7 +97,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GroupImage(imagePath: 'images/group_image1.png'),
+              GroupImage(base64Image: widget.group.base64Image, imagePath: widget.group.imagePath),
               const SizedBox(height: 24),
               Card(
                 elevation: 8,
@@ -156,20 +156,47 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 }
 
 class GroupImage extends StatelessWidget {
-  final String imagePath;
+  final String? base64Image;
+  final String? imagePath;
 
-  const GroupImage({super.key, required this.imagePath});
+  const GroupImage({super.key, this.base64Image, this.imagePath});
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Image.asset(
-        imagePath,
+    Widget imageWidget;
+
+    // Use base64Image if available
+    if (base64Image != null) {
+      try {
+        final decodedBytes = base64Decode(base64Image!);
+        imageWidget = Image.memory(
+          decodedBytes,
+          fit: BoxFit.cover,
+          height: 250,
+          width: double.infinity,
+        );
+      } catch (e) {
+        // Fallback to asset image in case of decoding failure
+        imageWidget = Image.asset(
+          imagePath ?? 'images/group_image1.png',
+          fit: BoxFit.cover,
+          height: 250,
+          width: double.infinity,
+        );
+      }
+    } else {
+      // Fallback to asset image
+      imageWidget = Image.asset(
+        imagePath ?? 'images/group_image1.png',
         fit: BoxFit.cover,
         height: 250,
         width: double.infinity,
-      ),
+      );
+    }
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: imageWidget,
     );
   }
 }

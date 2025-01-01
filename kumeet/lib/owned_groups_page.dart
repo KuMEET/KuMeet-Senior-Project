@@ -96,18 +96,23 @@ class _OwnedGroupsPageState extends State<OwnedGroupsPage> {
                   ),
                 )
               : ListView.builder(
-  itemCount: ownedGroups.length,
-  itemBuilder: (context, index) {
-    final group = ownedGroups[index];
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: GroupCard(
-        group: group, // Pass the entire Group object
-        onTap: () => _confirmGroupSelection(context, group),
-      ),
-    );
-  },
-),
+                  itemCount: ownedGroups.length,
+                  itemBuilder: (context, index) {
+                    final group = ownedGroups[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                      child: Align(
+                        alignment: Alignment.centerLeft, // Align to the left
+                        child: IntrinsicWidth( // Prevent stretching
+                          child: GroupCard(
+                            group: group,
+                            onTap: () => _confirmGroupSelection(context, group),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

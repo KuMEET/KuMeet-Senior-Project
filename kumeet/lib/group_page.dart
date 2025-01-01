@@ -43,9 +43,6 @@ class _GroupPageState extends State<GroupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('All Groups'),
-      ),
       body: Column(
         children: [
           const Padding(
@@ -98,22 +95,28 @@ class GroupList extends StatelessWidget {
         final group = groups[index];
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: GroupCard(
-            group: group,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => GroupDetailsPage(group: group),
-                ),
-              );
-            },
+          child: Align(
+            alignment: Alignment.centerLeft, // Ensure cards align to the left
+            child: IntrinsicWidth( // Prevent cards from stretching unnecessarily
+              child: GroupCard(
+                group: group,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GroupDetailsPage(group: group),
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
         );
       },
     );
   }
 }
+
 
 class CreateGroupButton extends StatelessWidget {
   const CreateGroupButton({super.key});
