@@ -96,7 +96,7 @@ class EventCard extends StatelessWidget {
                         ],
                       ),
                       child: Text(
-                        '${event.seatsAvailable} going',
+                        '${event.seatsAvailable} seats available',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.black,

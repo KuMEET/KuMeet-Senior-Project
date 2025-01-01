@@ -96,7 +96,7 @@ class GroupCard extends StatelessWidget {
                         ],
                       ),
                       child: Text(
-                        '${group.memberCount ?? 0} members',
+                        '${(group.memberCount ?? 0) + 1} members',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.black,

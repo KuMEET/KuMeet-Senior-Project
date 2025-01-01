@@ -108,74 +108,81 @@ class _EventDetailPageState extends State<EventDetailPage> {
   }
 
   Future<void> _addEventToDeviceCalendar() async {
-    // Request permissions for calendar access
-    final permissionResult = await _deviceCalendarPlugin.requestPermissions();
-    if (!permissionResult.isSuccess || permissionResult.data != true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Calendar permission not granted'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    // Retrieve available calendars
-    final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
-    if (!calendarsResult.isSuccess || calendarsResult.data == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No calendars available'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    final selectedCalendar = calendarsResult.data!.first;
-    final startDate = widget.event.date ?? DateTime.now();
-    final endDate = startDate.add(const Duration(hours: 2)); 
-    final tzStart = tz.TZDateTime.from(startDate, tz.local);
-    final tzEnd = tz.TZDateTime.from(endDate, tz.local);
-
-    // Create a calendar event
-    final calendarEvent = Event(
-      selectedCalendar.id!,
-      title: widget.event.title,
-      description: widget.event.description,
-      location: formattedAddress ?? widget.event.location,
-      start: tzStart,
-      end: tzEnd,
+  // Request permissions for calendar access
+  final permissionResult = await _deviceCalendarPlugin.requestPermissions();
+  if (!permissionResult.isSuccess || permissionResult.data != true) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Calendar permission not granted'),
+        duration: Duration(seconds: 2),
+      ),
     );
-
-    // Add the event to the calendar
-    final createEventResult =
-        await _deviceCalendarPlugin.createOrUpdateEvent(calendarEvent);
-    if (createEventResult!.isSuccess && createEventResult.data != null) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Event Added'),
-            content: const Text('The event has been successfully added to your calendar!'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to add event to calendar'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
+    return;
   }
+
+  // Retrieve available calendars
+  final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
+  if (!calendarsResult.isSuccess || calendarsResult.data == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('No calendars available'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+    return;
+  }
+
+  final selectedCalendar = calendarsResult.data!.first;
+
+  // Extract the date and set default time to 7 PM - 9 PM
+  final eventDate = widget.event.date ?? DateTime.now();
+  final startTime = DateTime(eventDate.year, eventDate.month, eventDate.day, 19, 0); // 7:00 PM
+  final endTime = DateTime(eventDate.year, eventDate.month, eventDate.day, 21, 0); // 9:00 PM
+
+  // Convert to the local time zone
+  final localStartDate = tz.TZDateTime.from(startTime, tz.local);
+  final localEndDate = tz.TZDateTime.from(endTime, tz.local);
+
+  // Create a calendar event
+  final calendarEvent = Event(
+    selectedCalendar.id!,
+    title: widget.event.title,
+    description: widget.event.description,
+    location: formattedAddress ?? widget.event.location,
+    start: localStartDate,
+    end: localEndDate,
+  );
+
+  // Add the event to the calendar
+  final createEventResult =
+      await _deviceCalendarPlugin.createOrUpdateEvent(calendarEvent);
+  if (createEventResult!.isSuccess && createEventResult.data != null) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Event Added'),
+          content: const Text('The event has been successfully added to your calendar!'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Failed to add event to calendar'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+
 
   Future<void> _openMap(double latitude, double longitude) async {
     final url = 'https://www.google.com/maps?q=$latitude,$longitude';
@@ -355,7 +362,7 @@ class _EventDetailPageState extends State<EventDetailPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
-                    'Occupancy: ${widget.event.seatsAvailable}/50',
+                    'Seats available: ${widget.event.seatsAvailable}',
                     style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
