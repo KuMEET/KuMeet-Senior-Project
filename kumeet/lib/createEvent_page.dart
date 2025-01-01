@@ -1,8 +1,11 @@
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
+
 import 'package:kumeet/event.dart';
 import 'package:kumeet/event_service.dart';
 import 'package:kumeet/group.dart';
@@ -26,10 +29,13 @@ class _CreateEventPageState extends State<CreateEventPage> {
   final _descriptionController = TextEditingController();
   final _seatsController       = TextEditingController();
 
-  LatLng?  _eventLocation;
+  LatLng? _eventLocation;
   DateTime? _selectedDate;
-  String?  _selectedCategory;
-  bool     _isVisible = true;
+  String?   _selectedCategory;
+  bool      _isVisible = true;
+
+  // Address fetched from Google Geocoding
+  String? _fetchedAddress;
 
   final List<String> _categories = [
     "Art & Culture",
@@ -51,7 +57,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
   // This will store the file (picked image) locally
   File? _pickedImageFile;
 
-  // 1) Method to pick an image from gallery
+  // Called to pick an image (from gallery)
   Future<void> _pickImage() async {
     try {
       final ImagePicker picker = ImagePicker();
@@ -66,6 +72,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     }
   }
 
+  // Called to pick the event location on map
   Future<void> _pickLocation() async {
     final LatLng? pickedLocation = await Navigator.push(
       context,
@@ -75,9 +82,40 @@ class _CreateEventPageState extends State<CreateEventPage> {
       setState(() {
         _eventLocation = pickedLocation;
       });
+      // After setting location, fetch the formatted address
+      await _fetchAddress(pickedLocation.latitude, pickedLocation.longitude);
     }
   }
 
+  // Use Google Geocoding to fetch address
+  Future<void> _fetchAddress(double lat, double lng) async {
+    const String mapApiKey = 'AIzaSyAvvTbatpuGGLbXK0BFESM8IiMVXmlzIws';
+    final String host = 'https://maps.googleapis.com/maps/api/geocode/json';
+    final String url = '$host?key=$mapApiKey&language=en&latlng=$lat,$lng';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final Map data = jsonDecode(response.body);
+        if (data["results"] != null && data["results"].isNotEmpty) {
+          setState(() {
+            _fetchedAddress = data["results"][0]["formatted_address"];
+          });
+        } else {
+          setState(() {
+            _fetchedAddress = "No address found at this location.";
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching address: $e');
+      setState(() {
+        _fetchedAddress = "Error fetching address!";
+      });
+    }
+  }
+
+  // Called to pick the date
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -92,7 +130,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     }
   }
 
-  // 2) Updated create method which now includes image
+  // Create event method (includes image upload)
   void _createEvent() async {
     if (_formKey.currentState!.validate()) {
       if (_eventLocation == null) {
@@ -120,22 +158,21 @@ class _CreateEventPageState extends State<CreateEventPage> {
       final newEvent = Event(
         title:         _titleController.text,
         description:   _descriptionController.text,
-        location:      'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
+        location:      _fetchedAddress ?? 'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
         latitude:      _eventLocation!.latitude,
         longitude:     _eventLocation!.longitude,
         seatsAvailable: int.parse(_seatsController.text),
         date:          _selectedDate!,
-        imagePath:     'images/event_image.png', // not super relevant if we’re passing the file
+        imagePath:     'images/event_image.png', // fallback
         visibility:    _isVisible,
         categories:    _selectedCategory!,
         groupID:       widget.selectedGroup.id!,
       );
 
-      // 3) Call createEvent with the new image parameter
       final success = await eventService.createEvent(newEvent, userName!, _pickedImageFile);
 
       if (success) {
-        // Then optionally add the event to the group if needed
+        // Optionally add the event to the group
         final createdEvents = await eventService.getEvents();
         for (var event in createdEvents) {
           if (event.title == newEvent.title && event.description == newEvent.description) {
@@ -251,17 +288,18 @@ class _CreateEventPageState extends State<CreateEventPage> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-                items: _categories.map((category) => DropdownMenuItem(
-                  value: category,
-                  child: Text(category),
-                )).toList(),
+                items: _categories.map((category) {
+                  return DropdownMenuItem(
+                    value: category,
+                    child: Text(category),
+                  );
+                }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedCategory = value;
                   });
                 },
-                validator: (value) =>
-                  value == null ? 'Please select a category' : null,
+                validator: (value) => value == null ? 'Please select a category' : null,
               ),
               const SizedBox(height: 16),
 
@@ -274,10 +312,22 @@ class _CreateEventPageState extends State<CreateEventPage> {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Text(
-                      _eventLocation == null
-                        ? 'No location selected'
-                        : 'Lat: ${_eventLocation!.latitude}, Lng: ${_eventLocation!.longitude}',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _eventLocation == null
+                            ? 'No location selected'
+                            : 'Location selected:',
+                        ),
+                        if (_fetchedAddress != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            _fetchedAddress!,
+                            style: const TextStyle(color: Colors.blueGrey),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                 ],
@@ -319,26 +369,35 @@ class _CreateEventPageState extends State<CreateEventPage> {
               ),
               const SizedBox(height: 16),
 
-              // Pick image button
-              Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: _pickImage,
-                    child: const Text('Pick Event Image'),
+              // Image box (tap to pick)
+              GestureDetector(
+                onTap: _pickImage,
+                child: Container(
+                  height: 150,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.grey.shade300,
+                      width: 2,
+                    ),
                   ),
-                  const SizedBox(width: 16),
-                  // Show basic preview if an image was picked
-                  _pickedImageFile != null
-                    ? SizedBox(
-                        width: 80,
-                        height: 80,
-                        child: Image.file(
-                          _pickedImageFile!,
-                          fit: BoxFit.cover,
+                  child: _pickedImageFile != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            _pickedImageFile!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                          ),
+                        )
+                      : const Center(
+                          child: Text(
+                            'Tap to select an image',
+                            style: TextStyle(color: Colors.grey),
+                          ),
                         ),
-                      )
-                    : const Text('No image selected'),
-                ],
+                ),
               ),
               const SizedBox(height: 24),
 

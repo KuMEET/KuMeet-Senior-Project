@@ -1,15 +1,16 @@
+import 'dart:convert'; 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:device_calendar/device_calendar.dart';
 import 'package:timezone/timezone.dart' as tz;
+
 import 'event.dart' as app_event;
 import 'event_service.dart';
-import "login_page.dart";
+import 'login_page.dart';
 
 class EventDetailPage extends StatefulWidget {
   final app_event.Event event;
@@ -29,14 +30,13 @@ class EventDetailPage extends StatefulWidget {
 
 class _EventDetailPageState extends State<EventDetailPage> {
   final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
-
   /// Replace with how you fetch username from your app’s global/auth state.
   final String? userName = GlobalState().userName; 
-  
+
   final EventService _eventService = EventService();
-  
+
   String? formattedAddress;
-  bool _isJoined = false;    // Tracks if the user has joined the event
+  bool _isJoined = false;       // Tracks if the user has joined the event
   bool _isLoadingJoin = false;  // Tracks if a join request is in progress
 
   @override
@@ -192,215 +192,242 @@ class _EventDetailPageState extends State<EventDetailPage> {
     );
   }
 
-@override
-Widget build(BuildContext context) {
-  // Decide the text for the bottom button
-  final buttonText = _isJoined ? 'Already Joined' : 'Join';
-  // If user is already joined, disable the button
-  final isButtonEnabled = !_isJoined && !_isLoadingJoin;
+  @override
+  Widget build(BuildContext context) {
+    // Decide the text for the bottom button
+    final buttonText = _isJoined ? 'Already Joined' : 'Join';
+    // If user is already joined, disable the button
+    final isButtonEnabled = !_isJoined && !_isLoadingJoin;
 
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text(
-        'Event Details',
-        style: TextStyle(fontSize: 18),
-      ),
-      centerTitle: true,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.share),
-          onPressed: _shareEvent,
+    // 1) Decide how to show the event image
+    Widget eventImage;
+    if (widget.event.base64Image != null) {
+      // If we have base64 data, decode it
+      try {
+        final decodedBytes = base64Decode(widget.event.base64Image!);
+        eventImage = Image.memory(
+          decodedBytes,
+          height: 200,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        );
+      } catch (e) {
+        // Fallback if decoding fails
+        eventImage = Image.asset(
+          widget.event.imagePath ?? 'assets/placeholder.jpg',
+          height: 200,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        );
+      }
+    } else {
+      // If there's no base64 image, fallback to placeholder
+      eventImage = Image.asset(
+        widget.event.imagePath ?? 'assets/placeholder.jpg',
+        height: 200,
+        width: double.infinity,
+        fit: BoxFit.cover,
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Event Details',
+          style: TextStyle(fontSize: 18),
         ),
-      ],
-    ),
-    body: SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Event Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Image.asset(
-              widget.event.imagePath ?? 'assets/placeholder.jpg',
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: _shareEvent,
           ),
-          const SizedBox(height: 16),
+        ],
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // 2) Use eventImage instead of Image.asset
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: eventImage,
+            ),
+            const SizedBox(height: 16),
 
-          // Event Title Box
-          SizedBox(
-            width: double.infinity,
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  widget.event.title,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+            // Event Title Box
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    widget.event.title,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // Calendar Box
-          SizedBox(
-            width: double.infinity,
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: ListTile(
-                leading: const Icon(Icons.calendar_today),
-                title: Text(
-                  DateFormat('EEEE, MMMM d, yyyy').format(widget.event.date ?? DateTime.now()),
-                  style: const TextStyle(fontSize: 16),
+            // Calendar Box
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: ListTile(
+                  leading: const Icon(Icons.calendar_today),
+                  title: Text(
+                    DateFormat('EEEE, MMMM d, yyyy')
+                        .format(widget.event.date ?? DateTime.now()),
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: _addEventToDeviceCalendar,
                 ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: _addEventToDeviceCalendar,
               ),
             ),
-          ),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // Location Box
-          SizedBox(
-            width: double.infinity,
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: ListTile(
-                leading: const Icon(Icons.location_on),
-                title: Text(
-                  formattedAddress ?? 'Fetching address...',
-                  style: const TextStyle(fontSize: 16),
+            // Location Box
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: ListTile(
+                  leading: const Icon(Icons.location_on),
+                  title: Text(
+                    formattedAddress ?? 'Fetching address...',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => _openMap(widget.event.latitude, widget.event.longitude),
                 ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _openMap(widget.event.latitude, widget.event.longitude),
               ),
             ),
-          ),
 
-          const SizedBox(height: 16),
+            const SizedBox(height: 16),
 
-          // About Section Box
-          SizedBox(
-            width: double.infinity,
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            // About Section Box
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'About',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.event.description,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Attendees Section Box
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Occupancy: ${widget.event.seatsAvailable}/50',
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Location Map Preview Box
+            SizedBox(
+              width: double.infinity,
+              child: Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                child: Stack(
                   children: [
-                    const Text(
-                      'About',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: SizedBox(
+                        height: 150,
+                        width: double.infinity,
+                        child: GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(widget.event.latitude, widget.event.longitude),
+                            zoom: 15,
+                          ),
+                          markers: {
+                            Marker(
+                              markerId: const MarkerId('event_location'),
+                              position: LatLng(widget.event.latitude, widget.event.longitude),
+                            ),
+                          },
+                          zoomGesturesEnabled: false,
+                          scrollGesturesEnabled: false,
+                          myLocationButtonEnabled: false,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      widget.event.description,
-                      style: const TextStyle(fontSize: 16),
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: () =>
+                            _openMap(widget.event.latitude, widget.event.longitude),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Attendees Section Box
-          SizedBox(
-            width: double.infinity,
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  'Occupancy: ${widget.event.seatsAvailable}/50',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Location Map Preview Box
-          SizedBox(
-            width: double.infinity,
-            child: Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: SizedBox(
-                      height: 150,
-                      width: double.infinity,
-                      child: GoogleMap(
-                        initialCameraPosition: CameraPosition(
-                          target: LatLng(widget.event.latitude, widget.event.longitude),
-                          zoom: 15,
-                        ),
-                        markers: {
-                          Marker(
-                            markerId: const MarkerId('event_location'),
-                            position: LatLng(widget.event.latitude, widget.event.longitude),
-                          ),
-                        },
-                        zoomGesturesEnabled: false,
-                        scrollGesturesEnabled: false,
-                        myLocationButtonEnabled: false,
-                      ),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: GestureDetector(
-                      onTap: () => _openMap(widget.event.latitude, widget.event.longitude),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-    // Sticky Bottom Bar
-    bottomNavigationBar: Container(
-      padding: const EdgeInsets.all(16.0),
-      child: ElevatedButton(
-        onPressed: isButtonEnabled ? _joinEvent : null,
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          ],
         ),
-        child: _isLoadingJoin
-            ? const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              )
-            : Text(
-                buttonText,
-                style: const TextStyle(fontSize: 18),
-              ),
       ),
-    ),
-  );
-}
-
+      // Sticky Bottom Bar
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.all(16.0),
+        child: ElevatedButton(
+          onPressed: isButtonEnabled ? _joinEvent : null,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: _isLoadingJoin
+              ? const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                )
+              : Text(
+                  buttonText,
+                  style: const TextStyle(fontSize: 18),
+                ),
+        ),
+      ),
+    );
+  }
 }
