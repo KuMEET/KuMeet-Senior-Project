@@ -7,7 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:kumeet/event.dart';
-import 'package:kumeet/event_service.dart';
+import 'package:kumeet/eventService.dart';
 import 'package:kumeet/group.dart';
 import 'package:kumeet/group_service.dart';
 import 'package:kumeet/login_page.dart';
