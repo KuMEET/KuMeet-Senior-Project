@@ -160,12 +160,15 @@ class EventCard extends StatelessWidget {
                       ),
                     const SizedBox(height: 8),
                     // Event description
-                    Text(
-                      event.description,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(fontSize: 14),
-                    ),
+                    SizedBox(
+  width: cardWidth-20, // Specify the desired width
+  child: Text(
+    event.description,
+    maxLines: 1,
+    overflow: TextOverflow.ellipsis,
+    style: const TextStyle(fontSize: 14),
+  ),
+),
                   ],
                 ),
               ),

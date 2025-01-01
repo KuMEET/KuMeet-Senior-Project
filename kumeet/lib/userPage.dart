@@ -39,49 +39,55 @@ class _AdminPanelState extends State<UserPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Admin Panel')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(bottom: 16.0),
-              child: Text(
-                "Owned Groups",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
+  return Scaffold(
+    appBar: AppBar(title: const Text('Admin Panel')),
+    body: SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 16.0),
+            child: Text(
+              "Owned Groups",
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            _isLoadingGroups
-                ? const Center(child: CircularProgressIndicator())
-                : _ownedGroups.isEmpty
-                    ? const Text('No owned groups available')
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _ownedGroups.length,
-                        itemBuilder: (context, index) {
-                          final group = _ownedGroups[index];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16.0),
-                            child: GroupCard(
-                              group: group,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => GroupDetailsPage2(group: group),
-                                  ),
-                                );
-                              },
+          ),
+          _isLoadingGroups
+              ? const Center(child: CircularProgressIndicator())
+              : _ownedGroups.isEmpty
+                  ? const Text('No owned groups available')
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _ownedGroups.length,
+                      itemBuilder: (context, index) {
+                        final group = _ownedGroups[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: Align(
+                            alignment: Alignment.centerLeft, // Align content
+                            child: IntrinsicWidth( // Prevent stretching
+                              child: GroupCard(
+                                group: group,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          GroupDetailsPage2(group: group),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          );
-                        },
-                      ),
-          ],
-        ),
+                          ),
+                        );
+                      },
+                    ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

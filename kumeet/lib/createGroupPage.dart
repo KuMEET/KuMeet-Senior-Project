@@ -26,7 +26,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     "Career & Business",
     "Dancing",
     "Games",
-    "Music",
+    "MUSIC",
     "Science & Education",
     "Identity & Language",
     "Social Activities",

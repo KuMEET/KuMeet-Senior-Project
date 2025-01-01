@@ -42,7 +42,7 @@ class _CreateEventPageState extends State<CreateEventPage> {
     "Career & Business",
     "Dancing",
     "Games",
-    "Music",
+    "MUSIC",
     "Science & Education",
     "Identity & Language",
     "Social Activities",
