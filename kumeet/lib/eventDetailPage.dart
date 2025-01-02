@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:kumeet/user.dart';
+import 'package:kumeet/userService.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:device_calendar/device_calendar.dart';
@@ -34,10 +36,12 @@ class _EventDetailPageState extends State<EventDetailPage> {
   final String? userName = GlobalState().userName; 
 
   final EventService _eventService = EventService();
+  final UserService userService = UserService();
 
   String? formattedAddress;
   bool _isJoined = false;       // Tracks if the user has joined the event
   bool _isLoadingJoin = false;  // Tracks if a join request is in progress
+  bool _isPending = false;
 
   @override
   void initState() {
@@ -52,15 +56,22 @@ class _EventDetailPageState extends State<EventDetailPage> {
       return;
     }
     try {
+      final current_user = userService.find(userName!);
       final joinedEvents = await _eventService.getEventsByUser(userName!);
-      print(joinedEvents);
       if (joinedEvents.any((e) => e.id == widget.event.id)) {
         setState(() {
           _isJoined = true;
         });
+      } else {
+        final pendingUsers = await _eventService.getPendingUsersForEvent(widget.event.id!);
+        if (pendingUsers.any((user) => user.userId == current_user.userId)) {
+          setState(() {
+            _isPending = true;
+          });
+        }
       }
     } catch (e) {
-      print('Error checking joined events: $e');
+      print('Error checking joined or pending status: $e');
     }
   }
 
@@ -76,10 +87,10 @@ class _EventDetailPageState extends State<EventDetailPage> {
     });
     if (success) {
       setState(() {
-        _isJoined = true;
+        _isPending = true;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Successfully joined ${widget.event.title}!')),
+        SnackBar(content: Text('Join request sent for ${widget.event.title}. Pending approval.')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -202,9 +213,15 @@ class _EventDetailPageState extends State<EventDetailPage> {
   @override
   Widget build(BuildContext context) {
     // Decide the text for the bottom button
-    final buttonText = _isJoined ? 'Already Joined' : 'Join';
-    // If user is already joined, disable the button
-    final isButtonEnabled = !_isJoined && !_isLoadingJoin;
+    String buttonText;
+    if (_isJoined) {
+      buttonText = 'Already Joined';
+    } else if (_isPending) {
+      buttonText = 'Pending Approval';
+    } else {
+      buttonText = 'Join';
+    }    // If user is already joined, disable the button
+    final isButtonEnabled = !_isJoined && !_isPending && !_isLoadingJoin;
 
     // 1) Decide how to show the event image
     Widget eventImage;
@@ -438,3 +455,8 @@ class _EventDetailPageState extends State<EventDetailPage> {
     );
   }
 }
+
+extension on Future<User> {
+  Object get userId => userId;
+}
+
