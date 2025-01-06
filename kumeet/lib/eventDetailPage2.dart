@@ -135,6 +135,7 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
         widget.event.date = updatedEvent.date;
         widget.event.latitude = updatedEvent.latitude;
         widget.event.longitude = updatedEvent.longitude;
+        widget.event.base64Image = updatedEvent.base64Image; // Ensure base64Image is updated
       });
 
       final success = await eventService.updateEvent(updatedEvent, widget.event.id);
@@ -176,6 +177,33 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    Widget eventImage;
+    if (widget.event.base64Image != null) {
+      try {
+        final decodedBytes = base64Decode(widget.event.base64Image!);
+        eventImage = Image.memory(
+          decodedBytes,
+          height: 200,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        );
+      } catch (e) {
+        eventImage = Image.asset(
+          'assets/placeholder.jpg',
+          height: 200,
+          width: double.infinity,
+          fit: BoxFit.cover,
+        );
+      }
+    } else {
+      eventImage = Image.asset(
+        'assets/placeholder.jpg',
+        height: 200,
+        width: double.infinity,
+        fit: BoxFit.cover,
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.event.title),
@@ -188,12 +216,7 @@ class _EventDetailPage2State extends State<EventDetailPage2> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.asset(
-                widget.event.imagePath ?? 'assets/placeholder.jpg',
-                height: 200,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+              child: eventImage,
             ),
             const SizedBox(height: 16),
             Card(

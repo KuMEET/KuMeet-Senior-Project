@@ -35,7 +35,7 @@ class _SignupPageState extends State<SignupPage> {
       try {
         final response = await _userService.signup(userData);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Welcome, ${response['name']}!')),
+          SnackBar(content: Text('Please Check Your Email!')),
         );
 
         Navigator.pop(context); // Navigate back to login

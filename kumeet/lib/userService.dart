@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:kumeet/user.dart';
 import 'event.dart';
@@ -9,7 +10,7 @@ class UserService {
   Future<String> login(String userName, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/auth/login'),
+        Uri.parse('$baseUrl/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'userName': userName, 'password': password}),
       );
@@ -23,7 +24,7 @@ class UserService {
       throw Exception('Error: $e');
     }
   }
-  Future<Map<String, dynamic>> signup(Map<String, String> userData) async {
+  Future<bool> signup(Map<String, String> userData) async {
     try {
 
       final response = await http.post(
@@ -32,8 +33,11 @@ class UserService {
         body: json.encode(userData),
       );
 
-      if (response.statusCode == 201) {
-        return json.decode(response.body); // Return user data on success
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        if(response.statusCode == 200){
+          SnackBar(content: Text('Please Check Your Email!'));
+        }
+        return true; // Return user data on success
       } else {
         throw Exception('Signup failed: ${response.statusCode}');
       }

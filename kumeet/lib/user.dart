@@ -1,6 +1,6 @@
 
 class User {
-  String id;
+  String _id;
   String userName;
   String name;
   String surname;
@@ -11,7 +11,7 @@ class User {
   String? role;
 
   User({
-    required this.id,
+    required String id,
     required this.userName,
     required this.name,
     required this.surname,
@@ -20,7 +20,10 @@ class User {
     required this.groupReferenceList,
     required this.eventReferenceList,
     this.role
-  });
+  }): _id = id; // Initialize _id
+
+  // Getter for id
+  String get id => _id;
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(

@@ -56,19 +56,11 @@ class _EventDetailPageState extends State<EventDetailPage> {
       return;
     }
     try {
-      final current_user = userService.find(userName!);
       final joinedEvents = await _eventService.getEventsByUser(userName!);
       if (joinedEvents.any((e) => e.id == widget.event.id)) {
         setState(() {
           _isJoined = true;
         });
-      } else {
-        final pendingUsers = await _eventService.getPendingUsersForEvent(widget.event.id!);
-        if (pendingUsers.any((user) => user.userId == current_user.userId)) {
-          setState(() {
-            _isPending = true;
-          });
-        }
       }
     } catch (e) {
       print('Error checking joined or pending status: $e');
@@ -215,9 +207,9 @@ class _EventDetailPageState extends State<EventDetailPage> {
     // Decide the text for the bottom button
     String buttonText;
     if (_isJoined) {
-      buttonText = 'Already Joined';
+      buttonText = 'Joined or Pending Approval';
     } else if (_isPending) {
-      buttonText = 'Pending Approval';
+      buttonText = 'Joined or Pending Approval';
     } else {
       buttonText = 'Join';
     }    // If user is already joined, disable the button
