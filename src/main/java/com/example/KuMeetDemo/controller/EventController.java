@@ -46,11 +46,11 @@ public class EventController {
     public ResponseEntity<List<Events>> FilterEventsBasedOnCategories(@PathVariable String category) {
         return eventService.FilterEventsBasedOnCategories(category);
     }
-    @GetMapping("get-members-for-events/{eventId}")
+    @GetMapping("/get-members-for-events/{eventId}")
     public ResponseEntity<List<Users>> ShowMembers(@PathVariable String eventId) {
         return eventService.ShowMembers(eventId);
     }
-    @GetMapping("get-admin-for-events/{eventId}")
+    @GetMapping("/get-admin-for-events/{eventId}")
     public ResponseEntity<Users> ShowAdmin(@PathVariable String eventId) {
         return eventService.ShowAdmin(eventId);
     }

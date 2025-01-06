@@ -49,7 +49,7 @@ public class GroupController {
         return groupService.FilterGroupsBasedOnCategories(category);
     }
 
-    @GetMapping("get-members-for-groups/{groupId}")
+    @GetMapping("/get-members-for-groups/{groupId}")
     public ResponseEntity<List<Users>> ShowMembers(@PathVariable String groupId) {
         return groupService.ShowMembers(groupId);
     }
