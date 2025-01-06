@@ -48,10 +48,13 @@ public class GroupController {
     public ResponseEntity<List<Groups>> FilterGroupsBasedOnCategories(@PathVariable String category) {
         return groupService.FilterGroupsBasedOnCategories(category);
     }
-
     @GetMapping("/get-members-for-groups/{groupId}")
     public ResponseEntity<List<Users>> ShowMembers(@PathVariable String groupId) {
         return groupService.ShowMembers(groupId);
+    }
+    @PostMapping("/groups/{groupId}/{imageId}")
+    public ResponseEntity<String> uploadEventPhoto(@PathVariable String groupId, @PathVariable String imageId) {
+        return groupService.uploadGroupPhoto(groupId, imageId);
     }
 
 

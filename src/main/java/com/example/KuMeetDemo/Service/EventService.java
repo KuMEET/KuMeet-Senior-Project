@@ -33,9 +33,7 @@ public class EventService {
     @Autowired
     private PhotoService photoService;
 
-
-    // create method
-    public ResponseEntity<Events> createEvent(EventDto eventDto, MultipartFile photo, String username) {
+    public ResponseEntity<Events> createEvent(EventDto eventDto,MultipartFile photo, String username) {
         // Check for null or missing fields in EventDto
         if (eventDto.getTitle() == null || eventDto.getTitle().isEmpty() ||
                 eventDto.getDescription() == null || eventDto.getDescription().isEmpty() ||
@@ -277,5 +275,20 @@ public class EventService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
+    public ResponseEntity<String> uploadEventPhoto(String eventId,String imageId) {
+        Photo photo = photoRepository.findById(imageId).orElse(null);
+        if (photo == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Photo not found");
+        }
+        UUID eventID = UUID.fromString(eventId);
+        Events event = eventRepository.findById(eventID).orElse(null);
+        if (event == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
+        }
+
+        event.setPhoto(photo);
+        eventRepository.save(event);
+        return ResponseEntity.ok("Photo uploaded successfully for Event ID: " + eventId);
+    }
 
 }

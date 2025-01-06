@@ -201,15 +201,40 @@ public class UserGroupService {
         List<Groups> groups = new ArrayList<>();
         if (groupReferenceList != null) {
             for (GroupReference groupReference : groupReferenceList) {
-                Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
-                if (groupReference.getStatus().equals("Pending")){
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+                if (groupReference.getStatus().equals("Approved")) {
+                    Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
+                    if (group == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                    }
+                    groups.add(group);
+
                 }
+            }
+        }
+        return ResponseEntity.ok(groups);
+    }
+
+    public ResponseEntity<List<Groups>> getGroupsForAdmin(String userName) {
+        Users user = userRepository.findByUserName(userName);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        List<GroupReference> groupReferenceList = user.getGroupReferenceList();
+        List<Groups> groups = new ArrayList<>();
+        if (groupReferenceList != null) {
+            for (GroupReference groupReference : groupReferenceList) {
+                Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
+                String role = groupReference.getRole();
                 if (group == null) {
                     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
                 }
-                groups.add(group);
+                if(role.equals("Admin")){
+                    groups.add(group);
+                }
             }
+        }
+        if(groups.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
         return ResponseEntity.ok(groups);
     }
@@ -240,8 +265,7 @@ public class UserGroupService {
     }
 
 
-
-    public ResponseEntity<List<Groups>> getGroupsForAdmin(String userName) {
+    public ResponseEntity<List<Groups>> getGroupsByUsernameOnlyMembers(String userName){
         Users user = userRepository.findByUserName(userName);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
@@ -250,21 +274,19 @@ public class UserGroupService {
         List<Groups> groups = new ArrayList<>();
         if (groupReferenceList != null) {
             for (GroupReference groupReference : groupReferenceList) {
-                Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
-                String role = groupReference.getRole();
-                if (group == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-                }
-                if(role.equals("Admin")){
+                if (groupReference.getStatus().equals("Approved") && groupReference.getRole().equals("Member")) {
+                    Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
+                    if (group == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                    }
                     groups.add(group);
+
                 }
             }
         }
-        if(groups.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
         return ResponseEntity.ok(groups);
     }
+
 
     public ResponseEntity<List<UserReference>> viewPendingUsersForGroup(UUID groupId) {
         Groups group = groupRepository.findById(groupId).orElse(null);
@@ -355,9 +377,5 @@ public class UserGroupService {
         groupRepository.save(group);
         return ResponseEntity.ok(String.format("User with id %s rejected for group %s.", userId, groupId));
     }
-
-
-
-
 
 }

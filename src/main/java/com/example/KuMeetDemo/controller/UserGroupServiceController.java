@@ -39,10 +39,6 @@ public class UserGroupServiceController {
     public ResponseEntity<List<Groups>> getGroupsForAdmin(@PathVariable String userName){
         return userGroupService.getGroupsForAdmin(userName);
     }
-    @GetMapping("/get-admins-for-group/{groupId}")
-    public ResponseEntity<List<Users>> getAdminsForGroup(@PathVariable String groupId){
-        return userGroupService.getAdminsForGroup(groupId);
-    }
 
     @GetMapping("/get-pending-groups-for-admin/{groupId}")
     public ResponseEntity<List<UserReference>> viewPendingUsersForGroup(@PathVariable UUID groupId){
@@ -56,6 +52,13 @@ public class UserGroupServiceController {
     public ResponseEntity<String> rejectUserRequestForGroup(@PathVariable UUID groupId, @PathVariable UUID userId){
         return userGroupService.rejectUserRequestForGroup(groupId, userId);
     }
-
+    @GetMapping("/get-admins-for-group/{groupId}")
+    public ResponseEntity<List<Users>> getAdminsForGroup(@PathVariable String groupId){
+        return userGroupService.getAdminsForGroup(groupId);
+    }
+    @GetMapping("/get-groups-by-username-only-members/{userName}")
+    public ResponseEntity<List<Groups>> getGroupsByUsernameOnlyMembers(@PathVariable String userName){
+        return userGroupService.getGroupsByUsernameOnlyMembers(userName);
+    }
 
 }

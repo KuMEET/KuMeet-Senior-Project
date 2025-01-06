@@ -33,6 +33,12 @@ public class UserEventController {
     public ResponseEntity<List<Events>> getEventsByUsername(@PathVariable String userName){
         return userEventService.getEventsByUsername(userName);
     }
+
+    @GetMapping("/get-events-by-username-only-members/{userName}")
+    public ResponseEntity<List<Events>> getEventsByUsernameOnlyMembers(@PathVariable String userName){
+        return userEventService.getEventsByUsernameOnlyMembers(userName);
+    }
+
     @GetMapping("/get-events-for-admin/{userName}")
     public ResponseEntity<List<Events>> getEventsForAdmin(@PathVariable String userName){
         return userEventService.getEventsForAdmin(userName);
@@ -41,10 +47,6 @@ public class UserEventController {
     public ResponseEntity<List<UserReference>> viewPendingUsers(@PathVariable String eventId){
         return userEventService.viewPendingUsers(eventId);
     }
-    @GetMapping("/get-admins-for-event/{eventId}")
-    public ResponseEntity<List<Users>> getAdminsForEvent(@PathVariable String eventId){
-        return userEventService.getAdminsForEvent(eventId);
-    }
     @PostMapping("/approve-pending-events-for-admin/{eventId}/{userId}")
     public ResponseEntity<String> approveUserRequest(@PathVariable String eventId, @PathVariable String userId){
         return userEventService.approveUserRequest(eventId, userId);
@@ -52,6 +54,10 @@ public class UserEventController {
     @PostMapping("/reject-pending-events-for-admin/{eventId}/{userId}")
     public ResponseEntity<String> rejectUserRequest(@PathVariable String eventId, @PathVariable String userId){
         return userEventService.rejectUserRequest(eventId, userId);
+    }
+    @GetMapping("/get-admins-for-event/{eventId}")
+    public ResponseEntity<List<Users>> getAdminsForEvent(@PathVariable String eventId){
+        return userEventService.getAdminsForEvent(eventId);
     }
 
 }

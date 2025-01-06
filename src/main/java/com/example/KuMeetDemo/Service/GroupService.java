@@ -33,8 +33,7 @@ public class GroupService {
     @Autowired
     private PhotoService photoService;
 
-
-    public ResponseEntity<Groups> createGroup(GroupDto groupDto, MultipartFile photo, String username) {
+    public ResponseEntity<Groups> createGroup(GroupDto groupDto, MultipartFile photo,  String username) {
         // Validate input
         if (groupDto.getName() == null || groupDto.getName().isEmpty() || groupDto.getVisibility() == null || groupDto.getCategories().isEmpty()) {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
@@ -187,7 +186,6 @@ public class GroupService {
 
     }
 
-
     public ResponseEntity<List<Users>> ShowMembers(String groupId) {
         UUID groupID = UUID.fromString(groupId);
         Groups groups = groupRepository.findById(groupID).orElse(null);
@@ -212,4 +210,18 @@ public class GroupService {
         return ResponseEntity.ok(members);
     }
 
+    public ResponseEntity<String> uploadGroupPhoto(String groupId, String imageId) {
+        Photo photo = photoRepository.findById(imageId).orElse(null);
+        if (photo == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Photo not found");
+        }
+        UUID groupID = UUID.fromString(groupId);
+        Groups groups = groupRepository.findById(groupID).orElse(null);
+        if (groups == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
+        }
+        groups.setPhoto(photo);
+        groupRepository.save(groups);
+        return ResponseEntity.ok("Photo uploaded successfully for Event ID: " + groupId);
+    }
 }

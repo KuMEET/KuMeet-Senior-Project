@@ -20,14 +20,13 @@ import java.util.UUID;
 public class EventController {
     @Autowired
     private EventService eventService;
-
     @GetMapping("/get-events")
     public List<Events> getEvents() {
         return eventService.getAllEvents();
     }
     @PostMapping("/create-event/{username}")
     public ResponseEntity<Events> createEvent(@ModelAttribute EventDto event, @RequestParam("photo") MultipartFile photo, @PathVariable String username) {
-        return eventService.createEvent(event, photo, username);
+        return eventService.createEvent(event,photo, username);
     }
     @DeleteMapping("/delete-event")
     public void deleteEvent(@RequestBody Events event) {
@@ -53,5 +52,9 @@ public class EventController {
     @GetMapping("/get-admin-for-events/{eventId}")
     public ResponseEntity<Users> ShowAdmin(@PathVariable String eventId) {
         return eventService.ShowAdmin(eventId);
+    }
+    @PostMapping("/events/{eventId}/{imageId}")
+    public ResponseEntity<String> uploadEventPhoto(@PathVariable String eventId, @PathVariable String imageId) {
+        return eventService.uploadEventPhoto(eventId, imageId);
     }
 }
