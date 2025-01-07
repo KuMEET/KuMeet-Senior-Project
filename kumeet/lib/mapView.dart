@@ -28,6 +28,7 @@ class _MapViewState extends State<MapView> {
     super.initState();
     _fetchInitialLocation().then((_) => _initializeMarkersAndEvents());
   }
+  
 
   Future<void> _fetchInitialLocation() async {
     try {
