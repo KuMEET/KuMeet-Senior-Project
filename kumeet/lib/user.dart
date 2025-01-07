@@ -4,7 +4,7 @@ class User {
   String userName;
   String name;
   String surname;
-  String password;
+  String? password;
   String email;
   List<GroupReference> groupReferenceList;
   List<EventReference> eventReferenceList;
@@ -15,7 +15,7 @@ class User {
     required this.userName,
     required this.name,
     required this.surname,
-    required this.password,
+    this.password,
     required this.email,
     required this.groupReferenceList,
     required this.eventReferenceList,
@@ -31,7 +31,7 @@ class User {
       userName: json['userName'],
       name: json['name'],
       surname: json['surname'],
-      password: json['passWord'], // Ensure this is correct as your JSON has "passWord"
+      password: json['passWord'] ?? 'default_password', // Ensure this is correct as your JSON has "passWord"
       email: json['email'],
       groupReferenceList: List<GroupReference>.from(json['groupReferenceList'].map((x) => GroupReference.fromJson(x))),
       eventReferenceList: List<EventReference>.from(json['eventReferenceList'].map((x) => EventReference.fromJson(x))),
