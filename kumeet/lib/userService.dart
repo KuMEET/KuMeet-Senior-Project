@@ -7,7 +7,8 @@ import 'event.dart';
 
 class UserService {
   late final String baseUrl;
-
+  // for server
+  final String baseUrl2 = 'http://18.184.253.89/api';
   UserService() {
     // Determine the base URL based on the platform
     if (Platform.isAndroid) {
@@ -22,7 +23,7 @@ class UserService {
   Future<String> login(String userName, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/login'),
+        Uri.parse('$baseUrl2/login'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'userName': userName, 'password': password}),
       );
@@ -40,7 +41,7 @@ class UserService {
     try {
 
       final response = await http.post(
-        Uri.parse('$baseUrl/register'),
+        Uri.parse('$baseUrl2/register'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(userData),
       );
@@ -59,7 +60,7 @@ class UserService {
   }
     Future<List<Event>> getUserEvents(String userName) async {
     try {
-      final response = await http.get(Uri.parse('http://localhost:8080/api/get-events-by-username/$userName'));
+      final response = await http.get(Uri.parse('$baseUrl2/get-events-by-username/$userName'));
 
       if (response.statusCode == 200) {
         final List<dynamic> eventReferences = json.decode(response.body);
@@ -74,7 +75,7 @@ class UserService {
  Future<User> find(String userName) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/find/$userName')
+        Uri.parse('$baseUrl2/find/$userName')
       );
 
       if (response.statusCode == 200) {
@@ -88,7 +89,7 @@ class UserService {
     }
   }
 Future<User> updateUser(String userName, User user) async {
-    final url = Uri.parse('$baseUrl/update/$userName');
+    final url = Uri.parse('$baseUrl2/update/$userName');
     try {
       final response = await http.put(
         url,

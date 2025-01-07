@@ -8,7 +8,8 @@ import 'package:path/path.dart' as p;  // For filename utilities
 
 class GroupService {
   late final String baseUrl;
-
+  // for server
+  final String baseUrl2 = 'http://18.184.253.89/api';
   GroupService() {
     // Determine the base URL based on the platform
     if (Platform.isAndroid) {
@@ -21,7 +22,7 @@ class GroupService {
   }
 
   Future<bool> createGroup(Group group, String username, File? imageFile) async {
-  final url = Uri.parse('$baseUrl/creategroup/$username');
+  final url = Uri.parse('$baseUrl2/creategroup/$username');
 
   try {
     final request = http.MultipartRequest('POST', url);
@@ -61,7 +62,7 @@ class GroupService {
 }
 
   Future<bool> addEventToGroup(String groupId, String eventId) async {
-    final url = Uri.parse('$baseUrl/add-event-to-group/$eventId/$groupId');
+    final url = Uri.parse('$baseUrl2/add-event-to-group/$eventId/$groupId');
     try {
       final response = await http.post(url);
       if (response.statusCode == 201 || response.statusCode == 200) {
@@ -74,7 +75,7 @@ class GroupService {
   }
 
   Future<List<Group>> getGroups() async {
-    final url = Uri.parse('$baseUrl/get-groups');
+    final url = Uri.parse('$baseUrl2/get-groups');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -89,7 +90,7 @@ class GroupService {
 
   Future<List<Event>> getEventsforGroups(Group group) async {
     final groupId = group.id;
-    final url = Uri.parse('$baseUrl/get-events-for-groups/$groupId');
+    final url = Uri.parse('$baseUrl2/get-events-for-groups/$groupId');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -104,7 +105,7 @@ class GroupService {
   
 
   Future<List<Group>> getGroupsByUser(String username) async {
-    final url = Uri.parse('$baseUrl/get-groups-by-username/$username');
+    final url = Uri.parse('$baseUrl2/get-groups-by-username/$username');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -117,7 +118,7 @@ class GroupService {
     }
   }
   Future<List<Group>> getGroupsByMember(String username) async {
-    final url = Uri.parse('$baseUrl/get-groups-by-username-only-members/$username');
+    final url = Uri.parse('$baseUrl2/get-groups-by-username-only-members/$username');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -131,7 +132,7 @@ class GroupService {
   }
 
   Future<List<Group>> getOwnedGroups(String userName) async {
-    final url = Uri.parse('$baseUrl/get-groups-for-admin/$userName');
+    final url = Uri.parse('$baseUrl2/get-groups-for-admin/$userName');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -145,7 +146,7 @@ class GroupService {
   }
 
   Future<bool> deleteGroup(Group group) async {
-    final url = Uri.parse('$baseUrl/delete-group');
+    final url = Uri.parse('$baseUrl2/delete-group');
     try {
       final response = await http.delete(
         url,
@@ -162,7 +163,7 @@ class GroupService {
   }
 
   Future<bool> updateGroup(Group group, String? groupId) async {
-    final url = Uri.parse('$baseUrl/update-group/$groupId');
+    final url = Uri.parse('$baseUrl2/update-group/$groupId');
     try {
       final response = await http.post(
         url,
@@ -179,7 +180,7 @@ class GroupService {
   }
   Future<List<User>> showMembersOfGroup(String groupId) async{
       try {
-      final response = await http.get(Uri.parse('$baseUrl/get-members-for-groups/$groupId'));
+      final response = await http.get(Uri.parse('$baseUrl2/get-members-for-groups/$groupId'));
       if (response.statusCode == 200) {
         final List<dynamic> members = json.decode(response.body);
         return members.map((json) => User.fromJson(json)).toList();
@@ -191,7 +192,7 @@ class GroupService {
     }
   }
   Future<List<User>> showAdminsOfGroup(String groupId) async {
-  final url = Uri.parse('$baseUrl/get-admins-for-group/$groupId');
+  final url = Uri.parse('$baseUrl2/get-admins-for-group/$groupId');
   try {
     final response = await http.get(url);
     if (response.statusCode == 200) {
@@ -214,7 +215,7 @@ class GroupService {
   }
 }
     Future<bool> deleteMemberFromGroup(String userName,String eventId) async {
-    final url = Uri.parse('$baseUrl/remove-from-event/$userName/$eventId');
+    final url = Uri.parse('$baseUrl2/remove-from-event/$userName/$eventId');
     try {
       final response = await http.delete(url);
 
@@ -230,7 +231,7 @@ class GroupService {
     }
   }
       Future<bool> updateMemberRoleInGroup(String userName, String eventId,String role) async {
-    final url = Uri.parse('$baseUrl/update-role-event/$userName/$eventId/$role');
+    final url = Uri.parse('$baseUrl2/update-role-event/$userName/$eventId/$role');
     try {
       final response = await http.put(url);
       if (response.statusCode == 201 || response.statusCode == 200) {

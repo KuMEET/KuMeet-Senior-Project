@@ -48,6 +48,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     setState(() {
       _isJoining = true;
     });
+    // for server
+    final String baseUrl2 = 'http://18.184.253.89/api';
     if (Platform.isAndroid) {
       baseUrl = 'http://10.0.2.2:8080/api'; // Android emulator uses 10.0.2.2 for localhost
     } else if (Platform.isIOS) {
@@ -55,7 +57,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     } else {
       baseUrl = 'http://localhost:8080/api'; // macOS, web, etc.
     }
-    final url = Uri.parse('$baseUrl/add-to-group/$userName/${widget.group.id}');
+    final url = Uri.parse('$baseUrl2/add-to-group/$userName/${widget.group.id}');
     try {
       final response = await http.post(url, headers: {'Content-Type': 'application/json'});
 
