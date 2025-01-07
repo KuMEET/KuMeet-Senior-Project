@@ -1,11 +1,23 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:kumeet/user.dart';
 import 'event.dart';
 
 class UserService {
-  final String baseUrl = 'http://localhost:8080/api';
+  late final String baseUrl;
+
+  UserService() {
+    // Determine the base URL based on the platform
+    if (Platform.isAndroid) {
+      baseUrl = 'http://10.0.2.2:8080/api'; // Android emulator uses 10.0.2.2 for localhost
+    } else if (Platform.isIOS) {
+      baseUrl = 'http://localhost:8080/api'; // iOS simulator uses localhost
+    } else {
+      baseUrl = 'http://localhost:8080/api'; // macOS, web, etc.
+    }
+  }
 
   Future<String> login(String userName, String password) async {
     try {

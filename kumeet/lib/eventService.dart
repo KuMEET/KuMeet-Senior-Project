@@ -7,7 +7,18 @@ import 'package:kumeet/userReference.dart';
 import 'package:path/path.dart' as p;  // For filename utilities
 
 class EventService {
-  final String baseUrl = 'http://localhost:8080/api';
+  late final String baseUrl;
+
+  EventService() {
+    // Determine the base URL based on the platform
+    if (Platform.isAndroid) {
+      baseUrl = 'http://10.0.2.2:8080/api'; // Android emulator uses 10.0.2.2 for localhost
+    } else if (Platform.isIOS) {
+      baseUrl = 'http://localhost:8080/api'; // iOS simulator uses localhost
+    } else {
+      baseUrl = 'http://localhost:8080/api'; // macOS, web, etc.
+    }
+  }
 
   // Method to create an event
   Future<bool> createEvent(Event event, String username, File? imageFile) async {
