@@ -4,12 +4,10 @@ import com.example.KuMeetDemo.Dto.EventDto;
 import com.example.KuMeetDemo.Dto.GroupDto;
 import com.example.KuMeetDemo.Dto.GroupReference;
 import com.example.KuMeetDemo.Dto.UserReference;
-import com.example.KuMeetDemo.Model.Categories;
-import com.example.KuMeetDemo.Model.Events;
-import com.example.KuMeetDemo.Model.Groups;
-import com.example.KuMeetDemo.Model.Users;
+import com.example.KuMeetDemo.Model.*;
 import com.example.KuMeetDemo.Repository.EventRepository;
 import com.example.KuMeetDemo.Repository.GroupRepository;
+import com.example.KuMeetDemo.Repository.PhotoRepository;
 import com.example.KuMeetDemo.Repository.UserRepository;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -29,8 +28,12 @@ public class GroupService {
     private UserRepository userRepository;
     @Autowired
     private EventRepository eventRepository;
+    @Autowired
+    private PhotoRepository photoRepository;
+    @Autowired
+    private PhotoService photoService;
 
-    public ResponseEntity<Groups> createGroup(GroupDto groupDto, String username) {
+    public ResponseEntity<Groups> createGroup(GroupDto groupDto, MultipartFile photo,  String username) {
         // Validate input
         if (groupDto.getName() == null || groupDto.getName().isEmpty() || groupDto.getVisibility() == null || groupDto.getCategories().isEmpty()) {
             return ResponseEntity.badRequest().body(null); // 400 Bad Request
@@ -40,6 +43,10 @@ public class GroupService {
         }
         // tüm grupları getircem isimleri aynı olabilir
         //
+
+
+
+
 
         Users existingUser = userRepository.findByUserName(username);
         if (existingUser == null) {
@@ -58,6 +65,24 @@ public class GroupService {
                 .findFirst()
                 .ifPresent(group::setCategories);
 
+        if (photo != null && !photo.isEmpty()) {
+            ResponseEntity<String> photoIdResponse = photoService.addPhoto(groupDto.getName() + " Photo", photo);
+            if (photoIdResponse.getStatusCode().equals(HttpStatus.OK)) {
+                String photoId = photoIdResponse.getBody();
+                Photo photoInsert = photoRepository.findById(photoId).orElse(null);
+                if (photoInsert == null) {
+                    return ResponseEntity.badRequest().body(null);
+                }
+                group.setPhoto(photoInsert);
+            }
+            else{
+                return ResponseEntity.badRequest().body(null);
+            }
+        }
+        else{
+            return ResponseEntity.badRequest().body(null);
+        }
+
         List<UserReference> groupMembers = new ArrayList<>();
         UserReference userInfo = new UserReference();
         userInfo.setUserId(existingUser.getId());
@@ -68,7 +93,7 @@ public class GroupService {
         group.setMembers(groupMembers);
         try {
             Groups savedGroup = groupRepository.save(group);
-            List<GroupReference> groupReferenceList = new ArrayList<>();
+            List<GroupReference> groupReferenceList = existingUser.getGroupReferenceList();
             GroupReference groupReference = new GroupReference();
             groupReference.setRole("Admin");
             groupReference.setGroupId(group.getId());
@@ -159,5 +184,44 @@ public class GroupService {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 
 
+    }
+
+    public ResponseEntity<List<Users>> ShowMembers(String groupId) {
+        UUID groupID = UUID.fromString(groupId);
+        Groups groups = groupRepository.findById(groupID).orElse(null);
+        if (groups == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        List<UserReference> participants = groups.getMembers();
+        if (participants.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        List<Users> members = new ArrayList<>();
+        participants.forEach(
+                member -> {
+                    if (member.getStatus().equals("Approved") && member.getRole().equals("Member")) {
+                        Users user = userRepository.findById(member.getUserId()).orElse(null);
+                        if (user != null) {
+                            members.add(user);
+                        }
+                    }
+                }
+        );
+        return ResponseEntity.ok(members);
+    }
+
+    public ResponseEntity<String> uploadGroupPhoto(String groupId, String imageId) {
+        Photo photo = photoRepository.findById(imageId).orElse(null);
+        if (photo == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Photo not found");
+        }
+        UUID groupID = UUID.fromString(groupId);
+        Groups groups = groupRepository.findById(groupID).orElse(null);
+        if (groups == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Event not found");
+        }
+        groups.setPhoto(photo);
+        groupRepository.save(groups);
+        return ResponseEntity.ok("Photo uploaded successfully for Event ID: " + groupId);
     }
 }

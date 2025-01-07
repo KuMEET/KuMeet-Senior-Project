@@ -4,11 +4,13 @@ package com.example.KuMeetDemo.controller;
 import com.example.KuMeetDemo.Dto.GroupDto;
 import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Model.Groups;
+import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Service.GroupService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,8 +24,8 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/creategroup/{username}")
-    public ResponseEntity<Groups> GroupCreate(@RequestBody GroupDto group, @PathVariable String username) {
-        return groupService.createGroup(group, username);
+    public ResponseEntity<Groups> GroupCreate(@ModelAttribute GroupDto group, @RequestParam("photo") MultipartFile photo, @PathVariable String username) {
+        return groupService.createGroup(group,photo,username);
     }
 
     @GetMapping("/get-groups")
@@ -45,6 +47,14 @@ public class GroupController {
     @GetMapping("/get-all-groups-category/{category}")
     public ResponseEntity<List<Groups>> FilterGroupsBasedOnCategories(@PathVariable String category) {
         return groupService.FilterGroupsBasedOnCategories(category);
+    }
+    @GetMapping("/get-members-for-groups/{groupId}")
+    public ResponseEntity<List<Users>> ShowMembers(@PathVariable String groupId) {
+        return groupService.ShowMembers(groupId);
+    }
+    @PostMapping("/groups/{groupId}/{imageId}")
+    public ResponseEntity<String> uploadEventPhoto(@PathVariable String groupId, @PathVariable String imageId) {
+        return groupService.uploadGroupPhoto(groupId, imageId);
     }
 
 

@@ -170,39 +170,4 @@ public class GroupEventService {
         return ResponseEntity.ok(eventsList);
 
     }
-
-
-
-
-
-
-
-
-
-
-    // user kendisi direkt olarak event create edebilir
-    // user kendisi group create edebilir
-    // user group create ettikten sonra group'un icerisinde de event create edebilir
-    // eventleri listelemek ise grouplardan ve visibility durumlarından bagımsız olarak gösterilmeli
-    // grouplar eventlerini gösterebilmeli (gecmis ve gelecek olacak sekilde)
-    // grouplardan eventlar silinebilir
-    // group silindigi zaman ise eventlar da eğer bağlı ise otomatik olarak o eventların da silinmesi gerekiyor (delete group kısmında bunu check etmeliyiz)
-    // groupun icerisinde eventa katılanlar ve düzenleyenler de gözükmeli
-    // group tarafından oluşturulan eventlar icin frontend tarafında grouptan category bilgisi cekilip event categorisi otomatik olarak setlenebilir.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

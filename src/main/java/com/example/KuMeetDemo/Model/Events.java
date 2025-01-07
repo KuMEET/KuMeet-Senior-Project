@@ -25,6 +25,7 @@ public class Events {
     private boolean visibility;
     private Categories categories;
     private UUID groupID;
+    private Photo photo;
     private List<UserReference> participants = new ArrayList<>();
 
 }

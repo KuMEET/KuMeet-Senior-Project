@@ -3,6 +3,7 @@ package com.example.KuMeetDemo.Service;
 import com.example.KuMeetDemo.Dto.EventReference;
 import com.example.KuMeetDemo.Dto.GroupReference;
 import com.example.KuMeetDemo.Dto.UserReference;
+import com.example.KuMeetDemo.Model.Events;
 import com.example.KuMeetDemo.Model.Groups;
 import com.example.KuMeetDemo.Model.Users;
 import com.example.KuMeetDemo.Repository.GroupRepository;
@@ -200,14 +201,14 @@ public class UserGroupService {
         List<Groups> groups = new ArrayList<>();
         if (groupReferenceList != null) {
             for (GroupReference groupReference : groupReferenceList) {
-                Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
-                if (groupReference.getStatus().equals("Pending")){
-                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+                if (groupReference.getStatus().equals("Approved")) {
+                    Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
+                    if (group == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                    }
+                    groups.add(group);
+
                 }
-                if (group == null) {
-                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-                }
-                groups.add(group);
             }
         }
         return ResponseEntity.ok(groups);
@@ -237,6 +238,55 @@ public class UserGroupService {
         }
         return ResponseEntity.ok(groups);
     }
+
+    public ResponseEntity<List<Users>> getAdminsForGroup(String groupId) {
+        UUID groupID = UUID.fromString(groupId);
+        Groups groups = groupRepository.findById(groupID).orElse(null);
+        if (groups == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        List<UserReference> userReferenceList = groups.getMembers();
+        List<Users> users = new ArrayList<>();
+        if (userReferenceList != null) {
+            for (UserReference userReference : userReferenceList) {
+                String role = userReference.getRole();
+                if (role.equals("Admin")) {
+                    Users user = userRepository.findById(userReference.getUserId()).orElse(null);
+                    if (user != null) {
+                        users.add(user);
+                    }
+                }
+            }
+        }
+        if (users.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+        return ResponseEntity.ok(users);
+    }
+
+
+    public ResponseEntity<List<Groups>> getGroupsByUsernameOnlyMembers(String userName){
+        Users user = userRepository.findByUserName(userName);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        List<GroupReference> groupReferenceList = user.getGroupReferenceList();
+        List<Groups> groups = new ArrayList<>();
+        if (groupReferenceList != null) {
+            for (GroupReference groupReference : groupReferenceList) {
+                if (groupReference.getStatus().equals("Approved") && groupReference.getRole().equals("Member")) {
+                    Groups group = groupRepository.findById(groupReference.getGroupId()).orElse(null);
+                    if (group == null) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                    }
+                    groups.add(group);
+
+                }
+            }
+        }
+        return ResponseEntity.ok(groups);
+    }
+
 
     public ResponseEntity<List<UserReference>> viewPendingUsersForGroup(UUID groupId) {
         Groups group = groupRepository.findById(groupId).orElse(null);
@@ -327,9 +377,5 @@ public class UserGroupService {
         groupRepository.save(group);
         return ResponseEntity.ok(String.format("User with id %s rejected for group %s.", userId, groupId));
     }
-
-
-
-
 
 }

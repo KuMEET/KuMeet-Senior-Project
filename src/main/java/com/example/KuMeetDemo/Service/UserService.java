@@ -10,13 +10,12 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Data
 @Service
@@ -27,6 +26,8 @@ public class UserService {
     private GroupRepository groupRepository;
     @Autowired
     private EventRepository eventRepository;
+    @Autowired
+    private EmailService emailService;
 
     // create method
     public ResponseEntity<Users> registerUser(UserDto userDto) {
@@ -51,7 +52,8 @@ public class UserService {
         user.setName(userDto.getName());
         user.setSurname(userDto.getSurname());
         user.setEMail(userDto.getEmail());
-        user.setPassWord(userDto.getPassword());
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassWord(passwordEncoder.encode(userDto.getPassword()));
         user.setCreatedAt(new Date(System.currentTimeMillis()));
         user.setId(UUID.randomUUID());
 
@@ -60,22 +62,37 @@ public class UserService {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser); // 201 Created
     }
 
+    public String validateUser(String token) {
+        Users user = userRepository.findByVerificationToken(token).orElse(null);
+        if (user == null) {
+            return "Invalid user";
+        }
+        user.setEnabled(true);
+        userRepository.save(user);
+        return "Valid user";
+    }
+
+
     public Users findUserByUserId(UUID userId) {
         Users user = userRepository.findById(userId).get();
         if (ObjectUtils.isEmpty(user)) {
             return null;
         }
-        return user;
+        if (user.isEnabled()) {
+            return user;
+        }
+        return null;
     }
 
     public Users updateUser(String userName, UserDto userDto) {
         Users user = userRepository.findByUserName(userName);
-        if(!ObjectUtils.isEmpty(user)){
+        if (!ObjectUtils.isEmpty(user) && user.isEnabled()) {
             user.setUserName(userDto.getUserName());
             user.setName(userDto.getName());
             user.setSurname(userDto.getSurname());
             user.setEMail(userDto.getEmail());
-            user.setPassWord(userDto.getPassword());
+            PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+            user.setPassWord(passwordEncoder.encode(userDto.getPassword()));
             user.setCreatedAt(new Date(System.currentTimeMillis()));
             user = userRepository.save(user);
             return user;
@@ -88,20 +105,20 @@ public class UserService {
 
     public Users deleteUser(UUID userId) {
         Users user = userRepository.findById(userId).orElse(null);
-        for (Groups group : groupRepository.findAll()){
-            for (UserReference userReference : group.getMembers()){
-                if (userReference.getUserId().equals(user.getId())){
-                   group.setMemberCount(group.getMemberCount() - 1);
-                   group.getMembers().remove(userReference);
-                   groupRepository.save(group);
+        for (Groups group : groupRepository.findAll()) {
+            for (UserReference userReference : group.getMembers()) {
+                if (userReference.getUserId().equals(user.getId())) {
+                    group.setMemberCount(group.getMemberCount() - 1);
+                    group.getMembers().remove(userReference);
+                    groupRepository.save(group);
                     break;
                 }
             }
         }
 
-        for (Events events : eventRepository.findAll()){
-            for (UserReference userReference : events.getParticipants()){
-                if (userReference.getUserId().equals(user.getId())){
+        for (Events events : eventRepository.findAll()) {
+            for (UserReference userReference : events.getParticipants()) {
+                if (userReference.getUserId().equals(user.getId())) {
                     events.setParticipantCount(events.getParticipantCount() - 1);
                     events.getParticipants().remove(userReference);
                     eventRepository.save(events);
@@ -112,16 +129,40 @@ public class UserService {
         userRepository.delete(user);
         return user;
     }
+
     public List<Users> getAllUsers() {
-       return userRepository.findAll();
+        List<Users> enabledUsers = new ArrayList<Users>();
+        List<Users> users = userRepository.findAll();
+        users.forEach(x -> {
+            if (x.isEnabled()) {
+                enabledUsers.add(x);
+            }
+        });
+        return enabledUsers;
     }
 
     public Users findUser(UUID userId) {
-        return userRepository.findById(userId).orElse(null);
+        Users user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return null;
+        } else {
+            if (user.isEnabled()) {
+                return user;
+            }
+        }
+        return null;
+
     }
-
-
     public Users findByUserName(String userName) {
-        return userRepository.findByUserName(userName);
+        Users user = userRepository.findByUserName(userName);
+        if (user == null) {
+            return null;
+        }
+        else {
+            if (user.isEnabled()) {
+                return user;
+            }
+        }
+        return null;
     }
 }
