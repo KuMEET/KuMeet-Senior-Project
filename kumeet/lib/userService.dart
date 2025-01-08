@@ -30,6 +30,9 @@ class UserService {
 
       if (response.statusCode == 200) {
         return response.body; // Parse and return the JSON response
+      }
+      else if(response.statusCode == 409){
+        throw Exception('Please verify your email!  ${response.statusCode}');
       } else {
         throw Exception('Failed to login: ${response.statusCode}');
       }
